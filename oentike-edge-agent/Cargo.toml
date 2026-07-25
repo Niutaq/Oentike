@@ -1,0 +1,12 @@
+[package]
+name = "oentike-edge-agent"
+version = "0.1.0"
+edition = "2026"
+
+[dependencies]
+tonic = "0.12"
+prost = "0.13"
+tokio = { version = "1.40", features = ["macros", "rt-multi-thread"] }
+
+[build-dependencies]
+tonic-build = "0.12"

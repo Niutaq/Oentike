@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package oentike.fingate;
+
+option go_package = "oentike-control-plane/api/v1";
+
+message TransactionRequest {
+    string account_name = 1;
+    int64 value = 2;
+    string currency = 3;
+    int32 transaction_id = 4;
+}
+
+message UsageResponse {
+    string CPU = 1;
+    string Memory = 2;
+}
+
+message UsageRequest {
+    string agent_id = 1;
+}
+
+service FingateService {
+    rpc GetUsage(UsageRequest) returns (UsageResponse);
+    rpc StreamUsage(stream UsageRequest) returns (UsageResponse);
+}

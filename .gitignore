@@ -1,0 +1,29 @@
+# Rust
+**/target/
+**/*.rs.bk
+*.pdb
+
+# Go
+/bin/
+/obj/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Mise / Env
+.mise.toml
+.env
+
+# OS / Editor
+.DS_Store
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
