@@ -1,12 +1,13 @@
 [package]
 name = "oentike-edge-agent"
 version = "0.1.0"
-edition = "2026"
+edition = "2021"
 
 [dependencies]
 tonic = "0.12"
 prost = "0.13"
 tokio = { version = "1.40", features = ["macros", "rt-multi-thread"] }
+iced = { version = "0.12", default-features = false, features = ["tokio", "fira-sans"] }
 
 [build-dependencies]
 tonic-build = "0.12"

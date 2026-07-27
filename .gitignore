@@ -27,3 +27,8 @@
 *.njsproj
 *.sln
 *.sw?
+
+# Local Project Docs
+STATUS.md
+cel.txt
+inspiration.png

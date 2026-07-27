@@ -1,0 +1,25 @@
+version: '3'
+
+tasks:
+  nats:
+    desc: "Uruchamia serwer NATS z obsługą JetStream (do zdarzeń FinOps)"
+    cmds:
+      - nix-shell -p nats-server --run "nats-server -js"
+
+  server:
+    desc: "Uruchamia serwer Go (Control Plane) na porcie 50051"
+    dir: oentike-control-plane
+    cmds:
+      - go run main.go
+
+  agent:
+    desc: "Kompiluje i uruchamia agenta Rust z UI (Edge Agent)"
+    dir: oentike-edge-agent
+    cmds:
+      - nix-shell --run "cargo run"
+
+  dev:
+    desc: "Uruchamia serwer Go w tle i włącza UI Agenta"
+    deps: [server]
+    cmds:
+      - task: agent
