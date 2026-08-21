@@ -1,7 +1,7 @@
 <div align="center">
   
-# ZT-FinGate: Zero-Trust Financial Gateway
-**Enterprise Cloud Cost Control & AI Governance Platform**
+# Oentike
+**Cost Control & Governance Platform**
 
 ![Current State (21-08-2026)](./state_21-08-2026.png)
 
@@ -11,7 +11,7 @@
 [![NATS](https://img.shields.io/badge/Event_Bus-NATS_JetStream-green?style=for-the-badge&logo=nats)](https://nats.io)
 [![SPIFFE](https://img.shields.io/badge/Security-SPIFFE%20%2F%20mTLS-red?style=for-the-badge)](https://spiffe.io)
 
-*Modern IT encounters two critical challenges: uncontrollable cloud waste (FinOps) and unpredictable AI decisions (AI Governance). ZT-FinGate solves both by establishing a cryptographically secure, multi-agent gateway.*
+*Modern IT encounters two critical challenges: uncontrollable cloud waste and unpredictable decisions. Oentike solves both by establishing a cryptographically secure, multi-agent gateway.*
 
 ---
 </div>
@@ -58,4 +58,4 @@ Microservices communicate asynchronously via NATS JetStream. This provides an im
 6. The state change is streamed instantly via WebSockets to the Astro Dashboard, rendering rich FinOps visualizations.
 
 ---
-*Developed as a comprehensive proof-of-concept for next-generation Cloud Architecture, FinOps, and DevSecOps.*
+*Developed as a comprehensive proof-of-concept for Cloud Architecture, FinOps, and DevSecOps.*
