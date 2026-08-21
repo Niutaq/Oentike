@@ -26,24 +26,24 @@ Instead of static rules, it uses a Multi-Agent LLM System to analyze requests ba
 
 ```mermaid
 graph TD
-    subedge[Edge / Desktop]
+    subgraph edge [Edge / Desktop]
         A[Rust Edge Agent]
-    endsubedge
+    end
 
-    subcontrol[Control Plane]
+    subgraph control [Control Plane]
         B(Envoy WASM Tollbooth)
         C[Go Gateway]
         D{NATS JetStream}
-    endsubcontrol
+    end
     
-    subai[AI Governance]
+    subgraph ai [AI Governance]
         F[Python AI Orchestrator]
         G((Ollama Qwen-VL))
-    endsubai
+    end
     
-    subui[Observability]
+    subgraph ui [Observability]
         E[Astro Web UI]
-    endsubui
+    end
 
     A -- "mTLS (gRPC)" --> B
     B -- "mTLS (gRPC)" --> C
