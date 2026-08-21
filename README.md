@@ -3,9 +3,9 @@
 # ZT-FinGate: Zero-Trust Financial Gateway
 **Enterprise Cloud Cost Control & AI Governance Platform**
 
-[![Rust](https://img.shields.io/badge/Edge_Agent-Rust-orange?style=for-the-badge&logo=rust)](https://rust-lang.org)
-[![Go](https://img.shields.io/badge/Control_Plane-Go-blue?style=for-the-badge&logo=go)](https://golang.org)
-[![Python](https://img.shields.io/badge/AI_Orchestrator-Python-yellow?style=for-the-badge&logo=python)](https://python.org)
+[![Rust](https://img.shields.io/badge/Edge_Agent-orange?style=for-the-badge&logo=rust)](https://rust-lang.org)
+[![Go](https://img.shields.io/badge/Control_Plane-blue?style=for-the-badge&logo=go)](https://golang.org)
+[![Python](https://img.shields.io/badge/AI_Orchestrator-yellow?style=for-the-badge&logo=python)](https://python.org)
 [![NATS](https://img.shields.io/badge/Event_Bus-NATS_JetStream-green?style=for-the-badge&logo=nats)](https://nats.io)
 [![SPIFFE](https://img.shields.io/badge/Security-SPIFFE%20%2F%20mTLS-red?style=for-the-badge)](https://spiffe.io)
 
