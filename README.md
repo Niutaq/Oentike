@@ -5,13 +5,13 @@
 
 ![Current State (21-08-2026)](./state_21-08-2026.png)
 
-[![Rust](https://img.shields.io/badge/Edge_Agent-orange?style=for-the-badge&logo=rust)](https://rust-lang.org)
-[![Go](https://img.shields.io/badge/Control_Plane-blue?style=for-the-badge&logo=go)](https://golang.org)
-[![Python](https://img.shields.io/badge/AI_Orchestrator-yellow?style=for-the-badge&logo=python)](https://python.org)
-[![NATS](https://img.shields.io/badge/Event_Bus-NATS_JetStream-green?style=for-the-badge&logo=nats)](https://nats.io)
-[![SPIFFE](https://img.shields.io/badge/Security-SPIFFE%20%2F%20mTLS-red?style=for-the-badge)](https://spiffe.io)
+[![Rust](https://img.shields.io/badge/Edge_Agent-orange?style=for-the-badge&logo=rust)](./oentike-edge-agent)
+[![Go](https://img.shields.io/badge/Control_Plane-blue?style=for-the-badge&logo=go)](./oentike-control-plane)
+[![Python](https://img.shields.io/badge/AI_Orchestrator-yellow?style=for-the-badge&logo=python)](./oentike-ai-orchestrator)
+[![NATS](https://img.shields.io/badge/Event_Bus-NATS_JetStream-green?style=for-the-badge&logo=nats)](./nats.conf)
+[![SPIFFE](https://img.shields.io/badge/Security-SPIFFE%20%2F%20mTLS-red?style=for-the-badge)](./spire)
 
-*Modern IT encounters two critical challenges: uncontrollable cloud waste and unpredictable decisions. Oentike solves both by establishing a cryptographically secure, multi-agent gateway.*
+*Modern IT encounters two critical challenges: uncontrollable cloud waste (FinOps) and unpredictable AI decisions (AI Governance). ZT-FinGate solves both by establishing a cryptographically secure, multi-agent gateway.*
 
 ---
 </div>
@@ -65,7 +65,7 @@ graph TD
 <tr>
 <td width="50%">
 
-### 🛡️ 1. Zero-Trust Networking
+### 1. Zero-Trust Networking
 *(SPIFFE/SPIRE & mTLS)*
 
 No application is trusted by default, regardless of its network location.
@@ -75,7 +75,7 @@ No application is trusted by default, regardless of its network location.
 </td>
 <td width="50%">
 
-### 🧠 2. AI Governance
+### 2. AI Governance
 *(LangGraph & Qwen-VL)*
 
 AI models shouldn't govern resources without strict oversight. We utilize local LLMs via **Ollama**.
@@ -87,7 +87,7 @@ AI models shouldn't govern resources without strict oversight. We utilize local 
 <tr>
 <td width="50%">
 
-### 📊 3. FinOps Standard
+### 3. FinOps Standard
 *(FOCUS)*
 
 All financial events are normalized to the FOCUS (FinOps Open Cost & Usage Specification) standard. 
@@ -96,7 +96,7 @@ Costs are tracked, categorized, and streamed in real-time, providing total visib
 </td>
 <td width="50%">
 
-### ⚡ 4. Event-Driven Backbone
+### 4. Event-Driven Backbone
 *(NATS JetStream)*
 
 Microservices communicate asynchronously via NATS JetStream. 
