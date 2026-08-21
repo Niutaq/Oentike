@@ -1,0 +1,5 @@
+nats-py==2.9.0
+langgraph==0.1.7
+langchain==0.2.7
+pydantic==2.8.2
+langchain-ollama

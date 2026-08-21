@@ -1,0 +1,301 @@
+---
+import '../styles/global.css';
+import TopologyGraph from '../components/TopologyGraph.astro';
+---
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Oentike FinOps</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar glass-panel">
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <h2>Oentike</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active">
+                    <span class="icon">W</span>
+                    <span>Workload Topology</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">F</span>
+                    <span>FinOps Metrics (FOCUS)</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">Z</span>
+                    <span>Zero-Trust mTLS</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">R</span>
+                    <span>Routing Policies</span>
+                </a>
+            </nav>
+            <div class="agent-status">
+                <div class="status-indicator pulsing"></div>
+                <span>Edge Agent Online</span>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="search-bar glass-panel">
+                    <span class="search-icon">/</span>
+                    <input type="text" placeholder="Search transactions, budgets..." />
+                </div>
+                <div class="user-profile">
+                    <div class="avatar">
+                        <img src="https://ui-avatars.com/api/?name=Admin+User&background=ff7b00&color=fff" alt="User Avatar" />
+                    </div>
+                </div>
+            </header>
+
+            <section class="dashboard-grid">
+                <!-- Welcome Banner -->
+                <div class="welcome-card glass-panel gradient-border">
+                    <div class="card-content">
+                        <h1>Zero-Trust FinOps Router</h1>
+                        <p>Dynamic workload allocation across DigitalOcean and Edge nodes based on real-time cost telemetry.</p>
+                    </div>
+                    <div class="hero-graphic">
+                        <div class="orb orb-1"></div>
+                        <div class="orb orb-2"></div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="stat-card glass-panel">
+                    <span class="stat-title">DigitalOcean Burn Rate</span>
+                    <h3 class="stat-value">$<span id="total-cost">0.00</span>/hr</h3>
+                    <span class="stat-change positive">Active Workloads</span>
+                </div>
+                
+                <div class="stat-card glass-panel">
+                    <span class="stat-title">Total Workloads Processed</span>
+                    <h3 class="stat-value" id="workload-count">0</h3>
+                    <span class="stat-change neutral">LangGraph routing active</span>
+                </div>
+
+                <!-- Real-time Telemetry Charts -->
+                <div class="charts-card glass-panel" style="grid-column: span 3; padding: 1.5rem;">
+                    <div class="card-header" style="margin-bottom: 1rem;">
+                        <h3 style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span class="status-indicator pulsing"></span> Live Telemetry Streams
+                        </h3>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; height: 180px;">
+                        <div style="position: relative; width: 100%; height: 100%;">
+                            <canvas id="cpuChart"></canvas>
+                        </div>
+                        <div style="position: relative; width: 100%; height: 100%;">
+                            <canvas id="latencyChart"></canvas>
+                        </div>
+                        <div style="position: relative; width: 100%; height: 100%;">
+                            <canvas id="identitiesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3D Topology Graph -->
+                <div class="topology-card glass-panel" style="grid-column: span 3;">
+                    <div class="card-header">
+                        <h3>Dynamic Network Topology</h3>
+                    </div>
+                    <TopologyGraph />
+                </div>
+
+                <!-- Recent Activity List -->
+                <div class="activity-card glass-panel" style="grid-column: span 3;">
+                    <div class="card-header">
+                        <h3>Workload Routing Log</h3>
+                    </div>
+                    <div class="activity-list">
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script>
+        import { connect, StringCodec } from "nats.ws";
+        import Chart from 'chart.js/auto';
+        
+        const sc = StringCodec();
+        let totalCost = 0.0;
+        let workloadCount = 0;
+        
+        // --- Chart.js Setup ---
+        const maxDataPoints = 30;
+        const createChart = (ctx, label, color) => {
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array(maxDataPoints).fill(''),
+                    datasets: [{
+                        label: label,
+                        data: Array(maxDataPoints).fill(0),
+                        borderColor: color,
+                        backgroundColor: color + '33',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 0 },
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8', font: { family: 'Outfit', size: 10 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { color: '#e2e8f0', font: { family: 'Outfit', size: 12 } }
+                        },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+        };
+
+        const cpuChart = createChart(document.getElementById('cpuChart'), 'CPU Proc Time (µs)', '#ff7b00');
+        const latencyChart = createChart(document.getElementById('latencyChart'), 'mTLS Latency (ms)', '#6366f1');
+        const identitiesChart = createChart(document.getElementById('identitiesChart'), 'Active SVIDs (Workloads)', '#10b981');
+
+        function updateChart(chart, value) {
+            chart.data.datasets[0].data.push(value);
+            chart.data.datasets[0].data.shift();
+            chart.update();
+        }
+        // -----------------------
+
+        async function initNats() {
+            try {
+                const nc = await connect({ servers: "ws://localhost:9222" });
+                console.log("Connected to Oentike NATS Server!");
+                
+                const sub = nc.subscribe("FINOPS.ai_processed");
+                
+                (async () => {
+                    for await (const msg of sub) {
+                        try {
+                            const data = JSON.parse(sc.decode(msg.data));
+                            console.log("Oentike NATS Event Received:", data);
+                            addActivityItem(data);
+                            
+                            // Trigger 3D graph animation if the global function exists
+                            if (window.triggerNetworkTraffic) {
+                                window.triggerNetworkTraffic();
+                            }
+                            
+                            // Update Live Charts
+                            if (data.metrics && data.charge_category !== 'Deep Analysis') {
+                                updateChart(cpuChart, data.metrics.server_proc_time_us || 0);
+                                updateChart(latencyChart, data.metrics.client_mtls_setup_ms || 0);
+                            }
+                            if (data.status === 'ROUTED') {
+                                updateChart(identitiesChart, workloadCount);
+                            }
+                        } catch(e) {
+                            console.error("Failed to parse incoming message", e);
+                        }
+                    }
+                })();
+            } catch (err) {
+                console.error("Failed to connect to NATS WebSockets", err);
+            }
+        }
+
+        function addActivityItem(data) {
+            const list = document.querySelector('.activity-list');
+            if (!list) return;
+
+            const item = document.createElement('div');
+            item.className = 'activity-item fade-in';
+            
+            item.addEventListener('click', () => {
+                item.classList.toggle('expanded');
+            });
+            
+            const isRouted = data.status === 'ROUTED';
+            let statusClass = isRouted ? 'status-approved' : 'status-rejected';
+            
+            item.innerHTML = `
+                <div class="activity-item-main">
+                    <div class="item-details">
+                        <span class="item-name">${data.workload?.type || 'UNKNOWN WORKLOAD'}</span>
+                        <div class="tags-row">
+                            <span class="tag tag-category">${data.charge_category || 'Compute'}</span>
+                            <span class="tag tag-risk-low">${data.routed_provider || 'NONE'}</span>
+                        </div>
+                    </div>
+                    <div class="item-telemetry" style="display: flex; gap: 1rem; align-items: center; font-size: 0.75rem; color: #94a3b8; margin-right: 1.5rem; font-family: monospace; border-right: 1px solid #334155; padding-right: 1.5rem;">
+                        <div>mTLS: ${data.metrics?.client_mtls_setup_ms || 0}ms</div>
+                        <div>Payload: ${data.metrics?.payload_bytes_out || 0}B</div>
+                        <div>CPU: ${data.metrics?.server_proc_time_us || 0}µs</div>
+                    </div>
+                    <div class="item-status ${statusClass}">${data.status}</div>
+                    <div class="item-amount">$${(data.estimated_cost || 0).toFixed(2)}</div>
+                </div>
+                <div class="activity-item-details">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
+                        <div>
+                            <p style="font-size: 0.85rem; margin-bottom: 0.5rem; color: #cbd5e1;"><strong>Agent ID:</strong> ${data.agent_id || 'N/A'}</p>
+                            <p style="font-size: 0.85rem; margin-bottom: 0.5rem; color: #cbd5e1;"><strong>Est. CPU Cycles:</strong> ${data.workload?.cpu_cycles || 0}</p>
+                            <p style="font-size: 0.85rem; color: #cbd5e1;"><strong>Est. Memory:</strong> ${data.workload?.memory_mb || 0} MB</p>
+                        </div>
+                        <div class="ai-reasoning" style="background: rgba(30,41,59,0.3); padding: 0.8rem; border-radius: 4px; border: 1px solid rgba(148, 163, 184, 0.1);">
+                            <h4 style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; color: #64748b;">FinOps Policy Engine</h4>
+                            <p style="font-size: 0.85rem; margin-bottom: 0.5rem; color: #cbd5e1;"><strong>Decision:</strong> ${data.reasoning || 'No details provided.'}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            list.prepend(item);
+            
+            if (list.children.length > 8) {
+                list.removeChild(list.lastChild);
+            }
+            
+            updateStats(isRouted ? (data.estimated_cost || 0) : 0);
+        }
+
+        function updateStats(amountAdded) {
+            workloadCount++;
+            const wpEl = document.getElementById('workload-count');
+            if (wpEl) wpEl.textContent = workloadCount;
+
+            if (amountAdded > 0) {
+                totalCost += amountAdded;
+                const costEl = document.getElementById('total-cost');
+                if (costEl) costEl.textContent = totalCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            }
+        }
+
+        // Initialize connection on load
+        initNats();
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "oentike-web",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "3d-force-graph": "^1.80.0",
+    "astro": "^7.1.5",
+    "chart.js": "^4.5.1",
+    "nats.ws": "^1.30.3",
+    "three": "^0.185.1"
+  }
+}

@@ -32,3 +32,24 @@
 STATUS.md
 cel.txt
 inspiration.png
+
+# Python
+**/__pycache__/
+**/*.pyc
+**/.venv/
+venv/
+
+# Node
+**/node_modules/
+
+# Go binaries
+**/bin/
+oentike-control-plane/oentike-control-plane
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Spire
+spire/sockets/

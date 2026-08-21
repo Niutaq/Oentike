@@ -1,0 +1,50 @@
+
+services:
+  nats:
+    image: nats:latest
+    container_name: zt-fingate-nats
+    command: ["-js", "--ws_port=9222"]
+    ports:
+      - "4222:4222"
+      - "9222:9222"
+
+  control-plane:
+    build:
+      context: ./oentike-control-plane
+    container_name: zt-fingate-control-plane
+    environment:
+      - NATS_URL=nats://nats:4222
+    ports:
+      - "50051:50051"
+    depends_on:
+      - nats
+
+  spire-server:
+    image: ghcr.io/spiffe/spire-server:1.10.1
+    container_name: zt-spire-server
+    volumes:
+      - ./spire/server.conf:/opt/spire/conf/server/server.conf
+    command: ["-config", "/opt/spire/conf/server/server.conf"]
+
+  spire-agent:
+    image: ghcr.io/spiffe/spire-agent:1.10.1
+    container_name: zt-spire-agent
+    pid: "host"
+    volumes:
+      - ./spire/agent.conf:/opt/spire/conf/agent/agent.conf
+      - ./spire/sockets:/opt/spire/sockets
+    command: ["-config", "/opt/spire/conf/agent/agent.conf", "-joinToken", "${SPIRE_JOIN_TOKEN}"]
+    depends_on:
+      - spire-server
+
+  envoy:
+    image: envoyproxy/envoy:v1.31-latest
+    container_name: zt-fingate-envoy
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml
+      - ./oentike-wasm-filter/target/wasm32-wasi/release/oentike_wasm_filter.wasm:/etc/envoy/wasm/oentike_wasm_filter.wasm
+    ports:
+      - "10000:10000"
+      - "9901:9901"
+    depends_on:
+      - control-plane
