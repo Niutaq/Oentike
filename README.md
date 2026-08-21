@@ -3,6 +3,8 @@
 # ZT-FinGate: Zero-Trust Financial Gateway
 **Enterprise Cloud Cost Control & AI Governance Platform**
 
+![Current State (21-08-2026)](./state_21-08-2026.png)
+
 [![Rust](https://img.shields.io/badge/Edge_Agent-orange?style=for-the-badge&logo=rust)](https://rust-lang.org)
 [![Go](https://img.shields.io/badge/Control_Plane-blue?style=for-the-badge&logo=go)](https://golang.org)
 [![Python](https://img.shields.io/badge/AI_Orchestrator-yellow?style=for-the-badge&logo=python)](https://python.org)
