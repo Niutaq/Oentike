@@ -24,23 +24,87 @@ Instead of static rules, it uses a Multi-Agent LLM System to analyze requests ba
 
 ## Core Architecture
 
-### 1. Zero-Trust Networking (SPIFFE/SPIRE & mTLS)
-No application is trusted by default, regardless of its network location. 
-* **Workload Identity:** Every service (from the Rust Edge Agent to the Go Control Plane) is issued a cryptographic identity via a local SPIRE server.
-* **Mutual TLS (mTLS):** All gRPC communication is secured. Without a valid SPIFFE ID, the connection is instantly dropped at the transport layer.
-* **How to run:** Before starting the services, you must ensure the SPIRE server is running and identities are registered (e.g., using the `register_spire.sh` script).
+```mermaid
+graph TD
+    subedge[Edge / Desktop]
+        A[Rust Edge Agent]
+    endsubedge
 
-### 2. Multi-Agent AI Governance & ChatOps (Qwen 3.5)
-AI models should not govern financial resources without strict oversight. We utilize **Qwen 3.5 (1.4b)** running locally via **Ollama** for maximum privacy and performance. The system uses LangGraph to construct a conversational dual-agent workflow:
-* **Conversational FinOps Interface:** Instead of static forms, users interact with the system via a natural chat interface on both Desktop (Rust) and Web (Astro) platforms.
-* **Analyst Agent:** Extracts context, cost, and risk parameters from the raw chat request using the FOCUS standard.
-* **Auditor Agent:** Critiques the Analyst's decision, checks for hallucinations and policy violations, and returns a beautiful JSON response for real-time dashboard visualization.
+    subcontrol[Control Plane]
+        B(Envoy WASM Tollbooth)
+        C[Go Gateway]
+        D{NATS JetStream}
+    endsubcontrol
+    
+    subai[AI Governance]
+        F[Python AI Orchestrator]
+        G((Ollama Qwen-VL))
+    endsubai
+    
+    subui[Observability]
+        E[Astro Web UI]
+    endsubui
 
-### 3. FinOps Standard (FOCUS)
-All financial events are normalized to the FOCUS (FinOps Open Cost & Usage Specification) standard. Costs are tracked, categorized, and streamed in real-time, providing total visibility into the operational burn rate.
+    A -- "mTLS (gRPC)" --> B
+    B -- "mTLS (gRPC)" --> C
+    C -- "FOCUS Events" --> D
+    D -- "Real-time Metrics" --> E
+    D -- "Workload Events" --> F
+    F -- "LLM Inference" --> G
+    F -- "Approvals / Rejections" --> D
+    
+    style A fill:#ea5c00,stroke:#333,stroke-width:2px,color:#fff
+    style B fill:#d81b60,stroke:#333,stroke-width:2px,color:#fff
+    style C fill:#00add8,stroke:#333,stroke-width:2px,color:#fff
+    style D fill:#27ae60,stroke:#333,stroke-width:2px,color:#fff
+    style E fill:#8e44ad,stroke:#333,stroke-width:2px,color:#fff
+    style F fill:#f1c40f,stroke:#333,stroke-width:2px,color:#000
+```
 
-### 4. Event-Driven Backbone (NATS JetStream)
-Microservices communicate asynchronously via NATS JetStream. This provides an immutable, replayable audit log of every financial decision and infrastructure change, enabling robust tracing and real-time dashboarding via WebSockets.
+<table>
+<tr>
+<td width="50%">
+
+### 🛡️ 1. Zero-Trust Networking
+*(SPIFFE/SPIRE & mTLS)*
+
+No application is trusted by default, regardless of its network location.
+- **Workload Identity:** Every service gets a cryptographic identity via a local SPIRE server.
+- **mTLS:** All gRPC communication is secured. Connections lacking a valid SPIFFE ID are instantly dropped at the transport layer (Envoy).
+
+</td>
+<td width="50%">
+
+### 🧠 2. AI Governance
+*(LangGraph & Qwen-VL)*
+
+AI models shouldn't govern resources without strict oversight. We utilize local LLMs via **Ollama**.
+- **Analyst Agent:** Extracts context, cost, and risk parameters from the request.
+- **Auditor Agent:** Critiques the decision, checks for hallucinations and FinOps policy violations.
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 📊 3. FinOps Standard
+*(FOCUS)*
+
+All financial events are normalized to the FOCUS (FinOps Open Cost & Usage Specification) standard. 
+Costs are tracked, categorized, and streamed in real-time, providing total visibility into the operational burn rate.
+
+</td>
+<td width="50%">
+
+### ⚡ 4. Event-Driven Backbone
+*(NATS JetStream)*
+
+Microservices communicate asynchronously via NATS JetStream. 
+This provides an immutable, replayable audit log of every financial decision and infrastructure change, enabling robust tracing and real-time dashboarding.
+
+</td>
+</tr>
+</table>
 
 ## Technology Stack
 * **Edge Data Plane:** Rust, Iced (GUI Chat), Tonic (gRPC)
