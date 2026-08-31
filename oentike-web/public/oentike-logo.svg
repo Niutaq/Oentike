@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <mask id="cut">
+      <rect width="512" height="512" fill="white"/>
+      <path d="M112 390L400 122" stroke="black" stroke-width="34"/>
+    </mask>
+  </defs>
+  <circle
+    cx="256"
+    cy="256"
+    r="152"
+    fill="none"
+    stroke="#F28A2E"
+    stroke-width="92"
+    mask="url(#cut)"
+  />
+</svg>

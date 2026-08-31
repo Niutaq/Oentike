@@ -12,13 +12,13 @@ import (
 
 // BudgetDecision represents a decision made on a FinOps expense request.
 type BudgetDecision struct {
-	ID            uint   `gorm:"primaryKey"`
-	AgentID       string `gorm:"index"`
-	ChatMessage   string
-	Status        string // "PENDING", "APPROVED", "REJECTED"
-	DecisionAI    string // AI reasoning or n8n output
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID          uint   `gorm:"primaryKey"`
+	AgentID     string `gorm:"index"`
+	ChatMessage string
+	Status      string // "PENDING", "APPROVED", "REJECTED"
+	DecisionAI  string // AI reasoning or n8n output
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 var DB *gorm.DB

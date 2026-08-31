@@ -1,301 +1,675 @@
 ---
-import '../styles/global.css';
-import TopologyGraph from '../components/TopologyGraph.astro';
+import "../styles/global.css";
 ---
 
 <html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Oentike FinOps</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar glass-panel">
-            <div class="logo">
-                <div class="logo-icon"></div>
-                <h2>Oentike</h2>
-            </div>
-            <nav class="nav-menu">
-                <a href="#" class="nav-item active">
-                    <span class="icon">W</span>
-                    <span>Workload Topology</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="icon">F</span>
-                    <span>FinOps Metrics (FOCUS)</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="icon">Z</span>
-                    <span>Zero-Trust mTLS</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="icon">R</span>
-                    <span>Routing Policies</span>
-                </a>
-            </nav>
-            <div class="agent-status">
-                <div class="status-indicator pulsing"></div>
-                <span>Edge Agent Online</span>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <header class="topbar">
-                <div class="search-bar glass-panel">
-                    <span class="search-icon">/</span>
-                    <input type="text" placeholder="Search transactions, budgets..." />
-                </div>
-                <div class="user-profile">
-                    <div class="avatar">
-                        <img src="https://ui-avatars.com/api/?name=Admin+User&background=ff7b00&color=fff" alt="User Avatar" />
-                    </div>
-                </div>
-            </header>
-
-            <section class="dashboard-grid">
-                <!-- Welcome Banner -->
-                <div class="welcome-card glass-panel gradient-border">
-                    <div class="card-content">
-                        <h1>Zero-Trust FinOps Router</h1>
-                        <p>Dynamic workload allocation across DigitalOcean and Edge nodes based on real-time cost telemetry.</p>
-                    </div>
-                    <div class="hero-graphic">
-                        <div class="orb orb-1"></div>
-                        <div class="orb orb-2"></div>
-                    </div>
-                </div>
-
-                <!-- Stats -->
-                <div class="stat-card glass-panel">
-                    <span class="stat-title">DigitalOcean Burn Rate</span>
-                    <h3 class="stat-value">$<span id="total-cost">0.00</span>/hr</h3>
-                    <span class="stat-change positive">Active Workloads</span>
-                </div>
-                
-                <div class="stat-card glass-panel">
-                    <span class="stat-title">Total Workloads Processed</span>
-                    <h3 class="stat-value" id="workload-count">0</h3>
-                    <span class="stat-change neutral">LangGraph routing active</span>
-                </div>
-
-                <!-- Real-time Telemetry Charts -->
-                <div class="charts-card glass-panel" style="grid-column: span 3; padding: 1.5rem;">
-                    <div class="card-header" style="margin-bottom: 1rem;">
-                        <h3 style="display: flex; align-items: center; gap: 0.75rem;">
-                            <span class="status-indicator pulsing"></span> Live Telemetry Streams
-                        </h3>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; height: 180px;">
-                        <div style="position: relative; width: 100%; height: 100%;">
-                            <canvas id="cpuChart"></canvas>
-                        </div>
-                        <div style="position: relative; width: 100%; height: 100%;">
-                            <canvas id="latencyChart"></canvas>
-                        </div>
-                        <div style="position: relative; width: 100%; height: 100%;">
-                            <canvas id="identitiesChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3D Topology Graph -->
-                <div class="topology-card glass-panel" style="grid-column: span 3;">
-                    <div class="card-header">
-                        <h3>Dynamic Network Topology</h3>
-                    </div>
-                    <TopologyGraph />
-                </div>
-
-                <!-- Recent Activity List -->
-                <div class="activity-card glass-panel" style="grid-column: span 3;">
-                    <div class="card-header">
-                        <h3>Workload Routing Log</h3>
-                    </div>
-                    <div class="activity-list">
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-    
-    <script>
-        import { connect, StringCodec } from "nats.ws";
-        import Chart from 'chart.js/auto';
-        
-        const sc = StringCodec();
-        let totalCost = 0.0;
-        let workloadCount = 0;
-        
-        // --- Chart.js Setup ---
-        const maxDataPoints = 30;
-        const createChart = (ctx, label, color) => {
-            return new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: Array(maxDataPoints).fill(''),
-                    datasets: [{
-                        label: label,
-                        data: Array(maxDataPoints).fill(0),
-                        borderColor: color,
-                        backgroundColor: color + '33',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 0,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: { duration: 0 },
-                    interaction: { mode: 'index', intersect: false },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                            ticks: { color: '#94a3b8', font: { family: 'Outfit', size: 10 } }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { display: false }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            labels: { color: '#e2e8f0', font: { family: 'Outfit', size: 12 } }
-                        },
-                        tooltip: { enabled: false }
-                    }
-                }
-            });
-        };
-
-        const cpuChart = createChart(document.getElementById('cpuChart'), 'CPU Proc Time (µs)', '#ff7b00');
-        const latencyChart = createChart(document.getElementById('latencyChart'), 'mTLS Latency (ms)', '#6366f1');
-        const identitiesChart = createChart(document.getElementById('identitiesChart'), 'Active SVIDs (Workloads)', '#10b981');
-
-        function updateChart(chart, value) {
-            chart.data.datasets[0].data.push(value);
-            chart.data.datasets[0].data.shift();
-            chart.update();
-        }
-        // -----------------------
-
-        async function initNats() {
-            try {
-                const nc = await connect({ servers: "ws://localhost:9222" });
-                console.log("Connected to Oentike NATS Server!");
-                
-                const sub = nc.subscribe("FINOPS.ai_processed");
-                
-                (async () => {
-                    for await (const msg of sub) {
-                        try {
-                            const data = JSON.parse(sc.decode(msg.data));
-                            console.log("Oentike NATS Event Received:", data);
-                            addActivityItem(data);
-                            
-                            // Trigger 3D graph animation if the global function exists
-                            if (window.triggerNetworkTraffic) {
-                                window.triggerNetworkTraffic();
-                            }
-                            
-                            // Update Live Charts
-                            if (data.metrics && data.charge_category !== 'Deep Analysis') {
-                                updateChart(cpuChart, data.metrics.server_proc_time_us || 0);
-                                updateChart(latencyChart, data.metrics.client_mtls_setup_ms || 0);
-                            }
-                            if (data.status === 'ROUTED') {
-                                updateChart(identitiesChart, workloadCount);
-                            }
-                        } catch(e) {
-                            console.error("Failed to parse incoming message", e);
-                        }
-                    }
-                })();
-            } catch (err) {
-                console.error("Failed to connect to NATS WebSockets", err);
-            }
-        }
-
-        function addActivityItem(data) {
-            const list = document.querySelector('.activity-list');
-            if (!list) return;
-
-            const item = document.createElement('div');
-            item.className = 'activity-item fade-in';
-            
-            item.addEventListener('click', () => {
-                item.classList.toggle('expanded');
-            });
-            
-            const isRouted = data.status === 'ROUTED';
-            let statusClass = isRouted ? 'status-approved' : 'status-rejected';
-            
-            item.innerHTML = `
-                <div class="activity-item-main">
-                    <div class="item-details">
-                        <span class="item-name">${data.workload?.type || 'UNKNOWN WORKLOAD'}</span>
-                        <div class="tags-row">
-                            <span class="tag tag-category">${data.charge_category || 'Compute'}</span>
-                            <span class="tag tag-risk-low">${data.routed_provider || 'NONE'}</span>
-                        </div>
-                    </div>
-                    <div class="item-telemetry" style="display: flex; gap: 1rem; align-items: center; font-size: 0.75rem; color: #94a3b8; margin-right: 1.5rem; font-family: monospace; border-right: 1px solid #334155; padding-right: 1.5rem;">
-                        <div>mTLS: ${data.metrics?.client_mtls_setup_ms || 0}ms</div>
-                        <div>Payload: ${data.metrics?.payload_bytes_out || 0}B</div>
-                        <div>CPU: ${data.metrics?.server_proc_time_us || 0}µs</div>
-                    </div>
-                    <div class="item-status ${statusClass}">${data.status}</div>
-                    <div class="item-amount">$${(data.estimated_cost || 0).toFixed(2)}</div>
-                </div>
-                <div class="activity-item-details">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <link rel="icon" type="image/svg+xml" href="/oentike-logo.svg" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <title>Oentike</title>
+    </head>
+    <body>
+        <div class="shell">
+            <main>
+                <header class="topbar">
+                    <div class="page-heading">
+                        <img class="header-mark" src="/oentike-logo.svg" alt="" />
                         <div>
-                            <p style="font-size: 0.85rem; margin-bottom: 0.5rem; color: #cbd5e1;"><strong>Agent ID:</strong> ${data.agent_id || 'N/A'}</p>
-                            <p style="font-size: 0.85rem; margin-bottom: 0.5rem; color: #cbd5e1;"><strong>Est. CPU Cycles:</strong> ${data.workload?.cpu_cycles || 0}</p>
-                            <p style="font-size: 0.85rem; color: #cbd5e1;"><strong>Est. Memory:</strong> ${data.workload?.memory_mb || 0} MB</p>
-                        </div>
-                        <div class="ai-reasoning" style="background: rgba(30,41,59,0.3); padding: 0.8rem; border-radius: 4px; border: 1px solid rgba(148, 163, 184, 0.1);">
-                            <h4 style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; color: #64748b;">FinOps Policy Engine</h4>
-                            <p style="font-size: 0.85rem; margin-bottom: 0.5rem; color: #cbd5e1;"><strong>Decision:</strong> ${data.reasoning || 'No details provided.'}</p>
+                        <p class="eyebrow" id="current-date"></p>
+                        <h1 data-i18n="pageTitle">Activity overview</h1>
                         </div>
                     </div>
+
+                    <div class="topbar-actions">
+                        <div class="language-switch" aria-label="Language">
+                            <button data-language="en" class="active">EN</button>
+                            <button data-language="pl">PL</button>
+                        </div>
+                        <button class="theme-switch" id="theme-switch" aria-label="Change theme">
+                            <span id="theme-icon">☾</span>
+                            <span id="theme-label">Dark</span>
+                        </button>
+                        <div class="health" id="app-health" role="status" aria-label="Checking">
+                            <span class="health-dot"></span>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="browser-note" id="browser-note" hidden data-i18n="browserNote">
+                    Open the desktop window to receive live data. This browser preview is read-only.
                 </div>
-            `;
-            
-            list.prepend(item);
-            
-            if (list.children.length > 8) {
-                list.removeChild(list.lastChild);
+
+                <section class="hero" id="overview">
+                    <div>
+                        <p class="eyebrow" data-i18n="currentState">CURRENT STATE</p>
+                        <h2 id="state-title" data-i18n="stateChecking">Connecting…</h2>
+                        <p class="hero-copy" id="state-copy" data-i18n="stateCheckingCopy">
+                            Waiting for the live connection.
+                        </p>
+                    </div>
+                    <div class="hero-orbit" aria-hidden="true">
+                        <span></span>
+                        <i></i>
+                    </div>
+                </section>
+
+                <section class="metrics" aria-label="Current summary">
+                    <article class="metric-card">
+                        <div class="metric-heading">
+                            <span data-i18n="eventsReceived">Events received</span>
+                            <span class="metric-mark blue">↗</span>
+                        </div>
+                        <strong id="event-count">0</strong>
+                        <p data-i18n="thisSession">During this session</p>
+                    </article>
+                    <article class="metric-card">
+                        <div class="metric-heading">
+                            <span data-i18n="findings">Findings</span>
+                            <span class="metric-mark orange">!</span>
+                        </div>
+                        <strong id="finding-count">0</strong>
+                        <p data-i18n="requiresAttention">Requiring attention</p>
+                    </article>
+                    <article class="metric-card">
+                        <div class="metric-heading">
+                            <span data-i18n="deviceLoad">Device load</span>
+                            <span class="metric-mark green">•</span>
+                        </div>
+                        <strong id="load-value">—</strong>
+                        <p data-i18n="measuredLive">Measured live</p>
+                    </article>
+                </section>
+
+                <section class="content-grid" id="activity">
+                    <article class="panel activity-panel">
+                        <div class="panel-heading">
+                            <div>
+                                <p class="eyebrow" data-i18n="liveActivity">LIVE ACTIVITY</p>
+                                <h3 data-i18n="recentEvents">Recent events</h3>
+                            </div>
+                            <span class="live-badge" id="live-badge">
+                                <i></i><span data-i18n="waiting">Waiting</span>
+                            </span>
+                        </div>
+
+                        <div class="feed" id="event-feed">
+                            <div class="empty-state" id="empty-state">
+                                <span class="empty-icon">◎</span>
+                                <div>
+                                    <strong data-i18n="noEvents">No events received yet</strong>
+                                    <p data-i18n="noEventsCopy">
+                                        New activity will appear here automatically.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="panel resources-panel">
+                        <div class="panel-heading">
+                            <div>
+                                <p class="eyebrow" data-i18n="deviceHealth">DEVICE HEALTH</p>
+                                <h3 data-i18n="localResources">Local resources</h3>
+                            </div>
+                        </div>
+
+                        <div class="resource">
+                            <div class="resource-row">
+                                <span data-i18n="processing">Processing</span>
+                                <strong id="processing-value">—</strong>
+                            </div>
+                            <div class="progress"><span id="processing-bar"></span></div>
+                        </div>
+
+                        <div class="resource">
+                            <div class="resource-row">
+                                <span data-i18n="memory">Memory</span>
+                                <strong id="memory-value">—</strong>
+                            </div>
+                            <div class="progress orange-progress"><span id="memory-bar"></span></div>
+                        </div>
+
+                        <div class="availability" id="availability">
+                            <span class="availability-icon">✓</span>
+                            <div>
+                                <strong id="service-title" data-i18n="preparing">
+                                    Preparing connection
+                                </strong>
+                                <p id="service-copy" data-i18n="preparingCopy">
+                                    This usually takes a few seconds.
+                                </p>
+                            </div>
+                        </div>
+                    </article>
+                </section>
+
+            </main>
+        </div>
+
+        <script type="module">
+            import { invoke } from "@tauri-apps/api/core";
+            import { listen } from "@tauri-apps/api/event";
+
+            const copy = {
+                en: {
+                    pageTitle: "Activity overview",
+                    checking: "Checking…",
+                    browserNote: "Open the desktop window to receive live data. This browser preview is read-only.",
+                    currentState: "CURRENT STATE",
+                    stateChecking: "Connecting…",
+                    stateCheckingCopy: "Waiting for the live connection.",
+                    stateReady: "Ready and listening.",
+                    stateReadyCopy: "Incoming activity will appear below as soon as it is received.",
+                    stateLimited: "Connection lost.",
+                    stateLimitedCopy: "Live activity cannot be received right now.",
+                    eventsReceived: "Events received",
+                    findings: "Findings",
+                    deviceLoad: "Device load",
+                    thisSession: "During this session",
+                    requiresAttention: "Requiring attention",
+                    measuredLive: "Measured live",
+                    liveActivity: "LIVE ACTIVITY",
+                    recentEvents: "Recent events",
+                    waiting: "Waiting",
+                    live: "Live",
+                    noEvents: "No events received yet",
+                    noEventsCopy: "New activity will appear here automatically.",
+                    deviceHealth: "DEVICE HEALTH",
+                    localResources: "Local resources",
+                    processing: "Processing",
+                    memory: "Memory",
+                    preparing: "Preparing connection",
+                    preparingCopy: "This usually takes a few seconds.",
+                    ready: "Ready for live activity",
+                    readyCopy: "The live connection is established.",
+                    offline: "Live connection lost",
+                    offlineCopy: "The app will keep trying to reconnect.",
+                    desktopRequired: "Desktop window required",
+                    desktopRequiredCopy: "Live features work only in the desktop window.",
+                    eventReviewed: "Review completed",
+                    eventReceived: "Activity received",
+                    findingDetected: "Finding detected",
+                    receivedNow: "Received just now",
+                    dark: "Dark",
+                    light: "Light",
+                    connected: "Connected",
+                    limited: "Limited",
+                    preview: "Preview mode",
+                },
+                pl: {
+                    pageTitle: "Przegląd aktywności",
+                    checking: "Sprawdzanie…",
+                    browserNote: "Otwórz aplikację desktopową, aby odbierać dane na żywo. Podgląd w przeglądarce jest tylko do odczytu.",
+                    currentState: "BIEŻĄCY STAN",
+                    stateChecking: "Łączenie…",
+                    stateCheckingCopy: "Oczekiwanie na połączenie na żywo.",
+                    stateReady: "Gotowe i nasłuchuje.",
+                    stateReadyCopy: "Nowa aktywność pojawi się poniżej natychmiast po odebraniu.",
+                    stateLimited: "Połączenie niedostępne.",
+                    stateLimitedCopy: "Nie można teraz odbierać aktywności na żywo.",
+                    eventsReceived: "Odebrane zdarzenia",
+                    findings: "Ustalenia",
+                    deviceLoad: "Obciążenie urządzenia",
+                    thisSession: "W tej sesji",
+                    requiresAttention: "Wymagające uwagi",
+                    measuredLive: "Pomiar na żywo",
+                    liveActivity: "AKTYWNOŚĆ NA ŻYWO",
+                    recentEvents: "Ostatnie zdarzenia",
+                    waiting: "Oczekiwanie",
+                    live: "Na żywo",
+                    noEvents: "Brak odebranych zdarzeń",
+                    noEventsCopy: "Nowa aktywność pojawi się tutaj automatycznie.",
+                    deviceHealth: "STAN URZĄDZENIA",
+                    localResources: "Lokalne zasoby",
+                    processing: "Przetwarzanie",
+                    memory: "Pamięć",
+                    preparing: "Przygotowanie połączenia",
+                    preparingCopy: "Zwykle trwa to kilka sekund.",
+                    ready: "Gotowe na aktywność",
+                    readyCopy: "Połączenie na żywo jest dostępne.",
+                    offline: "Utracono połączenie na żywo",
+                    offlineCopy: "Aplikacja będzie ponawiać próbę połączenia.",
+                    desktopRequired: "Wymagana aplikacja desktopowa",
+                    desktopRequiredCopy: "Funkcje na żywo są niedostępne w podglądzie przeglądarki.",
+                    eventReviewed: "Analiza zakończona",
+                    eventReceived: "Odebrano aktywność",
+                    findingDetected: "Wykryto ustalenie",
+                    receivedNow: "Odebrano przed chwilą",
+                    dark: "Ciemny",
+                    light: "Jasny",
+                    connected: "Połączono",
+                    limited: "Ograniczone",
+                    preview: "Tryb podglądu",
+                },
+            };
+
+            const nativeReady = () =>
+                typeof window !== "undefined" && window.__TAURI_INTERNALS__ != null;
+
+            let language = localStorage.getItem("oentike-language") || "en";
+            let theme = localStorage.getItem("oentike-theme") || "light";
+            let connectionState = "checking";
+            let events = 0;
+            let findings = 0;
+            const unlisteners = [];
+
+            const health = document.getElementById("app-health");
+            const browserNote = document.getElementById("browser-note");
+            const stateTitle = document.getElementById("state-title");
+            const stateCopy = document.getElementById("state-copy");
+            const serviceTitle = document.getElementById("service-title");
+            const serviceCopy = document.getElementById("service-copy");
+            const liveBadge = document.getElementById("live-badge");
+            const eventFeed = document.getElementById("event-feed");
+            const processingValue = document.getElementById("processing-value");
+            const processingBar = document.getElementById("processing-bar");
+            const memoryValue = document.getElementById("memory-value");
+            const memoryBar = document.getElementById("memory-bar");
+
+            const t = (key) => copy[language][key] || copy.en[key] || key;
+
+            function renderDate() {
+                document.getElementById("current-date").textContent =
+                    new Intl.DateTimeFormat(language === "pl" ? "pl-PL" : "en-GB", {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "long",
+                    }).format(new Date()).toUpperCase();
             }
-            
-            updateStats(isRouted ? (data.estimated_cost || 0) : 0);
-        }
 
-        function updateStats(amountAdded) {
-            workloadCount++;
-            const wpEl = document.getElementById('workload-count');
-            if (wpEl) wpEl.textContent = workloadCount;
-
-            if (amountAdded > 0) {
-                totalCost += amountAdded;
-                const costEl = document.getElementById('total-cost');
-                if (costEl) costEl.textContent = totalCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            function renderConnection() {
+                health.className = "health";
+                if (connectionState === "ready") {
+                    health.classList.add("ready");
+                    health.setAttribute("aria-label", t("connected"));
+                    health.title = t("connected");
+                    stateTitle.textContent = t("stateReady");
+                    stateCopy.textContent = t("stateReadyCopy");
+                    serviceTitle.textContent = t("ready");
+                    serviceCopy.textContent = t("readyCopy");
+                    liveBadge.classList.add("active");
+                    liveBadge.querySelector("span").textContent = t("live");
+                } else if (connectionState === "limited") {
+                    health.classList.add("limited");
+                    health.setAttribute("aria-label", t("limited"));
+                    health.title = t("limited");
+                    stateTitle.textContent = t("stateLimited");
+                    stateCopy.textContent = t("stateLimitedCopy");
+                    serviceTitle.textContent = t("offline");
+                    serviceCopy.textContent = t("offlineCopy");
+                    liveBadge.querySelector("span").textContent = t("waiting");
+                } else if (connectionState === "preview") {
+                    health.classList.add("preview");
+                    health.setAttribute("aria-label", t("preview"));
+                    health.title = t("preview");
+                    stateTitle.textContent = t("stateLimited");
+                    stateCopy.textContent = t("stateLimitedCopy");
+                    serviceTitle.textContent = t("desktopRequired");
+                    serviceCopy.textContent = t("desktopRequiredCopy");
+                    liveBadge.querySelector("span").textContent = t("waiting");
+                } else {
+                    health.setAttribute("aria-label", t("checking"));
+                    health.title = t("checking");
+                    stateTitle.textContent = t("stateChecking");
+                    stateCopy.textContent = t("stateCheckingCopy");
+                }
             }
-        }
 
-        // Initialize connection on load
-        initNats();
-    </script>
-</body>
+            function applyLanguage(nextLanguage) {
+                language = nextLanguage;
+                localStorage.setItem("oentike-language", language);
+                document.documentElement.lang = language;
+                document.querySelectorAll("[data-i18n]").forEach((element) => {
+                    element.textContent = t(element.dataset.i18n);
+                });
+                document.querySelectorAll("[data-language]").forEach((button) => {
+                    button.classList.toggle("active", button.dataset.language === language);
+                });
+                renderDate();
+                renderConnection();
+                renderThemeButton();
+            }
+
+            function renderThemeButton() {
+                document.documentElement.dataset.theme = theme;
+                document.getElementById("theme-icon").textContent = theme === "light" ? "☾" : "☀";
+                document.getElementById("theme-label").textContent =
+                    theme === "light" ? t("dark") : t("light");
+            }
+
+            function applyTheme(nextTheme) {
+                theme = nextTheme;
+                localStorage.setItem("oentike-theme", theme);
+                renderThemeButton();
+            }
+
+            function isFinding(data) {
+                const state = String(
+                    data?.status ||
+                    data?.action ||
+                    data?.recommended_action ||
+                    data?.extracted?.recommended_action ||
+                    "",
+                ).toUpperCase();
+                return (
+                    data?.is_malicious === true ||
+                    data?.extracted?.is_malicious === true ||
+                    ["QUARANTINED", "THREAT_DETECTED", "QUARANTINE"].some((value) =>
+                        state.includes(value),
+                    )
+                );
+            }
+
+            function addEvent(data, reviewed = false) {
+                events += 1;
+                const finding = isFinding(data);
+                if (finding) findings += 1;
+                document.getElementById("event-count").textContent = events.toLocaleString();
+                document.getElementById("finding-count").textContent = findings.toLocaleString();
+                document.getElementById("empty-state")?.remove();
+
+                const item = document.createElement("div");
+                item.className = `feed-item${finding ? " finding" : ""}`;
+                item.innerHTML = `
+                    <span class="feed-status"></span>
+                    <div>
+                        <strong>${finding ? t("findingDetected") : reviewed ? t("eventReviewed") : t("eventReceived")}</strong>
+                        <p>${t("receivedNow")}</p>
+                    </div>
+                    <time>${new Date().toLocaleTimeString(language === "pl" ? "pl-PL" : "en-GB", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                    })}</time>
+                `;
+                eventFeed.prepend(item);
+                while (eventFeed.children.length > 8) eventFeed.lastElementChild.remove();
+            }
+
+            async function updateResources() {
+                try {
+                    const stats = await invoke("get_system_stats");
+                    const cpu = Math.max(0, Math.min(100, Number(stats.cpu) || 0));
+                    const usedMemory = Math.max(0, Number(stats.used_ram_gb) || 0);
+                    const totalMemory = Math.max(0, Number(stats.total_ram_gb) || 0);
+                    const memoryPercent =
+                        totalMemory > 0 ? Math.min(100, (usedMemory / totalMemory) * 100) : 0;
+                    processingValue.textContent = `${cpu.toFixed(1)}%`;
+                    processingBar.style.width = `${cpu}%`;
+                    memoryValue.textContent = `${usedMemory.toFixed(1)} / ${totalMemory.toFixed(1)} GB`;
+                    memoryBar.style.width = `${memoryPercent}%`;
+                    document.getElementById("load-value").textContent = `${cpu.toFixed(1)}%`;
+                } catch {
+                    processingValue.textContent = "—";
+                    memoryValue.textContent = "—";
+                    document.getElementById("load-value").textContent = "—";
+                }
+            }
+
+            async function initializeLiveData() {
+                if (!nativeReady()) {
+                    connectionState = "preview";
+                    browserNote.hidden = false;
+                    renderConnection();
+                    return;
+                }
+
+                try {
+                    unlisteners.push(
+                        await listen("live-status", (event) => {
+                            connectionState = event.payload === true ? "ready" : "limited";
+                            renderConnection();
+                        }),
+                    );
+                    unlisteners.push(
+                        await listen("review-event", (event) => {
+                            try {
+                                addEvent(JSON.parse(event.payload), true);
+                            } catch {
+                                addEvent({}, true);
+                            }
+                        }),
+                    );
+                    unlisteners.push(
+                        await listen("activity-event", (event) => {
+                            try {
+                                addEvent(JSON.parse(event.payload));
+                            } catch {
+                                addEvent({});
+                            }
+                        }),
+                    );
+
+                    connectionState = (await invoke("get_live_status")) ? "ready" : "limited";
+                    renderConnection();
+                } catch {
+                    connectionState = "limited";
+                    renderConnection();
+                }
+
+                await updateResources();
+                window.setInterval(updateResources, 1500);
+            }
+
+            document.querySelectorAll("[data-language]").forEach((button) => {
+                button.addEventListener("click", () => applyLanguage(button.dataset.language));
+            });
+
+            document.getElementById("theme-switch").addEventListener("click", () => {
+                applyTheme(theme === "light" ? "dark" : "light");
+            });
+
+            window.addEventListener("beforeunload", () => {
+                unlisteners.forEach((unlisten) => unlisten());
+            });
+
+            applyTheme(theme);
+            applyLanguage(language);
+            initializeLiveData();
+        </script>
+
+        <style>
+            :global(*) { box-sizing: border-box; }
+            :global(html) { scroll-behavior: smooth; }
+            :global(:root) {
+                --page: #f4f5f7;
+                --surface: #ffffff;
+                --surface-soft: #f8f9fb;
+                --text: #172033;
+                --muted: #7e889a;
+                --line: #e2e6ed;
+                --blue: #5972c5;
+                --blue-soft: #e9edfa;
+                --orange: #e8873c;
+                --orange-soft: #fff0e5;
+                --green: #3ea474;
+                --shadow: 0 7px 26px rgba(24, 34, 54, 0.05);
+            }
+            :global(html[data-theme="dark"]) {
+                --page: #10141d;
+                --surface: #191f2b;
+                --surface-soft: #202735;
+                --text: #edf0f6;
+                --muted: #929caf;
+                --line: #2b3443;
+                --blue: #8197e4;
+                --blue-soft: #29334f;
+                --orange: #f19a55;
+                --orange-soft: #3c2b22;
+                --green: #5bc38f;
+                --shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+            }
+            :global(body) {
+                margin: 0;
+                min-width: 320px;
+                background: var(--page);
+                color: var(--text);
+                font-family: "DM Sans", sans-serif;
+                transition: background 180ms ease, color 180ms ease;
+            }
+            :global(button), :global(a) { font: inherit; }
+            .shell { min-height: 100vh; }
+            main { width: min(1280px, 100%); margin: 0 auto; padding: 34px 42px 56px; }
+            .topbar { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 28px; }
+            .page-heading { display: flex; align-items: center; gap: 13px; }
+            .header-mark { width: 38px; height: 38px; }
+            .topbar-actions { display: flex; align-items: center; gap: 9px; }
+            .eyebrow { margin: 0 0 7px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .14em; }
+            h1, h2, h3, p { margin-top: 0; }
+            h1, h2, h3 { font-family: "Manrope", sans-serif; letter-spacing: -.035em; }
+            h1 { margin-bottom: 0; font-size: 25px; }
+            .language-switch, .theme-switch, .health {
+                border: 1px solid var(--line);
+                background: var(--surface);
+                color: var(--muted);
+                box-shadow: var(--shadow);
+            }
+            .language-switch { display: flex; padding: 3px; border-radius: 9px; }
+            .language-switch button {
+                padding: 5px 8px;
+                border: 0;
+                border-radius: 6px;
+                color: var(--muted);
+                background: transparent;
+                cursor: pointer;
+                font-size: 10px;
+                font-weight: 700;
+            }
+            .language-switch button.active { color: #fff; background: var(--blue); }
+            .theme-switch {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                padding: 8px 10px;
+                border-radius: 9px;
+                cursor: pointer;
+                font-size: 11px;
+                font-weight: 600;
+            }
+            .health {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 31px;
+                height: 31px;
+                border-radius: 50%;
+            }
+            .health-dot { width: 7px; height: 7px; border-radius: 50%; background: #a5acb9; }
+            .health.ready .health-dot { background: var(--green); box-shadow: 0 0 0 4px rgba(62,164,116,.12); }
+            .health.limited .health-dot, .health.preview .health-dot { background: var(--orange); }
+            .browser-note {
+                margin: -10px 0 22px;
+                padding: 12px 15px;
+                border: 1px solid #dba76f;
+                border-radius: 10px;
+                background: var(--orange-soft);
+                color: var(--text);
+                font-size: 13px;
+            }
+            .hero {
+                min-height: 205px;
+                padding: 34px 38px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                overflow: hidden;
+                border-radius: 18px;
+                color: #fff;
+                background:
+                    radial-gradient(circle at 88% 20%, rgba(238,152,85,.38), transparent 28%),
+                    linear-gradient(125deg, #1c2843, #354c7f);
+                box-shadow: 0 18px 48px rgba(38,55,92,.18);
+            }
+            .hero .eyebrow { color: #b7c4e3; }
+            .hero h2 { margin-bottom: 10px; font-size: clamp(30px, 4vw, 43px); }
+            .hero-copy { max-width: 570px; margin-bottom: 0; color: #c9d1e4; font-size: 15px; line-height: 1.6; }
+            .hero-orbit { position: relative; width: 130px; height: 130px; flex: none; border: 1px solid rgba(255,255,255,.18); border-radius: 50%; }
+            .hero-orbit::before, .hero-orbit::after {
+                content: "";
+                position: absolute;
+                inset: 20px;
+                border: 1px solid rgba(255,255,255,.14);
+                border-radius: 50%;
+            }
+            .hero-orbit::after { inset: 43px; background: var(--orange); border: 0; box-shadow: 0 0 34px rgba(238,152,85,.5); }
+            .hero-orbit span { position: absolute; width: 9px; height: 9px; top: 8px; left: 76px; border-radius: 50%; background: #fff; }
+            .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 18px 0; }
+            .metric-card, .panel { background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); }
+            .metric-card { padding: 21px 23px; border-radius: 14px; }
+            .metric-heading { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 12px; font-weight: 600; }
+            .metric-mark { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 7px; font-size: 11px; }
+            .metric-mark.blue { color: var(--blue); background: var(--blue-soft); }
+            .metric-mark.orange { color: var(--orange); background: var(--orange-soft); }
+            .metric-mark.green { color: var(--green); background: rgba(62,164,116,.1); }
+            .metric-card > strong { display: block; margin: 18px 0 5px; font-family: "Manrope", sans-serif; font-size: 30px; }
+            .metric-card p, .panel-copy { margin: 0; color: var(--muted); font-size: 11px; }
+            .content-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, .8fr); gap: 18px; }
+            .panel { border-radius: 15px; padding: 24px; }
+            .panel-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+            .panel-heading h3 { margin-bottom: 0; font-size: 18px; }
+            .live-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                padding: 6px 9px;
+                border-radius: 99px;
+                color: var(--muted);
+                background: var(--surface-soft);
+                font-size: 10px;
+                font-weight: 700;
+            }
+            .live-badge i { width: 6px; height: 6px; border-radius: 50%; background: #a5acb9; }
+            .live-badge.active { color: var(--green); }
+            .live-badge.active i { background: var(--green); box-shadow: 0 0 0 4px rgba(62,164,116,.1); }
+            .feed { min-height: 250px; margin-top: 22px; display: grid; align-content: start; gap: 8px; }
+            .empty-state, .feed-item {
+                min-height: 67px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 14px;
+                border-radius: 10px;
+                background: var(--surface-soft);
+            }
+            .empty-state { min-height: 230px; justify-content: center; }
+            .empty-icon { width: 35px; height: 35px; display: grid; place-items: center; border-radius: 50%; color: var(--blue); background: var(--blue-soft); }
+            .empty-state strong, .feed-item strong { display: block; margin-bottom: 3px; font-size: 11px; }
+            .empty-state p, .feed-item p { margin: 0; color: var(--muted); font-size: 10px; }
+            .feed-status { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 5px rgba(62,164,116,.1); flex: none; }
+            .feed-item.finding .feed-status { background: var(--orange); box-shadow: 0 0 0 5px rgba(232,135,60,.1); }
+            .feed-item time { margin-left: auto; color: var(--muted); font-size: 9px; }
+            .resources-panel { display: flex; flex-direction: column; }
+            .resource { margin-top: 28px; }
+            .resource-row { display: flex; justify-content: space-between; margin-bottom: 10px; color: var(--muted); font-size: 11px; }
+            .resource-row strong { color: var(--text); }
+            .progress { height: 7px; overflow: hidden; border-radius: 99px; background: var(--surface-soft); }
+            .progress span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #5d75c4, #8298dd); transition: width 260ms ease; }
+            .orange-progress span { background: linear-gradient(90deg, #d97732, #f1a160); }
+            .availability { margin-top: auto; padding: 16px; display: flex; gap: 12px; align-items: center; border-radius: 11px; background: rgba(62,164,116,.09); }
+            .availability-icon { width: 31px; height: 31px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: var(--green); flex: none; }
+            .availability strong { display: block; margin-bottom: 3px; font-size: 11px; }
+            .availability p { margin: 0; color: var(--muted); font-size: 10px; }
+            @media (max-width: 980px) {
+                main { padding: 28px 24px 44px; }
+                .content-grid { grid-template-columns: 1fr; }
+                .availability { margin-top: 28px; }
+            }
+            @media (max-width: 760px) {
+                main { padding: 22px 16px 36px; }
+                .topbar { align-items: flex-start; flex-direction: column; }
+                .topbar-actions { width: 100%; flex-wrap: wrap; }
+                .health { margin-left: auto; }
+                .hero-orbit { display: none; }
+                .metrics { grid-template-columns: 1fr; }
+            }
+        </style>
+    </body>
 </html>

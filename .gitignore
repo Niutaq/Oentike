@@ -32,12 +32,14 @@
 STATUS.md
 cel.txt
 inspiration.png
+.rules
 
 # Python
 **/__pycache__/
 **/*.pyc
 **/.venv/
 venv/
+test-venv/
 
 # Node
 **/node_modules/
@@ -45,6 +47,7 @@ venv/
 # Go binaries
 **/bin/
 oentike-control-plane/oentike-control-plane
+test-client/test-client
 
 # Databases
 *.db

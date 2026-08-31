@@ -1,65 +1,123 @@
 version: '3'
 
 tasks:
-  nats:
-    desc: "Launch NATS server with JetStream and WebSockets"
+  setup:
+    desc: "Install missing dependencies (npm modules, homebrew packages)"
     cmds:
-      - 'nix-shell -p nats-server --run "echo \"websocket { port: 9222, no_tls: true }\" > nats.conf && nats-server -js -c nats.conf"'
+      - |
+        export HOMEBREW_NO_AUTO_UPDATE=1
+        if [ "$(uname -s)" = "Darwin" ]; then
+          for pkg in ollama socat python@3.12; do
+            if ! command -v $pkg >/dev/null 2>&1; then
+              echo "Installing $pkg on macOS..."
+              brew install $pkg
+            fi
+          done
+        elif [ "$(uname -s)" = "Linux" ]; then
+          for pkg in ollama socat python3.12; do
+            if ! command -v $pkg >/dev/null 2>&1; then
+              echo "Installing $pkg on Linux..."
+              sudo apt-get update && sudo apt-get install -y $pkg || true
+            fi
+          done
+        fi
+      - |
+        if ! command -v cargo >/dev/null 2>&1 && [ ! -f "$HOME/.cargo/bin/cargo" ]; then
+          echo "Installing Rust via rustup..."
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        fi
+      - |
+        if [ ! -d "oentike-web/node_modules" ]; then
+          echo "Installing web dependencies..."
+          cd oentike-web && npm install
+        fi
+
+  nats:
+    desc: "Launch NATS JetStream via Docker"
+    cmds:
+      - docker compose up -d nats
 
   server:
     desc: "Launch Go server (Control Plane) on port 50051"
     dir: oentike-control-plane
     cmds:
-      - sleep 2 && go run .
+      - sleep 5 && go mod tidy && go run .
 
   ai:
     desc: "Run Python AI Orchestrator"
     dir: oentike-ai-orchestrator
     cmds:
-      - nix-shell -p python3 --run 'bash -c "sleep 5 && if [ ! -d '\''.venv'\'' ]; then python3 -m venv .venv; fi; source .venv/bin/activate && pip install -r requirements.txt && python3 src/main.py"'
+      - bash -c "sleep 10 && if [ ! -d '.venv' ]; then python3.12 -m venv .venv; fi; source .venv/bin/activate && export PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1 && pip install -r requirements.txt && python3.12 src/main.py"
 
-  web:
-    desc: "Run Astro Web Dashboard"
+  clean:
+    desc: "Remove stale Tauri/Cargo build artifacts (run after moving the repo)"
+    dir: oentike-web/src-tauri
+    cmds:
+      - cargo clean
+      - rm -rf gen
+
+  tauri-dev:
+    internal: true
+    desc: "Launch Tauri dev server only (no install/clean)"
     dir: oentike-web
     cmds:
-      - npm run dev
+      - npx tauri dev
+
+  dev:
+    desc: "Launch SOC desktop (npm install, NATS, Tauri). Use FRESH=1 to reset cache."
+    cmds:
+      - cd oentike-web && npm install
+      - cd oentike-web && npx astro dev stop 2>/dev/null || true
+      - |
+        if [ "{{.FRESH}}" = "1" ]; then
+          echo "FRESH=1 — clearing Tauri build cache..."
+          task clean
+        fi
+      - task: nats
+      - task: tauri-dev
 
   ollama:
     desc: "Run local Ollama server with qwen3-vl:4b"
     cmds:
-      - nix shell github:NixOS/nixpkgs/nixpkgs-unstable#ollama -c bash -c 'OLLAMA_HOST=127.0.0.1:11434 ollama serve & sleep 5 && ollama pull qwen3-vl:4b && wait'
+      - |
+        bash -c 'if curl -s http://127.0.0.1:11434/ >/dev/null; then
+          echo "Ollama is already running."
+        else
+          nohup ollama serve > /dev/null 2>&1 &
+          sleep 5
+        fi
+        ollama pull qwen3-vl:4b'
 
   envoy:
     desc: "Run Envoy Proxy with WASM filter via Docker"
     deps: [wasm]
     cmds:
       - sleep 12
-      - sudo docker rm -f zt-fingate-envoy || true
-      - sudo docker run -u root --rm --name zt-fingate-envoy -p 10000:10000 -p 9901:9901 -v ${PWD}/envoy.yaml:/etc/envoy/envoy.yaml -v ${PWD}/oentike-wasm-filter/target/wasm32-wasip1/release/oentike_wasm_filter.wasm:/etc/envoy/wasm/oentike_wasm_filter.wasm -v ${PWD}/spire/sockets:/tmp/spire-sockets --add-host host.docker.internal:host-gateway envoyproxy/envoy:v1.31-latest
+      - docker rm -f oentike-envoy || true
+      - docker run -u root --rm --name oentike-envoy -p 10000:10000 -p 9901:9901 -v ${PWD}/envoy.yaml:/etc/envoy/envoy.yaml -v ${PWD}/oentike-wasm-filter/target/wasm32-wasip1/release/oentike_wasm_filter.wasm:/etc/envoy/wasm/oentike_wasm_filter.wasm -v spire-sockets-vol:/tmp/spire-sockets --add-host host.docker.internal:host-gateway envoyproxy/envoy:v1.31-latest
 
   wasm:
-    desc: "Compile WASM FinOps Tollbooth filter"
+    desc: "Compile Envoy WASM AI-Mesh filter (PII redaction)"
     dir: oentike-wasm-filter
     cmds:
-      - nix-shell -p rustup cargo rustc --run "rustup default stable && rustup target add wasm32-wasip1 && cargo build --target wasm32-wasip1 --release"
+      - export PATH="$HOME/.cargo/bin:$PATH" && rustup default stable && rustup target add wasm32-wasip1 && cargo build --target wasm32-wasip1 --release
 
-  agent:
-    desc: "Compile and run Rust agent with UI (Edge Agent)"
-    dir: oentike-edge-agent
+  sensor:
+    desc: "Run Test Edge Sensor"
+    dir: test-client
     cmds:
-      - sleep 12
-      - nix-shell --run "cargo run"
+      - sleep 15 && go run .
 
   start-all:
-    desc: "Launch ALL components concurrently (NATS, Go, Python, Astro, Rust, Ollama, Envoy, SPIRE)"
+    desc: "Launch ALL components concurrently (NATS, Go, Python, Tauri, Ollama, Envoy, SPIRE)"
+    deps: [setup]
     cmds:
-      - echo "Requesting sudo password upfront for Docker containers..."
-      - sudo -v
+      - echo "Starting all containers..."
       - task: run-all
 
   run-all:
     internal: true
-    deps: [spire, nats, wasm, server, ai, web, agent, ollama, envoy]
+    deps: [spire, wasm, server, ai, tauri-dev, ollama, envoy, sensor]
 
   spire:
     desc: "Start SPIRE server and agent via register_spire.sh"

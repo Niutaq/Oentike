@@ -21,13 +21,13 @@ type AIProcessedEvent struct {
 	} `json:"extracted"`
 }
 
-// StartApprovalWorker starts a background worker that consumes FinOps events from JetStream
-func StartApprovalWorker(ctx context.Context, js jetstream.JetStream) {
+// StartApprovalWorker starts a background worker that consumes SecOps events from JetStream
+func StartApprovalWorker(ctx context.Context, js jetstream.JetStream, srv *server) {
 	// Create a consumer
-	consumer, err := js.CreateOrUpdateConsumer(ctx, "FINOPS_EVENTS", jetstream.ConsumerConfig{
+	consumer, err := js.CreateOrUpdateConsumer(ctx, "SECOPS_EVENTS", jetstream.ConsumerConfig{
 		Durable:       "APPROVAL_WORKER",
 		AckPolicy:     jetstream.AckExplicitPolicy,
-		FilterSubject: "FINOPS.ai_processed",
+		FilterSubject: "SECOPS.ai_processed",
 	})
 	if err != nil {
 		log.Fatalf("Failed to create consumer for approval worker: %v", err)
@@ -38,7 +38,7 @@ func StartApprovalWorker(ctx context.Context, js jetstream.JetStream) {
 		log.Fatalf("Failed to create message iterator: %v", err)
 	}
 
-	log.Println("[Approval Worker] Started consuming FINOPS.ai_processed events from stream.")
+	log.Println("[Approval Worker] Started consuming SECOPS.ai_processed events from stream.")
 
 	go func() {
 		for {
@@ -53,13 +53,13 @@ func StartApprovalWorker(ctx context.Context, js jetstream.JetStream) {
 					continue
 				}
 
-				processMessage(msg)
+				processMessage(msg, srv)
 			}
 		}
 	}()
 }
 
-func processMessage(msg jetstream.Msg) {
+func processMessage(msg jetstream.Msg, srv *server) {
 	log.Printf("[Approval Worker] Received AI processed message: %s", string(msg.Data()))
 
 	var event AIProcessedEvent
@@ -80,6 +80,13 @@ func processMessage(msg jetstream.Msg) {
 		log.Printf("[Approval Worker] Failed to save decision: %v", err)
 	} else {
 		log.Printf("[Approval Worker] Decision saved to database for agent %s", event.AgentID)
+	}
+
+	if event.Status == "QUARANTINED" || event.Status == "THREAT_DETECTED" {
+		log.Printf("[SecOps] AI decided to quarantine agent: %s. Applying Ban...", event.AgentID)
+		if srv != nil {
+			srv.BanAgent(event.AgentID)
+		}
 	}
 
 	msg.Ack()

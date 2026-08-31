@@ -1,0 +1,7 @@
+[[permission]]
+identifier = "run-oentike-commands"
+description = "Allow Oentike desktop commands"
+commands.allow = [
+  "get_system_stats",
+  "get_live_status",
+]

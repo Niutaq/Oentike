@@ -1,21 +1,22 @@
 :root {
-    --bg-dark: #0f111a;
-    --panel-bg: rgba(25, 28, 41, 0.65);
-    --panel-border: rgba(255, 255, 255, 0.08);
-    --text-main: #e2e8f0;
+    --bg-dark: #0b0e14;
+    --panel-bg: rgba(15, 20, 25, 0.85);
+    --panel-border: #1e293b;
+    --text-main: #f8fafc;
     --text-muted: #94a3b8;
-    --primary: #ff7b00;
-    --primary-glow: rgba(255, 123, 0, 0.4);
-    --secondary: #6366f1;
-    --accent-green: #10b981;
-    --accent-red: #ef4444;
+    --primary: #ea5c00;
+    --primary-glow: rgba(234, 92, 0, 0.3);
+    --secondary: #00ff66;
+    --secondary-glow: rgba(0, 255, 102, 0.3);
+    --accent-red: #ff3333;
+    --accent-red-glow: rgba(255, 51, 51, 0.3);
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
 body {
@@ -26,37 +27,13 @@ body {
     position: relative;
 }
 
-/* Dynamic background gradients */
-body::before, body::after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(120px);
-    z-index: -1;
-}
-
-body::before {
-    top: -10%;
-    left: -10%;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
-}
-
-body::after {
-    bottom: -10%;
-    right: -10%;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
-}
-
 /* Layout */
 .app-container {
     display: flex;
+    flex-direction: column;
     height: 100vh;
     padding: 1rem;
-    gap: 1.5rem;
+    gap: 1rem;
 }
 
 .glass-panel {
@@ -64,8 +41,32 @@ body::after {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--panel-border);
-    border-radius: 20px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.5);
+}
+
+.glass-panel::-webkit-resizer {
+    background-color: transparent;
+    border-top: 2px solid var(--primary);
+    border-left: 2px solid var(--secondary);
+    border-bottom-right-radius: 20px;
+    background-clip: content-box;
+}
+
+/* Scrollbar for resizable panels */
+.glass-panel::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.glass-panel::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+.glass-panel::-webkit-scrollbar-thumb {
+    background: rgba(255, 140, 0, 0.5);
+    border-radius: 10px;
+}
+.glass-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
 }
 
 /* Sidebar */
@@ -239,45 +240,6 @@ body::after {
     font-weight: 300;
 }
 
-.hero-graphic {
-    position: absolute;
-    right: 5%;
-    top: -50%;
-    width: 300px;
-    height: 300px;
-    opacity: 0.6;
-}
-
-.orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(40px);
-}
-
-.orb-1 {
-    width: 150px;
-    height: 150px;
-    background: var(--primary);
-    top: 50px;
-    right: 20px;
-    animation: float 6s ease-in-out infinite;
-}
-
-.orb-2 {
-    width: 120px;
-    height: 120px;
-    background: var(--secondary);
-    bottom: 20px;
-    left: 40px;
-    animation: float 8s ease-in-out infinite reverse;
-}
-
-@keyframes float {
-    0% { transform: translateY(0px) scale(1); }
-    50% { transform: translateY(-20px) scale(1.1); }
-    100% { transform: translateY(0px) scale(1); }
-}
-
 .stat-card {
     padding: 1.5rem;
     display: flex;
@@ -337,12 +299,12 @@ body::after {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary), #e65c00);
-    color: white;
-    border: none;
+    background: rgba(255, 140, 0, 0.15);
+    color: var(--primary);
+    border: 1px solid var(--primary);
     padding: 0.5rem 1.25rem;
     border-radius: 8px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -431,9 +393,9 @@ body::after {
 }
 
 .status-rejected {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--accent-red);
-    border: 1px solid rgba(239, 68, 68, 0.2);
+    background: rgba(255, 140, 0, 0.1);
+    color: var(--primary);
+    border: 1px solid rgba(255, 140, 0, 0.2);
 }
 
 .fade-in {
@@ -480,9 +442,9 @@ body::after {
 }
 
 .tag-risk-high {
-    background: rgba(239, 68, 68, 0.15);
-    color: var(--accent-red);
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: rgba(255, 140, 0, 0.15);
+    color: var(--primary);
+    border: 1px solid rgba(255, 140, 0, 0.3);
 }
 
 .ai-reasoning {
