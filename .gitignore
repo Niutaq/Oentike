@@ -49,13 +49,8 @@ test-venv/
 
 # Go binaries
 **/bin/
-oentike-control-plane/oentike-control-plane
-test-client/test-client
 
 # Databases
 *.db
 *.sqlite
 *.sqlite3
-
-# Spire
-spire/sockets/

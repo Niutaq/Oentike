@@ -1,15 +1,14 @@
 <div align="center">
 
-<img src="./oentike-web/public/oentike-logo.svg" alt="Oentike logo" width="112" />
-
-# Oentike
+<img src="./oentike-web/public/oentike-wordmark.svg" alt="Oentike" width="220" />
 
 Local mushroom-conditions helper for Polish forests: explainable scores, a coarse seasonal map, offline atlas later.
 
 [![Go](https://img.shields.io/badge/API-Go_gRPC-00ADD8?style=for-the-badge&logo=go)](./oentike-api)
 [![PostGIS](https://img.shields.io/badge/Geo-PostGIS-336791?style=for-the-badge)](./oentike-api/migrations)
 [![Tauri](https://img.shields.io/badge/Desktop-Tauri_2-FFC131?style=for-the-badge&logo=tauri)](./oentike-web)
-[![SPIFFE](https://img.shields.io/badge/Identity_lab-SPIFFE%2FSPIRE-red?style=for-the-badge)](./spire)
+
+<img src="./Oentike.png" alt="Oentike — conditions view for Lasy Janowskie" width="100%" />
 
 </div>
 
@@ -36,27 +35,22 @@ grpcurl -plaintext -d '{"cell_id":"lasy-janowskie-01"}' \
 
 Stop UI/API with `Ctrl+C`. Stop PostGIS with `task oentike:down`.
 
-Agent rules and the intended stack (H3, signed packs, SPIFFE on the product path, atlas, Gemma last): [`AI_AGENT_PROMPT.md`](./AI_AGENT_PROMPT.md).
-
 ---
 
 ## Layout
 
 | Path | Role |
 |---|---|
-| `oentike-api/` | Product API: migrations, PostGIS, gRPC conditions |
-| `oentike-proto/` | `conditions.proto` (product) and `fingate.proto` (identity lab) |
+| `oentike-api/` | PostGIS migrations, gRPC conditions, Open-Meteo ingest |
+| `oentike-proto/` | `conditions.proto` |
 | `oentike-web/` | Astro UI + Tauri desktop |
-| `oentike-control-plane/`, `spire/`, `envoy.yaml`, `oentike-wasm-filter/`, `test-client/`, `trigger/` | **Identity lab** - SPIFFE/mTLS/Envoy to reuse on ingest/sync later, not the default `task dev` path |
-| `docker-compose.yml` | PostGIS (`profile: oentike`) plus lab services |
-
-`task start-all` still boots the identity lab (no Python LLM, no Ollama). `./demo_kill_switch.sh` is the old quarantine demo.
+| `docker-compose.yml` | PostGIS |
 
 ---
 
 ## Tooling
 
-Pinned in [`mise.toml`](./mise.toml): Go, Rust, protoc. Workflows in [`Taskfile.yml`](./Taskfile.yml).
+Pinned in [`mise.toml`](./mise.toml): Go, Rust, protoc. `task --list` is the list.
 
 ```bash
 mise install
@@ -67,8 +61,12 @@ task --list
 | Task | What |
 |---|---|
 | `dev` | Proto + migrate + API + Tauri |
+| `oentike:up` / `oentike:down` | Start / stop PostGIS |
+| `oentike:migrate` | Goose migrations |
+| `oentike:proto` | Generate gRPC stubs |
 | `oentike:api` | Health `:8081` + gRPC `:8082` |
 | `oentike:ingest` | Open-Meteo → `ingest_runs` + `weather_samples` |
 | `oentike:test` | Go tests |
 | `oentike:ui` | Desktop only (`FRESH=1` clears Tauri cache) |
-| `start-all` | Identity lab + Tauri |
+| `setup` | npm + rustup if missing |
+| `clean` | `cargo clean` in Tauri (after moving the repo) |

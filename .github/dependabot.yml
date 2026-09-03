@@ -4,14 +4,6 @@ updates:
     directory: "/oentike-api"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "gomod"
-    directory: "/oentike-control-plane"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "cargo"
-    directory: "/oentike-wasm-filter"
-    schedule:
-      interval: "weekly"
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
