@@ -39,7 +39,7 @@ Crowd reports, if any, are opt-in, cell-blurred, and legally our own — not imp
 | Data trust | Signed packs (cosign and/or TUF): atlas, tiles, weather snapshots | Supply chain of *data* |
 | Later geo intel | STAC + COG (e.g. Copernicus/Sentinel) | Habitat/moisture, not a second weather JSON |
 
-Reuse SPIRE, NATS, Envoy, OTel from the existing SecOps lab **as machinery**. New schemas, NATS subjects, and UI are **conditions, cells, atlas, sync** — not quarantine/FinOps. Do not dump mushroom tables into `oentike-control-plane` SQLite; give the product its own API/DB (`oentike-api` + PostGIS) and attach identity/events around it.
+Add SPIFFE, NATS, Envoy, OTel **onto the mushroom path** when a real ingest/sync need exists. Do not park a leftover SOC/FinOps/quarantine demo in this repo. Product data lives in `oentike-api` + PostGIS.
 
 REST is a thin read API. Value is grid, signatures, offline, and explainable scores.
 
@@ -64,7 +64,7 @@ The owner wants to **do the work and learn**. The agent must not complete the wh
 - Fetch one BDL/OGC layer and say what CRS it is in.
 - Sign and verify one atlas or snapshot pack.
 - Sketch one atlas card (fields + one lookalike) from a cited source.
-- Hit `task dev` / `task start-all` and describe what came up.
+- Hit `task dev` and describe what came up.
 
 When a task is a learning beat, say so, give the exact command or file, and wait for their result before proceeding. Teach in Polish if they write in Polish. No wall of generated config “as a gift”.
 
@@ -79,8 +79,7 @@ When a task is a learning beat, say so, give the exact command or file, and wait
 ## 7. How to run
 
 ```bash
-task dev          # PostGIS, API, NATS, Tauri conditions UI
-task start-all    # full identity/lab stack (SPIRE, Envoy, …) — needs sudo/socket perms
+task dev          # PostGIS, API, Tauri conditions UI
 ```
 
 Pilot slice remains: one area (Lasy Janowskie), one species. Open-Meteo ingest stores samples; `GetConditions` may fill factors but must not invent a score. Seasonal map and atlas packs come after the cell score is real — or in parallel only as empty, signed schemas, not fake heatmaps.

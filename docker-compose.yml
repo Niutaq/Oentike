@@ -1,9 +1,7 @@
-
 services:
   postgis:
     image: kartoza/postgis:17-3.5
     container_name: oentike-postgis
-    profiles: ["oentike"]
     environment:
       POSTGRES_USER: oentike
       POSTGRES_PASS: oentike
@@ -20,70 +18,6 @@ services:
       retries: 15
       start_period: 5s
 
-  nats:
-    image: nats:latest
-    container_name: oentike-nats
-    command: ["-js", "-c", "/nats.conf"]
-    volumes:
-      - ./nats.conf:/nats.conf
-    ports:
-      - "4222:4222"
-      - "9222:9222"
-
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    container_name: oentike-jaeger
-    environment:
-      - COLLECTOR_OTLP_ENABLED=true
-    ports:
-      - "16686:16686" # UI
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP
-
-  control-plane:
-    build:
-      context: ./oentike-control-plane
-    container_name: oentike-control-plane
-    environment:
-      - NATS_URL=nats://nats:4222
-    ports:
-      - "50051:50051"
-    depends_on:
-      - nats
-
-  spire-server:
-    image: ghcr.io/spiffe/spire-server:1.10.1
-    container_name: oentike-spire-server
-    volumes:
-      - ./spire/server.conf:/opt/spire/conf/server/server.conf
-    command: ["-config", "/opt/spire/conf/server/server.conf"]
-
-  spire-agent:
-    image: ghcr.io/spiffe/spire-agent:1.10.1
-    container_name: oentike-spire-agent
-    pid: "host"
-    volumes:
-      - ./spire/agent.conf:/opt/spire/conf/agent/agent.conf
-      - spire-sockets-vol:/opt/spire/sockets
-    command: ["-config", "/opt/spire/conf/agent/agent.conf", "-joinToken", "${SPIRE_JOIN_TOKEN:-}"]
-    depends_on:
-      - spire-server
-
-  envoy:
-    image: envoyproxy/envoy:v1.31-latest
-    container_name: oentike-envoy
-    volumes:
-      - ./envoy.yaml:/etc/envoy/envoy.yaml
-      - ./oentike-wasm-filter/target/wasm32-wasip1/release/oentike_wasm_filter.wasm:/etc/envoy/wasm/oentike_wasm_filter.wasm
-      - spire-sockets-vol:/tmp/spire-sockets
-    ports:
-      - "10000:10000"
-      - "9901:9901"
-    depends_on:
-      - control-plane
-
 volumes:
   postgis-data:
     name: oentike-postgis-data
-  spire-sockets-vol:
-    name: spire-sockets-vol
