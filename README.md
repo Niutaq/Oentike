@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./oentike-web/public/oentike-wordmark.svg" alt="Oentike" width="220" />
+<img src="./oentike-web/public/oentike-wordmark.svg" alt="Oentike" width="192" />
 
 Local mushroom-conditions helper for Polish forests: explainable scores, a coarse seasonal map, offline atlas later.
 
