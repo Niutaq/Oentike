@@ -1,675 +1,789 @@
 ---
 import "../styles/global.css";
+import MushroomIcon from "../components/MushroomIcon.astro";
+
+const factors = [
+    { label: "factors.rain", period: "factors.rainPeriod", unit: "mm" },
+    { label: "factors.soil", period: "factors.soilPeriod", unit: "°C" },
+    { label: "factors.humidity", period: "factors.humidityPeriod", unit: "%" },
+];
+
+const bdlMapUrl =
+    "https://mapserver.bdl.lasy.gov.pl/arcgis/rest/services/WMS_BDL/MapServer/export?bbox=2463133,6544060,2477133,6558060&bboxSR=3857&imageSR=3857&size=900,500&format=png32&transparent=false&f=image";
 ---
 
-<html lang="en">
+<!doctype html>
+<html lang="pl">
     <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width" />
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="generator" content={Astro.generator} />
-        <link rel="icon" type="image/svg+xml" href="/oentike-logo.svg" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap"
-            rel="stylesheet"
+        <meta
+            id="page-description"
+            name="description"
+            content="Oentike — przejrzysta analiza warunków grzybowych dla polskich lasów."
         />
-        <title>Oentike</title>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/svg+xml" href="/oentike-logo.svg" />
+        <title>Oentike - warunki grzybowe</title>
+        <script is:inline>
+            (() => {
+                const root = document.documentElement;
+                try {
+                    root.dataset.theme =
+                        localStorage.getItem("oentike-theme") ||
+                        (matchMedia("(prefers-color-scheme: dark)").matches
+                            ? "dark"
+                            : "light");
+                    root.dataset.size =
+                        localStorage.getItem("oentike-size") || "medium";
+                    root.dataset.contrast =
+                        localStorage.getItem("oentike-contrast") || "normal";
+                } catch {
+                    root.dataset.theme = "light";
+                    root.dataset.size = "medium";
+                    root.dataset.contrast = "normal";
+                }
+            })();
+        </script>
     </head>
     <body>
-        <div class="shell">
-            <main>
-                <header class="topbar">
-                    <div class="page-heading">
-                        <img class="header-mark" src="/oentike-logo.svg" alt="" />
+        <header class="site-header">
+            <a
+                class="brand"
+                href="/"
+                aria-label="Oentike — strona główna"
+                data-i18n-aria="meta.home"
+            >
+                <span>Oen</span>
+                <MushroomIcon class="brand-mark" variant="brand" />
+                <span>ke</span>
+            </a>
+
+            <nav aria-label="Główna nawigacja" data-i18n-aria="meta.navigation">
+                <a href="#warunki" data-i18n="nav.conditions">Warunki</a>
+                <a href="#obszar" data-i18n="nav.area">Obszar</a>
+                <a href="#zrodla" data-i18n="nav.sources">Źródła</a>
+            </nav>
+
+            <div
+                class="ux-controls"
+                aria-label="Ustawienia wyglądu"
+                data-i18n-aria="controls.appearance"
+            >
+                <div
+                    class="language-control"
+                    role="group"
+                    aria-label="Język"
+                    data-i18n-aria="controls.language"
+                >
+                    <button type="button" data-language="pl">PL</button>
+                    <button type="button" data-language="en">EN</button>
+                </div>
+                <div
+                    class="size-control"
+                    role="group"
+                    aria-label="Rozmiar interfejsu"
+                    data-i18n-aria="controls.size"
+                >
+                    <button
+                        type="button"
+                        data-size="small"
+                        aria-label="Mały interfejs"
+                    >
+                        <MushroomIcon class="small" />
+                    </button>
+                    <button
+                        type="button"
+                        data-size="medium"
+                        aria-label="Średni interfejs"
+                    >
+                        <MushroomIcon class="medium" />
+                    </button>
+                    <button
+                        type="button"
+                        data-size="large"
+                        aria-label="Duży interfejs"
+                    >
+                        <MushroomIcon class="large" />
+                    </button>
+                </div>
+                <button
+                    class="contrast-toggle"
+                    id="contrast-toggle"
+                    type="button"
+                    aria-label="Włącz wysoki kontrast"
+                    aria-pressed="false"
+                >
+                    <MushroomIcon class="contrast" />
+                </button>
+                <button
+                    class="theme-toggle"
+                    id="theme-toggle"
+                    type="button"
+                    aria-label="Włącz ciemny motyw"
+                    aria-pressed="false"
+                >
+                    <MushroomIcon class="theme" variant="theme" />
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <section class="intro">
+                <div>
+                    <p class="eyebrow" id="current-date">LASY JANOWSKIE</p>
+                    <h1 data-i18n="intro.title">Warunki dla grzybów</h1>
+                    <p class="lead" data-i18n="intro.lead">
+                        Wyjaśnialna ocena oparta na pogodzie — bez zgadywania i
+                        bez ujawniania dokładnych miejsc.
+                    </p>
+                </div>
+                <button
+                    class="refresh-button"
+                    id="refresh-button"
+                    type="button"
+                >
+                    <svg
+                        class="refresh-icon"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path d="M19.3 8.2A8 8 0 1 0 20 15"></path>
+                        <path d="M20 4v5.5h-5.5"></path>
+                    </svg>
+                    <span data-i18n="controls.refresh">Odśwież</span>
+                </button>
+            </section>
+
+            <section class="condition-card" id="warunki">
+                <div class="condition-copy">
+                    <div class="section-heading">
+                        <p class="eyebrow" data-i18n="condition.eyebrow">
+                            OCENA WARUNKÓW
+                        </p>
+                        <span
+                            class="availability"
+                            data-i18n="condition.unavailable">Brak danych</span
+                        >
+                    </div>
+                    <h2
+                        id="condition-title"
+                        data-i18n="condition.checkingTitle"
+                    >
+                        Sprawdzamy gotowość systemu.
+                    </h2>
+                    <p
+                        id="condition-description"
+                        data-i18n="condition.checkingDescription"
+                    >
+                        Ocena pojawi się dopiero po pobraniu kompletnych danych
+                        pogodowych.
+                    </p>
+                    <dl class="metadata">
                         <div>
-                        <p class="eyebrow" id="current-date"></p>
-                        <h1 data-i18n="pageTitle">Activity overview</h1>
+                            <dt data-i18n="condition.species">Gatunek</dt>
+                            <dd>Boletus edulis</dd>
                         </div>
-                    </div>
-
-                    <div class="topbar-actions">
-                        <div class="language-switch" aria-label="Language">
-                            <button data-language="en" class="active">EN</button>
-                            <button data-language="pl">PL</button>
+                        <div>
+                            <dt data-i18n="condition.area">Obszar</dt>
+                            <dd>Lasy Janowskie 01</dd>
                         </div>
-                        <button class="theme-switch" id="theme-switch" aria-label="Change theme">
-                            <span id="theme-icon">☾</span>
-                            <span id="theme-label">Dark</span>
-                        </button>
-                        <div class="health" id="app-health" role="status" aria-label="Checking">
-                            <span class="health-dot"></span>
+                        <div>
+                            <dt data-i18n="condition.updated">Aktualizacja</dt>
+                            <dd
+                                id="last-check"
+                                class="animated-time"
+                                aria-live="polite"
+                            >
+                                --:--
+                            </dd>
                         </div>
-                    </div>
-                </header>
-
-                <div class="browser-note" id="browser-note" hidden data-i18n="browserNote">
-                    Open the desktop window to receive live data. This browser preview is read-only.
+                    </dl>
                 </div>
 
-                <section class="hero" id="overview">
+                <div
+                    class="score"
+                    aria-label="Wynik nie został jeszcze obliczony"
+                >
+                    <span>—</span>
+                    <small>/ 100</small>
+                    <p data-i18n="condition.notCalculated">Nie obliczono</p>
+                </div>
+            </section>
+
+            <section class="section-block" aria-labelledby="factors-title">
+                <div class="section-title">
                     <div>
-                        <p class="eyebrow" data-i18n="currentState">CURRENT STATE</p>
-                        <h2 id="state-title" data-i18n="stateChecking">Connecting…</h2>
-                        <p class="hero-copy" id="state-copy" data-i18n="stateCheckingCopy">
-                            Waiting for the live connection.
+                        <p class="eyebrow" data-i18n="factors.eyebrow">
+                            DANE WEJŚCIOWE
                         </p>
+                        <h2 id="factors-title" data-i18n="factors.title">
+                            Składniki oceny
+                        </h2>
                     </div>
-                    <div class="hero-orbit" aria-hidden="true">
-                        <span></span>
-                        <i></i>
-                    </div>
-                </section>
+                    <p data-i18n="factors.note">
+                        Brak próbki oznacza brak wyniku.
+                    </p>
+                </div>
 
-                <section class="metrics" aria-label="Current summary">
-                    <article class="metric-card">
-                        <div class="metric-heading">
-                            <span data-i18n="eventsReceived">Events received</span>
-                            <span class="metric-mark blue">↗</span>
-                        </div>
-                        <strong id="event-count">0</strong>
-                        <p data-i18n="thisSession">During this session</p>
-                    </article>
-                    <article class="metric-card">
-                        <div class="metric-heading">
-                            <span data-i18n="findings">Findings</span>
-                            <span class="metric-mark orange">!</span>
-                        </div>
-                        <strong id="finding-count">0</strong>
-                        <p data-i18n="requiresAttention">Requiring attention</p>
-                    </article>
-                    <article class="metric-card">
-                        <div class="metric-heading">
-                            <span data-i18n="deviceLoad">Device load</span>
-                            <span class="metric-mark green">•</span>
-                        </div>
-                        <strong id="load-value">—</strong>
-                        <p data-i18n="measuredLive">Measured live</p>
-                    </article>
-                </section>
-
-                <section class="content-grid" id="activity">
-                    <article class="panel activity-panel">
-                        <div class="panel-heading">
-                            <div>
-                                <p class="eyebrow" data-i18n="liveActivity">LIVE ACTIVITY</p>
-                                <h3 data-i18n="recentEvents">Recent events</h3>
-                            </div>
-                            <span class="live-badge" id="live-badge">
-                                <i></i><span data-i18n="waiting">Waiting</span>
-                            </span>
-                        </div>
-
-                        <div class="feed" id="event-feed">
-                            <div class="empty-state" id="empty-state">
-                                <span class="empty-icon">◎</span>
+                <div class="factor-list">
+                    {
+                        factors.map((factor) => (
+                            <article class="factor-row">
                                 <div>
-                                    <strong data-i18n="noEvents">No events received yet</strong>
-                                    <p data-i18n="noEventsCopy">
-                                        New activity will appear here automatically.
-                                    </p>
+                                    <strong data-i18n={factor.label} />
+                                    <span data-i18n={factor.period} />
                                 </div>
-                            </div>
-                        </div>
-                    </article>
-
-                    <article class="panel resources-panel">
-                        <div class="panel-heading">
-                            <div>
-                                <p class="eyebrow" data-i18n="deviceHealth">DEVICE HEALTH</p>
-                                <h3 data-i18n="localResources">Local resources</h3>
-                            </div>
-                        </div>
-
-                        <div class="resource">
-                            <div class="resource-row">
-                                <span data-i18n="processing">Processing</span>
-                                <strong id="processing-value">—</strong>
-                            </div>
-                            <div class="progress"><span id="processing-bar"></span></div>
-                        </div>
-
-                        <div class="resource">
-                            <div class="resource-row">
-                                <span data-i18n="memory">Memory</span>
-                                <strong id="memory-value">—</strong>
-                            </div>
-                            <div class="progress orange-progress"><span id="memory-bar"></span></div>
-                        </div>
-
-                        <div class="availability" id="availability">
-                            <span class="availability-icon">✓</span>
-                            <div>
-                                <strong id="service-title" data-i18n="preparing">
-                                    Preparing connection
-                                </strong>
-                                <p id="service-copy" data-i18n="preparingCopy">
-                                    This usually takes a few seconds.
+                                <p>
+                                    <b>—</b> {factor.unit}
                                 </p>
-                            </div>
+                                <small data-i18n="factors.noSamples">
+                                    Brak próbek
+                                </small>
+                            </article>
+                        ))
+                    }
+                </div>
+            </section>
+
+            <div class="details-grid">
+                <section class="detail-card" id="obszar">
+                    <div class="section-title compact">
+                        <div>
+                            <p class="eyebrow" data-i18n="pilot.eyebrow">
+                                OBSZAR PILOTAŻOWY
+                            </p>
+                            <h2>Lasy Janowskie 01</h2>
                         </div>
-                    </article>
+                        <span class="tag">10 × 10 km</span>
+                    </div>
+
+                    <div class="cell-preview">
+                        <img
+                            src={bdlMapUrl}
+                            alt="Mapa oddziałów leśnych w rejonie Lasów Janowskich"
+                            data-i18n-alt="pilot.mapAlt"
+                            loading="lazy"
+                            referrerpolicy="no-referrer"
+                        />
+                        <div class="selected-cell"><span>LJ-01</span></div>
+                    </div>
+                    <p class="caption">
+                        <span data-i18n="pilot.sourcePrefix">Dane mapowe:</span>
+                        <a
+                            href="https://bdl.lasy.gov.pl/portal/uslugi-ogc?v=4"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            Bank Danych o Lasach
+                        </a>.
+                        <span data-i18n="pilot.privacy"
+                            >Analiza używa komórki, nie dokładnych punktów.</span
+                        >
+                    </p>
                 </section>
 
-            </main>
+                <section class="detail-card" id="zrodla">
+                    <div class="section-title compact">
+                        <div>
+                            <p class="eyebrow" data-i18n="sources.eyebrow">
+                                INFRASTRUKTURA
+                            </p>
+                            <h2 data-i18n="sources.title">Źródła</h2>
+                        </div>
+                    </div>
+
+                    <div class="source-list">
+                        <div class="source-row">
+                            <span class="source-dot"></span>
+                            <div>
+                                <strong>PostGIS</strong>
+                                <small data-i18n="sources.postgis"
+                                    >geometria i szeregi czasowe</small
+                                >
+                            </div>
+                            <b id="database-status" data-i18n="sources.checking"
+                                >Sprawdzanie</b
+                            >
+                        </div>
+                        <div class="source-row">
+                            <span class="source-dot"></span>
+                            <div>
+                                <strong>Bank Danych o Lasach</strong>
+                                <small data-i18n="sources.bdl"
+                                    >granice oddziałów · OGC WMS</small
+                                >
+                            </div>
+                            <b class="connected" data-i18n="sources.official"
+                                >Oficjalne</b
+                            >
+                        </div>
+                        <div class="source-row">
+                            <span class="source-dot muted"></span>
+                            <div>
+                                <strong>Open-Meteo</strong>
+                                <small data-i18n="sources.weather"
+                                    >historia i prognoza pogody</small
+                                >
+                            </div>
+                            <b class="pending" data-i18n="sources.pending"
+                                >Do podłączenia</b
+                            >
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <footer>
+                <p data-i18n="footer.promise">
+                    Każda przyszła ocena pokaże pochodzenie danych, wersję
+                    algorytmu i poziom pewności.
+                </p>
+                <span data-i18n="footer.version"
+                    >Oentike · wersja rozwojowa</span
+                >
+            </footer>
+        </main>
+
+        <div class="theme-wipe" id="theme-wipe" aria-hidden="true"></div>
+        <div class="custom-cursor" id="custom-cursor" aria-hidden="true">
+            <span></span>
         </div>
 
-        <script type="module">
-            import { invoke } from "@tauri-apps/api/core";
-            import { listen } from "@tauri-apps/api/event";
+        <script>
+            import { gsap } from "gsap";
+            import i18next from "i18next";
+            import { resources } from "../i18n";
 
-            const copy = {
-                en: {
-                    pageTitle: "Activity overview",
-                    checking: "Checking…",
-                    browserNote: "Open the desktop window to receive live data. This browser preview is read-only.",
-                    currentState: "CURRENT STATE",
-                    stateChecking: "Connecting…",
-                    stateCheckingCopy: "Waiting for the live connection.",
-                    stateReady: "Ready and listening.",
-                    stateReadyCopy: "Incoming activity will appear below as soon as it is received.",
-                    stateLimited: "Connection lost.",
-                    stateLimitedCopy: "Live activity cannot be received right now.",
-                    eventsReceived: "Events received",
-                    findings: "Findings",
-                    deviceLoad: "Device load",
-                    thisSession: "During this session",
-                    requiresAttention: "Requiring attention",
-                    measuredLive: "Measured live",
-                    liveActivity: "LIVE ACTIVITY",
-                    recentEvents: "Recent events",
-                    waiting: "Waiting",
-                    live: "Live",
-                    noEvents: "No events received yet",
-                    noEventsCopy: "New activity will appear here automatically.",
-                    deviceHealth: "DEVICE HEALTH",
-                    localResources: "Local resources",
-                    processing: "Processing",
-                    memory: "Memory",
-                    preparing: "Preparing connection",
-                    preparingCopy: "This usually takes a few seconds.",
-                    ready: "Ready for live activity",
-                    readyCopy: "The live connection is established.",
-                    offline: "Live connection lost",
-                    offlineCopy: "The app will keep trying to reconnect.",
-                    desktopRequired: "Desktop window required",
-                    desktopRequiredCopy: "Live features work only in the desktop window.",
-                    eventReviewed: "Review completed",
-                    eventReceived: "Activity received",
-                    findingDetected: "Finding detected",
-                    receivedNow: "Received just now",
-                    dark: "Dark",
-                    light: "Light",
-                    connected: "Connected",
-                    limited: "Limited",
-                    preview: "Preview mode",
-                },
-                pl: {
-                    pageTitle: "Przegląd aktywności",
-                    checking: "Sprawdzanie…",
-                    browserNote: "Otwórz aplikację desktopową, aby odbierać dane na żywo. Podgląd w przeglądarce jest tylko do odczytu.",
-                    currentState: "BIEŻĄCY STAN",
-                    stateChecking: "Łączenie…",
-                    stateCheckingCopy: "Oczekiwanie na połączenie na żywo.",
-                    stateReady: "Gotowe i nasłuchuje.",
-                    stateReadyCopy: "Nowa aktywność pojawi się poniżej natychmiast po odebraniu.",
-                    stateLimited: "Połączenie niedostępne.",
-                    stateLimitedCopy: "Nie można teraz odbierać aktywności na żywo.",
-                    eventsReceived: "Odebrane zdarzenia",
-                    findings: "Ustalenia",
-                    deviceLoad: "Obciążenie urządzenia",
-                    thisSession: "W tej sesji",
-                    requiresAttention: "Wymagające uwagi",
-                    measuredLive: "Pomiar na żywo",
-                    liveActivity: "AKTYWNOŚĆ NA ŻYWO",
-                    recentEvents: "Ostatnie zdarzenia",
-                    waiting: "Oczekiwanie",
-                    live: "Na żywo",
-                    noEvents: "Brak odebranych zdarzeń",
-                    noEventsCopy: "Nowa aktywność pojawi się tutaj automatycznie.",
-                    deviceHealth: "STAN URZĄDZENIA",
-                    localResources: "Lokalne zasoby",
-                    processing: "Przetwarzanie",
-                    memory: "Pamięć",
-                    preparing: "Przygotowanie połączenia",
-                    preparingCopy: "Zwykle trwa to kilka sekund.",
-                    ready: "Gotowe na aktywność",
-                    readyCopy: "Połączenie na żywo jest dostępne.",
-                    offline: "Utracono połączenie na żywo",
-                    offlineCopy: "Aplikacja będzie ponawiać próbę połączenia.",
-                    desktopRequired: "Wymagana aplikacja desktopowa",
-                    desktopRequiredCopy: "Funkcje na żywo są niedostępne w podglądzie przeglądarki.",
-                    eventReviewed: "Analiza zakończona",
-                    eventReceived: "Odebrano aktywność",
-                    findingDetected: "Wykryto ustalenie",
-                    receivedNow: "Odebrano przed chwilą",
-                    dark: "Ciemny",
-                    light: "Jasny",
-                    connected: "Połączono",
-                    limited: "Ograniczone",
-                    preview: "Tryb podglądu",
-                },
-            };
+            const root = document.documentElement;
+            const conditionTitle = document.getElementById("condition-title");
+            const conditionDescription = document.getElementById(
+                "condition-description",
+            );
+            const databaseStatus = document.getElementById("database-status");
+            const lastCheck = document.getElementById("last-check");
+            const refreshButton = document.getElementById("refresh-button");
+            const refreshIcon = document.querySelector(".refresh-icon");
+            const themeToggle = document.getElementById("theme-toggle");
+            const contrastToggle = document.getElementById("contrast-toggle");
+            const themeWipe = document.getElementById("theme-wipe");
+            const sizeButtons = document.querySelectorAll("[data-size]");
+            const languageButtons =
+                document.querySelectorAll("[data-language]");
+            const reducedMotion = matchMedia(
+                "(prefers-reduced-motion: reduce)",
+            ).matches;
+            let readinessState = "checking";
+            let displayedTime = "";
 
-            const nativeReady = () =>
-                typeof window !== "undefined" && window.__TAURI_INTERNALS__ != null;
+            const savedLanguage = localStorage.getItem("oentike-language");
+            const browserLanguage = navigator.language
+                .toLowerCase()
+                .startsWith("en")
+                ? "en"
+                : "pl";
+            await i18next.init({
+                lng: savedLanguage || browserLanguage,
+                fallbackLng: "pl",
+                resources,
+                interpolation: { escapeValue: false },
+            });
 
-            let language = localStorage.getItem("oentike-language") || "en";
-            let theme = localStorage.getItem("oentike-theme") || "light";
-            let connectionState = "checking";
-            let events = 0;
-            let findings = 0;
-            const unlisteners = [];
+            const t = (key) => i18next.t(key);
+            const locale = () =>
+                i18next.language === "en" ? "en-GB" : "pl-PL";
 
-            const health = document.getElementById("app-health");
-            const browserNote = document.getElementById("browser-note");
-            const stateTitle = document.getElementById("state-title");
-            const stateCopy = document.getElementById("state-copy");
-            const serviceTitle = document.getElementById("service-title");
-            const serviceCopy = document.getElementById("service-copy");
-            const liveBadge = document.getElementById("live-badge");
-            const eventFeed = document.getElementById("event-feed");
-            const processingValue = document.getElementById("processing-value");
-            const processingBar = document.getElementById("processing-bar");
-            const memoryValue = document.getElementById("memory-value");
-            const memoryBar = document.getElementById("memory-bar");
-
-            const t = (key) => copy[language][key] || copy.en[key] || key;
-
-            function renderDate() {
-                document.getElementById("current-date").textContent =
-                    new Intl.DateTimeFormat(language === "pl" ? "pl-PL" : "en-GB", {
-                        weekday: "long",
-                        day: "numeric",
-                        month: "long",
-                    }).format(new Date()).toUpperCase();
-            }
-
-            function renderConnection() {
-                health.className = "health";
-                if (connectionState === "ready") {
-                    health.classList.add("ready");
-                    health.setAttribute("aria-label", t("connected"));
-                    health.title = t("connected");
-                    stateTitle.textContent = t("stateReady");
-                    stateCopy.textContent = t("stateReadyCopy");
-                    serviceTitle.textContent = t("ready");
-                    serviceCopy.textContent = t("readyCopy");
-                    liveBadge.classList.add("active");
-                    liveBadge.querySelector("span").textContent = t("live");
-                } else if (connectionState === "limited") {
-                    health.classList.add("limited");
-                    health.setAttribute("aria-label", t("limited"));
-                    health.title = t("limited");
-                    stateTitle.textContent = t("stateLimited");
-                    stateCopy.textContent = t("stateLimitedCopy");
-                    serviceTitle.textContent = t("offline");
-                    serviceCopy.textContent = t("offlineCopy");
-                    liveBadge.querySelector("span").textContent = t("waiting");
-                } else if (connectionState === "preview") {
-                    health.classList.add("preview");
-                    health.setAttribute("aria-label", t("preview"));
-                    health.title = t("preview");
-                    stateTitle.textContent = t("stateLimited");
-                    stateCopy.textContent = t("stateLimitedCopy");
-                    serviceTitle.textContent = t("desktopRequired");
-                    serviceCopy.textContent = t("desktopRequiredCopy");
-                    liveBadge.querySelector("span").textContent = t("waiting");
-                } else {
-                    health.setAttribute("aria-label", t("checking"));
-                    health.title = t("checking");
-                    stateTitle.textContent = t("stateChecking");
-                    stateCopy.textContent = t("stateCheckingCopy");
-                }
-            }
-
-            function applyLanguage(nextLanguage) {
-                language = nextLanguage;
-                localStorage.setItem("oentike-language", language);
-                document.documentElement.lang = language;
+            function applyTranslations() {
+                root.lang = i18next.language;
+                document.title = t("meta.title");
+                document
+                    .getElementById("page-description")
+                    .setAttribute("content", t("meta.description"));
                 document.querySelectorAll("[data-i18n]").forEach((element) => {
                     element.textContent = t(element.dataset.i18n);
                 });
-                document.querySelectorAll("[data-language]").forEach((button) => {
-                    button.classList.toggle("active", button.dataset.language === language);
-                });
-                renderDate();
-                renderConnection();
-                renderThemeButton();
+                document
+                    .querySelectorAll("[data-i18n-aria]")
+                    .forEach((element) => {
+                        element.setAttribute(
+                            "aria-label",
+                            t(element.dataset.i18nAria),
+                        );
+                    });
+                document
+                    .querySelectorAll("[data-i18n-alt]")
+                    .forEach((element) => {
+                        element.setAttribute("alt", t(element.dataset.i18nAlt));
+                    });
+
+                const date = new Intl.DateTimeFormat(locale(), {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                }).format(new Date());
+                document.getElementById("current-date").textContent =
+                    `${date} · Lasy Janowskie`.toLocaleUpperCase(locale());
+
+                setState(readinessState);
+                syncPreferences();
             }
 
-            function renderThemeButton() {
-                document.documentElement.dataset.theme = theme;
-                document.getElementById("theme-icon").textContent = theme === "light" ? "☾" : "☀";
-                document.getElementById("theme-label").textContent =
-                    theme === "light" ? t("dark") : t("light");
-            }
+            function syncPreferences() {
+                const dark = root.dataset.theme === "dark";
+                const highContrast = root.dataset.contrast === "high";
+                const activeSize = root.dataset.size || "medium";
+                const sizeLabels = {
+                    small: t("controls.small"),
+                    medium: t("controls.medium"),
+                    large: t("controls.large"),
+                };
 
-            function applyTheme(nextTheme) {
-                theme = nextTheme;
-                localStorage.setItem("oentike-theme", theme);
-                renderThemeButton();
-            }
-
-            function isFinding(data) {
-                const state = String(
-                    data?.status ||
-                    data?.action ||
-                    data?.recommended_action ||
-                    data?.extracted?.recommended_action ||
-                    "",
-                ).toUpperCase();
-                return (
-                    data?.is_malicious === true ||
-                    data?.extracted?.is_malicious === true ||
-                    ["QUARANTINED", "THREAT_DETECTED", "QUARANTINE"].some((value) =>
-                        state.includes(value),
-                    )
+                themeToggle.setAttribute("aria-pressed", String(dark));
+                themeToggle.setAttribute(
+                    "aria-label",
+                    dark ? t("controls.light") : t("controls.dark"),
                 );
+                themeToggle.title = themeToggle.getAttribute("aria-label");
+
+                contrastToggle.setAttribute(
+                    "aria-pressed",
+                    String(highContrast),
+                );
+                contrastToggle.setAttribute(
+                    "aria-label",
+                    highContrast
+                        ? t("controls.contrastOff")
+                        : t("controls.contrastOn"),
+                );
+                contrastToggle.title =
+                    contrastToggle.getAttribute("aria-label");
+
+                sizeButtons.forEach((button) => {
+                    const size = button.dataset.size;
+                    button.setAttribute(
+                        "aria-pressed",
+                        String(size === activeSize),
+                    );
+                    button.setAttribute("aria-label", sizeLabels[size]);
+                    button.title = sizeLabels[size];
+                });
+                languageButtons.forEach((button) => {
+                    button.setAttribute(
+                        "aria-pressed",
+                        String(button.dataset.language === i18next.language),
+                    );
+                });
             }
 
-            function addEvent(data, reviewed = false) {
-                events += 1;
-                const finding = isFinding(data);
-                if (finding) findings += 1;
-                document.getElementById("event-count").textContent = events.toLocaleString();
-                document.getElementById("finding-count").textContent = findings.toLocaleString();
-                document.getElementById("empty-state")?.remove();
-
-                const item = document.createElement("div");
-                item.className = `feed-item${finding ? " finding" : ""}`;
-                item.innerHTML = `
-                    <span class="feed-status"></span>
-                    <div>
-                        <strong>${finding ? t("findingDetected") : reviewed ? t("eventReviewed") : t("eventReceived")}</strong>
-                        <p>${t("receivedNow")}</p>
-                    </div>
-                    <time>${new Date().toLocaleTimeString(language === "pl" ? "pl-PL" : "en-GB", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        second: "2-digit",
-                    })}</time>
-                `;
-                eventFeed.prepend(item);
-                while (eventFeed.children.length > 8) eventFeed.lastElementChild.remove();
-            }
-
-            async function updateResources() {
-                try {
-                    const stats = await invoke("get_system_stats");
-                    const cpu = Math.max(0, Math.min(100, Number(stats.cpu) || 0));
-                    const usedMemory = Math.max(0, Number(stats.used_ram_gb) || 0);
-                    const totalMemory = Math.max(0, Number(stats.total_ram_gb) || 0);
-                    const memoryPercent =
-                        totalMemory > 0 ? Math.min(100, (usedMemory / totalMemory) * 100) : 0;
-                    processingValue.textContent = `${cpu.toFixed(1)}%`;
-                    processingBar.style.width = `${cpu}%`;
-                    memoryValue.textContent = `${usedMemory.toFixed(1)} / ${totalMemory.toFixed(1)} GB`;
-                    memoryBar.style.width = `${memoryPercent}%`;
-                    document.getElementById("load-value").textContent = `${cpu.toFixed(1)}%`;
-                } catch {
-                    processingValue.textContent = "—";
-                    memoryValue.textContent = "—";
-                    document.getElementById("load-value").textContent = "—";
-                }
-            }
-
-            async function initializeLiveData() {
-                if (!nativeReady()) {
-                    connectionState = "preview";
-                    browserNote.hidden = false;
-                    renderConnection();
+            function animatePreferenceChange(callback) {
+                if (reducedMotion) {
+                    callback();
                     return;
                 }
 
-                try {
-                    unlisteners.push(
-                        await listen("live-status", (event) => {
-                            connectionState = event.payload === true ? "ready" : "limited";
-                            renderConnection();
-                        }),
-                    );
-                    unlisteners.push(
-                        await listen("review-event", (event) => {
-                            try {
-                                addEvent(JSON.parse(event.payload), true);
-                            } catch {
-                                addEvent({}, true);
-                            }
-                        }),
-                    );
-                    unlisteners.push(
-                        await listen("activity-event", (event) => {
-                            try {
-                                addEvent(JSON.parse(event.payload));
-                            } catch {
-                                addEvent({});
-                            }
-                        }),
-                    );
+                gsap.timeline()
+                    .to("main", {
+                        opacity: 0.65,
+                        y: 3,
+                        duration: 0.12,
+                        ease: "power2.in",
+                    })
+                    .add(callback)
+                    .to("main", {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.28,
+                        ease: "power2.out",
+                    });
+            }
 
-                    connectionState = (await invoke("get_live_status")) ? "ready" : "limited";
-                    renderConnection();
-                } catch {
-                    connectionState = "limited";
-                    renderConnection();
+            sizeButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    animatePreferenceChange(() => {
+                        root.dataset.size = button.dataset.size;
+                        localStorage.setItem(
+                            "oentike-size",
+                            button.dataset.size,
+                        );
+                        syncPreferences();
+                    });
+                    if (!reducedMotion) {
+                        gsap.fromTo(
+                            button.querySelector(".control-mushroom"),
+                            { scale: 0.72, rotate: -7 },
+                            {
+                                scale: 1,
+                                rotate: 0,
+                                duration: 0.45,
+                                ease: "back.out(2.2)",
+                            },
+                        );
+                    }
+                });
+            });
+
+            languageButtons.forEach((button) => {
+                button.addEventListener("click", async () => {
+                    await i18next.changeLanguage(button.dataset.language);
+                    localStorage.setItem(
+                        "oentike-language",
+                        button.dataset.language,
+                    );
+                    applyTranslations();
+                    if (!reducedMotion) {
+                        gsap.fromTo(
+                            "[data-i18n]",
+                            { opacity: 0.35, y: 2 },
+                            {
+                                opacity: 1,
+                                y: 0,
+                                duration: 0.28,
+                                stagger: 0.006,
+                            },
+                        );
+                    }
+                });
+            });
+
+            themeToggle.addEventListener("click", () => {
+                const nextTheme =
+                    root.dataset.theme === "dark" ? "light" : "dark";
+                const targetColor =
+                    nextTheme === "dark" ? "#101612" : "#f6f5ef";
+
+                if (reducedMotion) {
+                    root.dataset.theme = nextTheme;
+                    localStorage.setItem("oentike-theme", nextTheme);
+                    syncPreferences();
+                    return;
                 }
 
-                await updateResources();
-                window.setInterval(updateResources, 1500);
+                const bounds = themeToggle.getBoundingClientRect();
+                gsap.set(themeWipe, {
+                    display: "block",
+                    opacity: 1,
+                    scale: 0,
+                    x: bounds.left + bounds.width / 2,
+                    y: bounds.top + bounds.height / 2,
+                    backgroundColor: targetColor,
+                });
+                gsap.timeline()
+                    .to(themeToggle.querySelector(".control-mushroom"), {
+                        scaleY: 0.74,
+                        scaleX: 1.12,
+                        duration: 0.16,
+                        ease: "power2.in",
+                    })
+                    .to(
+                        themeWipe,
+                        { scale: 120, duration: 0.52, ease: "power3.inOut" },
+                        0,
+                    )
+                    .call(
+                        () => {
+                            root.dataset.theme = nextTheme;
+                            localStorage.setItem("oentike-theme", nextTheme);
+                            syncPreferences();
+                        },
+                        [],
+                        0.3,
+                    )
+                    .to(themeWipe, { opacity: 0, duration: 0.2 })
+                    .to(
+                        themeToggle.querySelector(".control-mushroom"),
+                        {
+                            scaleX: 1,
+                            scaleY: 1,
+                            duration: 0.38,
+                            ease: "elastic.out(1, 0.45)",
+                        },
+                        0.32,
+                    )
+                    .set(themeWipe, { display: "none", scale: 0, opacity: 1 });
+            });
+
+            contrastToggle.addEventListener("click", () => {
+                const nextContrast =
+                    root.dataset.contrast === "high" ? "normal" : "high";
+                root.dataset.contrast = nextContrast;
+                localStorage.setItem("oentike-contrast", nextContrast);
+                syncPreferences();
+                if (!reducedMotion) {
+                    gsap.fromTo(
+                        contrastToggle.querySelector(".control-mushroom"),
+                        { rotateY: 0 },
+                        { rotateY: 360, duration: 0.55, ease: "power3.inOut" },
+                    );
+                }
+            });
+
+            function animateTime(date) {
+                const value = new Intl.DateTimeFormat(locale(), {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                }).format(date);
+
+                if (value === displayedTime) {
+                    return;
+                }
+                displayedTime = value;
+
+                lastCheck.replaceChildren(
+                    ...Array.from(value, (character) => {
+                        const span = document.createElement("span");
+                        span.textContent = character;
+                        span.className = /\d/.test(character)
+                            ? "time-digit"
+                            : "time-separator";
+                        return span;
+                    }),
+                );
+                lastCheck.setAttribute("aria-label", value);
+
+                if (!reducedMotion) {
+                    gsap.from(lastCheck.querySelectorAll(".time-digit"), {
+                        yPercent: 90,
+                        opacity: 0,
+                        duration: 0.42,
+                        stagger: 0.025,
+                        ease: "back.out(1.7)",
+                    });
+                }
             }
 
-            document.querySelectorAll("[data-language]").forEach((button) => {
-                button.addEventListener("click", () => applyLanguage(button.dataset.language));
-            });
+            function startLiveClock() {
+                animateTime(new Date());
+                const untilNextMinute = 60_000 - (Date.now() % 60_000) + 50;
+                window.setTimeout(() => {
+                    animateTime(new Date());
+                    window.setInterval(() => animateTime(new Date()), 60_000);
+                }, untilNextMinute);
+            }
 
-            document.getElementById("theme-switch").addEventListener("click", () => {
-                applyTheme(theme === "light" ? "dark" : "light");
-            });
+            function setState(state) {
+                readinessState = state;
+                if (state === "ready") {
+                    conditionTitle.textContent = t("condition.readyTitle");
+                    conditionDescription.textContent = t(
+                        "condition.readyDescription",
+                    );
+                    databaseStatus.textContent = t("sources.connected");
+                    databaseStatus.className = "connected";
+                    return;
+                }
 
-            window.addEventListener("beforeunload", () => {
-                unlisteners.forEach((unlisten) => unlisten());
-            });
+                if (state === "unavailable") {
+                    conditionTitle.textContent = t("condition.offlineTitle");
+                    conditionDescription.textContent = t(
+                        "condition.offlineDescription",
+                    );
+                    databaseStatus.textContent = t("sources.unavailable");
+                    databaseStatus.className = "disconnected";
+                    return;
+                }
 
-            applyTheme(theme);
-            applyLanguage(language);
-            initializeLiveData();
+                conditionTitle.textContent = t("condition.checkingTitle");
+                conditionDescription.textContent = t(
+                    "condition.checkingDescription",
+                );
+                databaseStatus.textContent = t("sources.checking");
+                databaseStatus.className = "";
+            }
+
+            async function checkReadiness() {
+                setState("checking");
+                refreshButton.disabled = true;
+                const spin = reducedMotion
+                    ? null
+                    : gsap.to(refreshIcon, {
+                          rotate: "+=360",
+                          duration: 0.75,
+                          repeat: -1,
+                          ease: "none",
+                      });
+
+                try {
+                    const response = await fetch("/api/readyz", {
+                        cache: "no-store",
+                    });
+                    const payload = await response.json();
+                    setState(
+                        response.ok && payload.status === "ready"
+                            ? "ready"
+                            : "unavailable",
+                    );
+                } catch {
+                    setState("unavailable");
+                } finally {
+                    spin?.kill();
+                    gsap.set(refreshIcon, { rotate: 0 });
+                    refreshButton.disabled = false;
+                }
+            }
+
+            function initializeCursor() {
+                if (
+                    reducedMotion ||
+                    !matchMedia("(hover: hover) and (pointer: fine)").matches
+                ) {
+                    return;
+                }
+
+                const cursor = document.getElementById("custom-cursor");
+                root.classList.add("custom-cursor-enabled");
+                const moveX = gsap.quickTo(cursor, "x", {
+                    duration: 0.18,
+                    ease: "power3.out",
+                });
+                const moveY = gsap.quickTo(cursor, "y", {
+                    duration: 0.18,
+                    ease: "power3.out",
+                });
+
+                window.addEventListener("pointermove", (event) => {
+                    cursor.classList.add("active");
+                    moveX(event.clientX);
+                    moveY(event.clientY);
+                });
+                document.addEventListener("pointerover", (event) => {
+                    const interactive =
+                        event.target instanceof Element &&
+                        event.target.closest("a, button");
+                    gsap.to(cursor, {
+                        scale: interactive ? 1.65 : 1,
+                        rotate: interactive ? 12 : 0,
+                        duration: 0.22,
+                        ease: "power2.out",
+                    });
+                });
+            }
+
+            applyTranslations();
+            initializeCursor();
+            startLiveClock();
+            checkReadiness();
+            refreshButton.addEventListener("click", checkReadiness);
+            window.setInterval(checkReadiness, 30_000);
+
+            if (!reducedMotion) {
+                gsap.from(".site-header", {
+                    y: -14,
+                    opacity: 0,
+                    duration: 0.55,
+                    ease: "power3.out",
+                });
+                gsap.from(
+                    ".intro, .condition-card, .section-block, .detail-card, footer",
+                    {
+                        y: 18,
+                        opacity: 0,
+                        duration: 0.62,
+                        stagger: 0.07,
+                        ease: "power3.out",
+                    },
+                );
+            }
         </script>
-
-        <style>
-            :global(*) { box-sizing: border-box; }
-            :global(html) { scroll-behavior: smooth; }
-            :global(:root) {
-                --page: #f4f5f7;
-                --surface: #ffffff;
-                --surface-soft: #f8f9fb;
-                --text: #172033;
-                --muted: #7e889a;
-                --line: #e2e6ed;
-                --blue: #5972c5;
-                --blue-soft: #e9edfa;
-                --orange: #e8873c;
-                --orange-soft: #fff0e5;
-                --green: #3ea474;
-                --shadow: 0 7px 26px rgba(24, 34, 54, 0.05);
-            }
-            :global(html[data-theme="dark"]) {
-                --page: #10141d;
-                --surface: #191f2b;
-                --surface-soft: #202735;
-                --text: #edf0f6;
-                --muted: #929caf;
-                --line: #2b3443;
-                --blue: #8197e4;
-                --blue-soft: #29334f;
-                --orange: #f19a55;
-                --orange-soft: #3c2b22;
-                --green: #5bc38f;
-                --shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
-            }
-            :global(body) {
-                margin: 0;
-                min-width: 320px;
-                background: var(--page);
-                color: var(--text);
-                font-family: "DM Sans", sans-serif;
-                transition: background 180ms ease, color 180ms ease;
-            }
-            :global(button), :global(a) { font: inherit; }
-            .shell { min-height: 100vh; }
-            main { width: min(1280px, 100%); margin: 0 auto; padding: 34px 42px 56px; }
-            .topbar { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 28px; }
-            .page-heading { display: flex; align-items: center; gap: 13px; }
-            .header-mark { width: 38px; height: 38px; }
-            .topbar-actions { display: flex; align-items: center; gap: 9px; }
-            .eyebrow { margin: 0 0 7px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .14em; }
-            h1, h2, h3, p { margin-top: 0; }
-            h1, h2, h3 { font-family: "Manrope", sans-serif; letter-spacing: -.035em; }
-            h1 { margin-bottom: 0; font-size: 25px; }
-            .language-switch, .theme-switch, .health {
-                border: 1px solid var(--line);
-                background: var(--surface);
-                color: var(--muted);
-                box-shadow: var(--shadow);
-            }
-            .language-switch { display: flex; padding: 3px; border-radius: 9px; }
-            .language-switch button {
-                padding: 5px 8px;
-                border: 0;
-                border-radius: 6px;
-                color: var(--muted);
-                background: transparent;
-                cursor: pointer;
-                font-size: 10px;
-                font-weight: 700;
-            }
-            .language-switch button.active { color: #fff; background: var(--blue); }
-            .theme-switch {
-                display: flex;
-                align-items: center;
-                gap: 7px;
-                padding: 8px 10px;
-                border-radius: 9px;
-                cursor: pointer;
-                font-size: 11px;
-                font-weight: 600;
-            }
-            .health {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                width: 31px;
-                height: 31px;
-                border-radius: 50%;
-            }
-            .health-dot { width: 7px; height: 7px; border-radius: 50%; background: #a5acb9; }
-            .health.ready .health-dot { background: var(--green); box-shadow: 0 0 0 4px rgba(62,164,116,.12); }
-            .health.limited .health-dot, .health.preview .health-dot { background: var(--orange); }
-            .browser-note {
-                margin: -10px 0 22px;
-                padding: 12px 15px;
-                border: 1px solid #dba76f;
-                border-radius: 10px;
-                background: var(--orange-soft);
-                color: var(--text);
-                font-size: 13px;
-            }
-            .hero {
-                min-height: 205px;
-                padding: 34px 38px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                overflow: hidden;
-                border-radius: 18px;
-                color: #fff;
-                background:
-                    radial-gradient(circle at 88% 20%, rgba(238,152,85,.38), transparent 28%),
-                    linear-gradient(125deg, #1c2843, #354c7f);
-                box-shadow: 0 18px 48px rgba(38,55,92,.18);
-            }
-            .hero .eyebrow { color: #b7c4e3; }
-            .hero h2 { margin-bottom: 10px; font-size: clamp(30px, 4vw, 43px); }
-            .hero-copy { max-width: 570px; margin-bottom: 0; color: #c9d1e4; font-size: 15px; line-height: 1.6; }
-            .hero-orbit { position: relative; width: 130px; height: 130px; flex: none; border: 1px solid rgba(255,255,255,.18); border-radius: 50%; }
-            .hero-orbit::before, .hero-orbit::after {
-                content: "";
-                position: absolute;
-                inset: 20px;
-                border: 1px solid rgba(255,255,255,.14);
-                border-radius: 50%;
-            }
-            .hero-orbit::after { inset: 43px; background: var(--orange); border: 0; box-shadow: 0 0 34px rgba(238,152,85,.5); }
-            .hero-orbit span { position: absolute; width: 9px; height: 9px; top: 8px; left: 76px; border-radius: 50%; background: #fff; }
-            .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 18px 0; }
-            .metric-card, .panel { background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); }
-            .metric-card { padding: 21px 23px; border-radius: 14px; }
-            .metric-heading { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 12px; font-weight: 600; }
-            .metric-mark { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 7px; font-size: 11px; }
-            .metric-mark.blue { color: var(--blue); background: var(--blue-soft); }
-            .metric-mark.orange { color: var(--orange); background: var(--orange-soft); }
-            .metric-mark.green { color: var(--green); background: rgba(62,164,116,.1); }
-            .metric-card > strong { display: block; margin: 18px 0 5px; font-family: "Manrope", sans-serif; font-size: 30px; }
-            .metric-card p, .panel-copy { margin: 0; color: var(--muted); font-size: 11px; }
-            .content-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, .8fr); gap: 18px; }
-            .panel { border-radius: 15px; padding: 24px; }
-            .panel-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
-            .panel-heading h3 { margin-bottom: 0; font-size: 18px; }
-            .live-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 7px;
-                padding: 6px 9px;
-                border-radius: 99px;
-                color: var(--muted);
-                background: var(--surface-soft);
-                font-size: 10px;
-                font-weight: 700;
-            }
-            .live-badge i { width: 6px; height: 6px; border-radius: 50%; background: #a5acb9; }
-            .live-badge.active { color: var(--green); }
-            .live-badge.active i { background: var(--green); box-shadow: 0 0 0 4px rgba(62,164,116,.1); }
-            .feed { min-height: 250px; margin-top: 22px; display: grid; align-content: start; gap: 8px; }
-            .empty-state, .feed-item {
-                min-height: 67px;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                padding: 12px 14px;
-                border-radius: 10px;
-                background: var(--surface-soft);
-            }
-            .empty-state { min-height: 230px; justify-content: center; }
-            .empty-icon { width: 35px; height: 35px; display: grid; place-items: center; border-radius: 50%; color: var(--blue); background: var(--blue-soft); }
-            .empty-state strong, .feed-item strong { display: block; margin-bottom: 3px; font-size: 11px; }
-            .empty-state p, .feed-item p { margin: 0; color: var(--muted); font-size: 10px; }
-            .feed-status { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 5px rgba(62,164,116,.1); flex: none; }
-            .feed-item.finding .feed-status { background: var(--orange); box-shadow: 0 0 0 5px rgba(232,135,60,.1); }
-            .feed-item time { margin-left: auto; color: var(--muted); font-size: 9px; }
-            .resources-panel { display: flex; flex-direction: column; }
-            .resource { margin-top: 28px; }
-            .resource-row { display: flex; justify-content: space-between; margin-bottom: 10px; color: var(--muted); font-size: 11px; }
-            .resource-row strong { color: var(--text); }
-            .progress { height: 7px; overflow: hidden; border-radius: 99px; background: var(--surface-soft); }
-            .progress span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #5d75c4, #8298dd); transition: width 260ms ease; }
-            .orange-progress span { background: linear-gradient(90deg, #d97732, #f1a160); }
-            .availability { margin-top: auto; padding: 16px; display: flex; gap: 12px; align-items: center; border-radius: 11px; background: rgba(62,164,116,.09); }
-            .availability-icon { width: 31px; height: 31px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: var(--green); flex: none; }
-            .availability strong { display: block; margin-bottom: 3px; font-size: 11px; }
-            .availability p { margin: 0; color: var(--muted); font-size: 10px; }
-            @media (max-width: 980px) {
-                main { padding: 28px 24px 44px; }
-                .content-grid { grid-template-columns: 1fr; }
-                .availability { margin-top: 28px; }
-            }
-            @media (max-width: 760px) {
-                main { padding: 22px 16px 36px; }
-                .topbar { align-items: flex-start; flex-direction: column; }
-                .topbar-actions { width: 100%; flex-wrap: wrap; }
-                .health { margin-left: auto; }
-                .hero-orbit { display: none; }
-                .metrics { grid-template-columns: 1fr; }
-            }
-        </style>
     </body>
 </html>

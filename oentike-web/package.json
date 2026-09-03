@@ -12,12 +12,9 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@tauri-apps/api": "^2.11.0",
-    "3d-force-graph": "^1.80.0",
     "astro": "^7.1.5",
-    "chart.js": "^4.5.1",
-    "nats.ws": "^1.30.3",
-    "three": "^0.185.1"
+    "gsap": "^3.15.0",
+    "i18next": "^26.4.1"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.11.0"

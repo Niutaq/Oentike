@@ -1,5 +1,25 @@
 
 services:
+  postgis:
+    image: kartoza/postgis:17-3.5
+    container_name: oentike-postgis
+    profiles: ["oentike"]
+    environment:
+      POSTGRES_USER: oentike
+      POSTGRES_PASS: oentike
+      POSTGRES_DBNAME: oentike
+      ALLOW_IP_RANGE: 0.0.0.0/0
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgis-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U oentike -d oentike"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 5s
+
   nats:
     image: nats:latest
     container_name: oentike-nats
@@ -45,7 +65,7 @@ services:
     volumes:
       - ./spire/agent.conf:/opt/spire/conf/agent/agent.conf
       - spire-sockets-vol:/opt/spire/sockets
-    command: ["-config", "/opt/spire/conf/agent/agent.conf", "-joinToken", "${SPIRE_JOIN_TOKEN}"]
+    command: ["-config", "/opt/spire/conf/agent/agent.conf", "-joinToken", "${SPIRE_JOIN_TOKEN:-}"]
     depends_on:
       - spire-server
 
@@ -63,5 +83,7 @@ services:
       - control-plane
 
 volumes:
+  postgis-data:
+    name: oentike-postgis-data
   spire-sockets-vol:
     name: spire-sockets-vol

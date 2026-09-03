@@ -33,6 +33,8 @@ STATUS.md
 cel.txt
 inspiration.png
 .rules
+Demo Audit.audit
+.local/
 
 # Python
 **/__pycache__/
@@ -43,6 +45,7 @@ test-venv/
 
 # Node
 **/node_modules/
+**/.astro/
 
 # Go binaries
 **/bin/

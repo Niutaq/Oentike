@@ -1,6 +1,10 @@
 version: 2
 updates:
   - package-ecosystem: "gomod"
+    directory: "/oentike-api"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod"
     directory: "/oentike-control-plane"
     schedule:
       interval: "weekly"

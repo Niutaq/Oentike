@@ -1,26 +1,80 @@
 version: '3'
 
 tasks:
-  setup:
-    desc: "Install missing dependencies (npm modules, homebrew packages)"
+  oentike:up:
+    desc: "Start the Oentike PostGIS database"
+    silent: true
+    cmds:
+      - docker compose --profile oentike up -d --wait postgis
+
+  oentike:migrate:
+    desc: "Apply Oentike database migrations"
+    silent: true
+    deps: [oentike:up]
+    dir: oentike-api
+    cmds:
+      - go run ./cmd/oentike-api migrate
+
+  oentike:proto:
+    desc: "Generate gRPC stubs for the conditions service"
+    dir: oentike-api
+    cmds:
+      - go generate ./internal/conditions
+
+  oentike:api:
+    desc: "Run the Oentike API (HTTP health :8081, gRPC conditions :8082)"
+    silent: true
+    deps: [oentike:proto, oentike:migrate]
+    cmds:
+      - task: oentike:serve
+
+  oentike:serve:
+    internal: true
+    silent: true
+    dir: oentike-api
     cmds:
       - |
-        export HOMEBREW_NO_AUTO_UPDATE=1
-        if [ "$(uname -s)" = "Darwin" ]; then
-          for pkg in ollama socat python@3.12; do
-            if ! command -v $pkg >/dev/null 2>&1; then
-              echo "Installing $pkg on macOS..."
-              brew install $pkg
-            fi
-          done
-        elif [ "$(uname -s)" = "Linux" ]; then
-          for pkg in ollama socat python3.12; do
-            if ! command -v $pkg >/dev/null 2>&1; then
-              echo "Installing $pkg on Linux..."
-              sudo apt-get update && sudo apt-get install -y $pkg || true
-            fi
-          done
+        if curl --fail --silent http://127.0.0.1:8081/readyz >/dev/null; then
+          echo "Oentike API is already ready on http://127.0.0.1:8081"
+        else
+          go run ./cmd/oentike-api serve
         fi
+
+  oentike:ingest:
+    desc: "Fetch Open-Meteo for the pilot cell and store weather_samples"
+    silent: true
+    deps: [oentike:migrate]
+    dir: oentike-api
+    cmds:
+      - go run ./cmd/oentike-api ingest
+
+  oentike:test:
+    desc: "Run Oentike API tests"
+    silent: true
+    dir: oentike-api
+    cmds:
+      - go test ./...
+
+  oentike:down:
+    desc: "Stop Oentike development containers"
+    silent: true
+    cmds:
+      - docker compose --profile oentike stop postgis nats
+
+  dev:
+    desc: "Run the complete Oentike development system (backend and UI)"
+    silent: true
+    deps: [oentike:proto, oentike:migrate]
+    cmds:
+      - task: oentike:run
+
+  oentike:run:
+    internal: true
+    deps: [oentike:serve, oentike:dev-ui]
+
+  setup:
+    desc: "Install web dependencies (and Rust via rustup if missing)"
+    cmds:
       - |
         if ! command -v cargo >/dev/null 2>&1 && [ ! -f "$HOME/.cargo/bin/cargo" ]; then
           echo "Installing Rust via rustup..."
@@ -29,25 +83,20 @@ tasks:
       - |
         if [ ! -d "oentike-web/node_modules" ]; then
           echo "Installing web dependencies..."
-          cd oentike-web && npm install
+          cd oentike-web && env -u npm_config_devdir npm install --silent --no-audit --no-fund
         fi
 
   nats:
-    desc: "Launch NATS JetStream via Docker"
+    desc: "Launch NATS JetStream (identity lab / future ingest events)"
+    silent: true
     cmds:
       - docker compose up -d nats
 
   server:
-    desc: "Launch Go server (Control Plane) on port 50051"
+    desc: "Launch identity-lab Go control plane on port 50051"
     dir: oentike-control-plane
     cmds:
       - sleep 5 && go mod tidy && go run .
-
-  ai:
-    desc: "Run Python AI Orchestrator"
-    dir: oentike-ai-orchestrator
-    cmds:
-      - bash -c "sleep 10 && if [ ! -d '.venv' ]; then python3.12 -m venv .venv; fi; source .venv/bin/activate && export PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1 && pip install -r requirements.txt && python3.12 src/main.py"
 
   clean:
     desc: "Remove stale Tauri/Cargo build artifacts (run after moving the repo)"
@@ -56,37 +105,57 @@ tasks:
       - cargo clean
       - rm -rf gen
 
-  tauri-dev:
+  oentike:icons:
     internal: true
-    desc: "Launch Tauri dev server only (no install/clean)"
+    silent: true
     dir: oentike-web
     cmds:
-      - npx tauri dev
+      - |
+        if [ "src-tauri/app-icon.svg" -nt "src-tauri/icons/icon.icns" ]; then
+          env -u npm_config_devdir node node_modules/@tauri-apps/cli/tauri.js icon src-tauri/app-icon.svg
+          cp src-tauri/icons/icon.ico public/favicon.ico
+          touch src-tauri/build.rs
+        fi
 
-  dev:
-    desc: "Launch SOC desktop (npm install, NATS, Tauri). Use FRESH=1 to reset cache."
+  oentike:tauri:
+    internal: true
+    desc: "Launch Tauri dev server only (no install/clean)"
+    silent: true
+    dir: oentike-web
     cmds:
-      - cd oentike-web && npm install
-      - cd oentike-web && npx astro dev stop 2>/dev/null || true
+      - env -u npm_config_devdir npx tauri dev
+
+  oentike:ui:
+    desc: "Launch the Oentike desktop UI. Use FRESH=1 to reset cache."
+    silent: true
+    cmds:
+      - cd oentike-web && env -u npm_config_devdir npm install --silent --no-audit --no-fund
+      - cd oentike-web && env -u npm_config_devdir npx astro dev stop >/dev/null 2>&1 || true
       - |
         if [ "{{.FRESH}}" = "1" ]; then
           echo "FRESH=1 — clearing Tauri build cache..."
           task clean
         fi
-      - task: nats
-      - task: tauri-dev
+      - task: oentike:icons
+      - task: oentike:tauri
 
-  ollama:
-    desc: "Run local Ollama server with qwen3-vl:4b"
+  oentike:dev-ui:
+    internal: true
+    silent: true
     cmds:
       - |
-        bash -c 'if curl -s http://127.0.0.1:11434/ >/dev/null; then
-          echo "Ollama is already running."
-        else
-          nohup ollama serve > /dev/null 2>&1 &
-          sleep 5
-        fi
-        ollama pull qwen3-vl:4b'
+        attempts=0
+        until curl --fail --silent http://127.0.0.1:8081/readyz >/dev/null; do
+          attempts=$((attempts + 1))
+          if [ "$attempts" -ge 80 ]; then
+            echo "Oentike API did not become ready within 20 seconds." >&2
+            exit 1
+          fi
+          sleep 0.25
+        done
+      - task: oentike:ui
+        vars:
+          FRESH: "{{.FRESH}}"
 
   envoy:
     desc: "Run Envoy Proxy with WASM filter via Docker"
@@ -97,27 +166,27 @@ tasks:
       - docker run -u root --rm --name oentike-envoy -p 10000:10000 -p 9901:9901 -v ${PWD}/envoy.yaml:/etc/envoy/envoy.yaml -v ${PWD}/oentike-wasm-filter/target/wasm32-wasip1/release/oentike_wasm_filter.wasm:/etc/envoy/wasm/oentike_wasm_filter.wasm -v spire-sockets-vol:/tmp/spire-sockets --add-host host.docker.internal:host-gateway envoyproxy/envoy:v1.31-latest
 
   wasm:
-    desc: "Compile Envoy WASM AI-Mesh filter (PII redaction)"
+    desc: "Compile Envoy WASM filter"
     dir: oentike-wasm-filter
     cmds:
       - export PATH="$HOME/.cargo/bin:$PATH" && rustup default stable && rustup target add wasm32-wasip1 && cargo build --target wasm32-wasip1 --release
 
   sensor:
-    desc: "Run Test Edge Sensor"
+    desc: "Run identity-lab test sensor"
     dir: test-client
     cmds:
       - sleep 15 && go run .
 
   start-all:
-    desc: "Launch ALL components concurrently (NATS, Go, Python, Tauri, Ollama, Envoy, SPIRE)"
+    desc: "Launch identity lab (SPIRE, Envoy, control plane, sensor) plus Tauri"
     deps: [setup]
     cmds:
-      - echo "Starting all containers..."
+      - echo "Starting identity-lab containers..."
       - task: run-all
 
   run-all:
     internal: true
-    deps: [spire, wasm, server, ai, tauri-dev, ollama, envoy, sensor]
+    deps: [spire, wasm, server, oentike:tauri, envoy, sensor]
 
   spire:
     desc: "Start SPIRE server and agent via register_spire.sh"

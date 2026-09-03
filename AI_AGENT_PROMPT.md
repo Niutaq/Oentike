@@ -1,56 +1,86 @@
-# Oentike (FinOps Proxy) - Agent Context & Architecture Manifesto
+# Oentike — Agent Context & Architecture Manifesto
 
-**To the AI Agent reading this:** This file is your primary source of truth for the Oentike project. Read it carefully before making architectural decisions. The user expects high-quality engineering, no generic "AI-slop" comments in code, and a focus on both learning niche technologies and practical business applications.
+**To the AI Agent reading this:** This file is the source of truth. Follow it before architectural decisions. The human (owner) is learning this stack on purpose: pair with them, do not silently finish every hard part. High-quality engineering, no AI-slop comments, no fake scores.
 
-## 1. Project Overview & Business Logic
-Oentike is a distributed **Zero-Trust FinOps proxy system**. Its main goal is to stream hardware telemetry from edge agents, route it through an L7 firewall (Envoy + WASM), process it centrally (Go Control Plane), and use an AI Orchestrator (Python + Ollama) to analyze metrics and reject/approve workloads based on a FinOps budget (FOCUS standard).
+## 1. What Oentike is
 
-### The "Why" (Business & Engineering)
-- **Business:** Organizations waste money on cloud computing. Oentike monitors telemetry in real-time, estimates costs, and dynamically cuts off expensive workloads using AI. We stick strictly to the **FOCUS (FinOps)** standard for metrics.
-- **Engineering / Learning:** The stack is highly niche and intentionally over-engineered in certain areas for the sake of learning modern cloud-native & edge paradigms.
+Oentike is a **local field helper** for mushroom conditions (a modern, explainable take on the *idea* of grzyby.pl — not a scrape or a clone of their content). It answers: for a chosen species, in a chosen area, are conditions promising, and why?
 
-## 2. Technology Stack
-This is a polyglot monorepo. It relies on `task` (Taskfile.yml) and `nix-shell` (or `mise`) for environment reproducibility.
+It is also a **portfolio of real security / geospatial / cloud-native engineering** (readable to CBZC, SOC, cloud security): workload identity, signed data, cartography, offline, provenance. Niche technology is woven **into** the mushroom domain, not parked in a separate demo forever.
 
-- **`oentike-edge-agent` (Rust + iced + tonic)**
-  - Desktop application mimicking a hardware sensor.
-  - Fetches X.509 SVIDs from SPIRE.
-  - Streams telemetry to the control plane via gRPC over mTLS.
-- **`oentike-wasm-filter` (Rust + Proxy-WASM)**
-  - Compiled to `wasm32-wasip1`.
-  - Runs inside Envoy as an L7 filter (FinOps Tollbooth).
-  - Inspects gRPC metadata (`x-finops-cost`, `x-finops-budget`). Drops requests (HTTP 402) if cost > budget.
-- **`Envoy` & `SPIRE` (C++ / Go, Docker)**
-  - SPIRE provides identity (SPIFFE IDs) to processes and containers.
-  - Envoy terminates mTLS, enforcing Zero-Trust using SPIRE certificates.
-- **`oentike-control-plane` (Go + SQLite)**
-  - gRPC server receiving telemetry.
-  - Converts telemetry to FOCUS-standard FinOps events.
-  - Publishes events to NATS JetStream.
-  - Contains an `Approval Worker` that listens for AI decisions from NATS and saves them to SQLite.
-- **`oentike-ai-orchestrator` (Python + LangGraph + Ollama)**
-  - Subscribes to NATS.
-  - Uses local LLMs (e.g., `qwen3-vl:4b`) to analyze telemetry.
-  - Emits routing/approval decisions (`REJECTED_BUDGET`, `ROUTED`) back to NATS.
-- **`oentike-web` (Astro + Vue/React/Svelte)**
-  - Frontend dashboard displaying FinOps metrics.
+Inspiration from grzyby.pl’s **radar / mapa występowania** (how the *product* works, not their data):
 
-## 3. Future Expansion & Rules of Thumb
+- Coarse, regional, frequently updated picture of “how the season looks” — not a pin under a tree.
+- Time dimension: last days + trend (their logged-in “9 days” / season histogram idea).
+- Optional synoptic commentary later — generated from **our** factors, not copied text.
+- Atlas as knowledge, linked to Mycobank / Index Fungorum / GBIF-style identifiers — our cards, our art, our citations.
 
-### What makes sense (DO THIS):
-1. **Maintain the FOCUS standard:** Any new metrics or cost reporting must adhere to FinOps Open Cost and Usage Specification (FOCUS).
-2. **Zero-Trust first:** Any new component must authenticate via SPIFFE/SPIRE.
-3. **Reproducibility:** If you add a dependency, add it to `Taskfile.yml`, `mise.toml`, or `register_spire.sh`.
-4. **NATS JetStream:** Use NATS for all asynchronous/event-driven communication between microservices.
-5. **Code purity:** Write clean, idiomatic code for each language (e.g., proper error handling in Rust, channels/goroutines in Go). Keep comments strictly informative (explain *why*, not *what*). **ABSOLUTELY NO AI-SLOP COMMENTS.**
+Oentike stays **more local than the portal**: primary UX is one cell / one trip / one species (pilot: Lasy Janowskie near Targowisko/Studzieniec, `Boletus edulis`). The national/seasonal layer is **orientation**, not a crowdsourced treasure map.
 
-### What doesn't make sense (AVOID):
-1. **Monolithic architectures:** Do not try to merge the Go control plane and Python AI into one app. They are separate for a reason.
-2. **Bypassing Envoy:** Do not expose the Go gRPC server directly to the Rust agent over plaintext. Always route through Envoy mTLS.
-3. **Heavy cloud dependencies:** This project is designed to run locally (edge/local cluster) using Ollama for AI. Avoid hardcoding AWS/GCP services unless specifically requested.
+## 2. Product layers (in order)
 
-## 4. How to run
+1. **Local conditions** — weather + forest context → versioned, low-confidence score for one H3 (or equivalent) cell. Missing data → explicit unavailable. Never invent a score.
+2. **Seasonal awareness map** — choropleth of *our* condition potential (and later blurred observations) at województwo / H3 coarse resolution. Public layer never exposes exact GPS. Exact points stay private on-device.
+3. **Offline field mode** — Tauri + local SQLite (encrypt private pins: SQLCipher or age). PMTiles / cell cache. Sync only over mTLS when the network returns.
+4. **Built-in atlas** — versioned, signed pack. Hand-painted botanical art matching the UI (not stock photos, not grzyby.pl images). Scientific fields + citations. Lookalike pairs. Legal protection flags for PL. Pilot: porcini + 2–3 lookalikes.
+5. **Gemma (last)** — local RAG over *our* atlas and score explanations. Never an edibility/identification verdict from a photo.
+
+Crowd reports, if any, are opt-in, cell-blurred, and legally our own — not imported from grzyby.pl.
+
+## 3. Engineering stack (use these in-domain)
+
+| Role | Technology | Why |
+|---|---|---|
+| Workload identity | SPIFFE/SPIRE, X.509 SVIDs, mTLS | Ingest, scorer, API, Tauri/agent — no trust-on-network |
+| Events | NATS JetStream | Ingest, score invalidation, sync (subjects about mushrooms/cells, not SOC) |
+| Telemetry | OpenTelemetry → Jaeger, including store-and-forward offline | Provenance of the pipeline |
+| Edge policy | Envoy (+ WASM when a real policy exists) | Authz from SPIFFE, limits — not a toy tollbooth on mushroom JSON without a rule |
+| Geo | PostGIS, H3 (or S2), BDL via OGC API where possible, MapLibre, PMTiles | Cartography + offline tiles |
+| Data trust | Signed packs (cosign and/or TUF): atlas, tiles, weather snapshots | Supply chain of *data* |
+| Later geo intel | STAC + COG (e.g. Copernicus/Sentinel) | Habitat/moisture, not a second weather JSON |
+
+Reuse SPIRE, NATS, Envoy, OTel from the existing SecOps lab **as machinery**. New schemas, NATS subjects, and UI are **conditions, cells, atlas, sync** — not quarantine/FinOps. Do not dump mushroom tables into `oentike-control-plane` SQLite; give the product its own API/DB (`oentike-api` + PostGIS) and attach identity/events around it.
+
+REST is a thin read API. Value is grid, signatures, offline, and explainable scores.
+
+Skip Kubernetes/Istio/Cilium theater unless we actually operate a cluster.
+
+## 4. Atlas rules
+
+- Structured cards (JSON/SQLite): taxonomy IDs, PL/EN names, habitat, phenology, lookalikes, protection status, citation, pack version, reviewed_at.
+- Art: one hand-painted system (cap, gills, stem, section, one lookalike). Brand-consistent.
+- Gemma only after a real corpus exists; retrieval, not authority.
+
+## 5. How the human learns (mandatory)
+
+The owner wants to **do the work and learn**. The agent must not complete the whole stack unattended.
+
+**Agent does:** scaffolding, wiring, reviews, explanations of *why*, small complete slices, checklists.
+
+**Human does (agent stops and asks them to run / write):**
+
+- Inspect a SPIRE SVID and a failing mTLS connection.
+- Write or extend a PostGIS/H3 migration and query a cell.
+- Fetch one BDL/OGC layer and say what CRS it is in.
+- Sign and verify one atlas or snapshot pack.
+- Sketch one atlas card (fields + one lookalike) from a cited source.
+- Hit `task dev` / `task start-all` and describe what came up.
+
+When a task is a learning beat, say so, give the exact command or file, and wait for their result before proceeding. Teach in Polish if they write in Polish. No wall of generated config “as a gift”.
+
+## 6. Quality rules
+
+- Explain every score: inputs, freshness, algorithm version, confidence.
+- Never fabricate conditions or observations.
+- Protect exact locations on any shared/public surface.
+- Idiomatic code per language; comments only for *why*. **No AI-slop comments.**
+- Reproducible: Taskfile, Compose, mise/nix — no hidden machine snowflakes.
+
+## 7. How to run
+
 ```bash
-task start-all
+task dev          # PostGIS, API, NATS, Tauri conditions UI
+task start-all    # full identity/lab stack (SPIRE, Envoy, …) — needs sudo/socket perms
 ```
-*(Requires sudo for Docker, nix-shell, and Spire socket permissions)*
+
+Pilot slice remains: one area (Lasy Janowskie), one species. Open-Meteo ingest stores samples; `GetConditions` may fill factors but must not invent a score. Seasonal map and atlas packs come after the cell score is real — or in parallel only as empty, signed schemas, not fake heatmaps.

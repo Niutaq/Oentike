@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package oentike.conditions;
+
+option go_package = "oentike-api/internal/conditionsv1";
+
+// ConditionsService is the product query surface. Health stays on HTTP;
+// this RPC is the conditions contract (gRPC now, SPIFFE/mTLS later).
+service ConditionsService {
+  rpc GetConditions(GetConditionsRequest) returns (ConditionsResponse);
+}
+
+message GetConditionsRequest {
+  string cell_id = 1;
+  string species_slug = 2;
+  // Civil date YYYY-MM-DD in Europe/Warsaw. Empty means today.
+  string target_date = 3;
+}
+
+message Factor {
+  string id = 1;
+  string unit = 2;
+  optional double value = 3;
+}
+
+message ConditionsResponse {
+  string cell_id = 1;
+  string cell_name = 2;
+  string species_slug = 3;
+  string target_date = 4;
+  // ready | unavailable — business status, not the gRPC code.
+  string status = 5;
+  optional int32 score = 6;
+  string confidence = 7;
+  repeated Factor factors = 8;
+  string algorithm_version = 9;
+  optional string input_sha256 = 10;
+}

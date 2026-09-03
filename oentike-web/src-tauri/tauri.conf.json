@@ -1,7 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Oentike",
-  "version": "0.1.0",
+  "mainBinaryName": "Oentike",
+  "version": "0.1.1",
   "identifier": "com.oentike.desktop",
   "build": {
     "frontendDist": "../dist",

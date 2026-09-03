@@ -1,0 +1,63 @@
+---
+interface Props {
+    class?: string;
+    variant?: "default" | "theme" | "brand";
+}
+
+const { class: className = "", variant = "default" } = Astro.props;
+---
+
+<svg
+    class:list={["control-mushroom", className]}
+    viewBox="0 0 48 48"
+    aria-hidden="true"
+>
+    {
+        variant === "theme" && (
+            <defs>
+                <linearGradient id="theme-cap-gradient" x1="5" y1="0" x2="42" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop offset="49%" stop-color="#f4ead9" />
+                    <stop offset="51%" stop-color="#273c31" />
+                </linearGradient>
+                <linearGradient id="theme-stem-gradient" x1="16" y1="0" x2="43" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop offset="49%" stop-color="#e4772d" />
+                    <stop offset="51%" stop-color="#f6f5ef" />
+                </linearGradient>
+            </defs>
+        )
+    }
+    {
+        variant === "brand" ? (
+            <>
+                <path
+                    class="mushroom-stem"
+                    d="M19.7 18.2h6.2c1.4 0 2.5 1.1 2.5 2.5v12.2c0 2.4 1.6 4.6 4.2 4.7 1 0 1.7-.8 1.7-1.8V21.5c0-1.1.9-2 2-2s2 .9 2 2v14.2c0 5.2-4 8.8-9.8 8.4C23.6 44.4 17.2 40.6 17.2 34V20.7c0-1.4 1.1-2.5 2.5-2.5Z"
+                />
+                <path
+                    class="mushroom-cap"
+                    d="M5.8 22C7.4 13.4 14.6 7.2 23.5 7.2S39.6 13.4 41.2 22c.4 2-1.2 3.8-3.4 3.8H9.2C7 25.8 5.4 24 5.8 22Z"
+                />
+                <path
+                    class="mushroom-gill"
+                    d="M11 23.4c3.8-1.6 8-2.4 12.5-2.4s8.7.8 12.5 2.4"
+                />
+                <circle class="mushroom-dot" cx="37.8" cy="10.5" r="2.4" />
+            </>
+        ) : (
+            <>
+                <path
+                    class="mushroom-stem"
+                    d="M18.4 21.2c0-1.4 1.1-2.5 2.5-2.5h6.2c1.4 0 2.5 1.1 2.5 2.5l-.8 14.2c-.2 2.1.7 4.1 2.3 5.3.9.7.6 2.2-.6 2.5-4.3 1-8.8 1-13.1 0-1.2-.3-1.5-1.8-.6-2.5 1.8-1.2 2.7-3.2 2.5-5.4l-.9-14.1Z"
+                />
+                <path
+                    class="mushroom-cap"
+                    d="M5.8 22C7.4 13.4 14.6 7.2 23.5 7.2S39.6 13.4 41.2 22c.4 2-1.2 3.8-3.4 3.8H9.2C7 25.8 5.4 24 5.8 22Z"
+                />
+                <path
+                    class="mushroom-gill"
+                    d="M11 23.4c3.8-1.6 8-2.4 12.5-2.4s8.7.8 12.5 2.4"
+                />
+            </>
+        )
+    }
+</svg>
