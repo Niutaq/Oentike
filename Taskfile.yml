@@ -5,7 +5,7 @@ tasks:
     desc: "Start the Oentike PostGIS database"
     silent: true
     cmds:
-      - docker compose --profile oentike up -d --wait postgis
+      - docker compose up -d --wait postgis
 
   oentike:migrate:
     desc: "Apply Oentike database migrations"
@@ -59,7 +59,7 @@ tasks:
     desc: "Stop Oentike development containers"
     silent: true
     cmds:
-      - docker compose --profile oentike stop postgis nats
+      - docker compose stop postgis
 
   dev:
     desc: "Run the complete Oentike development system (backend and UI)"
@@ -85,18 +85,6 @@ tasks:
           echo "Installing web dependencies..."
           cd oentike-web && env -u npm_config_devdir npm install --silent --no-audit --no-fund
         fi
-
-  nats:
-    desc: "Launch NATS JetStream (identity lab / future ingest events)"
-    silent: true
-    cmds:
-      - docker compose up -d nats
-
-  server:
-    desc: "Launch identity-lab Go control plane on port 50051"
-    dir: oentike-control-plane
-    cmds:
-      - sleep 5 && go mod tidy && go run .
 
   clean:
     desc: "Remove stale Tauri/Cargo build artifacts (run after moving the repo)"
@@ -156,39 +144,3 @@ tasks:
       - task: oentike:ui
         vars:
           FRESH: "{{.FRESH}}"
-
-  envoy:
-    desc: "Run Envoy Proxy with WASM filter via Docker"
-    deps: [wasm]
-    cmds:
-      - sleep 12
-      - docker rm -f oentike-envoy || true
-      - docker run -u root --rm --name oentike-envoy -p 10000:10000 -p 9901:9901 -v ${PWD}/envoy.yaml:/etc/envoy/envoy.yaml -v ${PWD}/oentike-wasm-filter/target/wasm32-wasip1/release/oentike_wasm_filter.wasm:/etc/envoy/wasm/oentike_wasm_filter.wasm -v spire-sockets-vol:/tmp/spire-sockets --add-host host.docker.internal:host-gateway envoyproxy/envoy:v1.31-latest
-
-  wasm:
-    desc: "Compile Envoy WASM filter"
-    dir: oentike-wasm-filter
-    cmds:
-      - export PATH="$HOME/.cargo/bin:$PATH" && rustup default stable && rustup target add wasm32-wasip1 && cargo build --target wasm32-wasip1 --release
-
-  sensor:
-    desc: "Run identity-lab test sensor"
-    dir: test-client
-    cmds:
-      - sleep 15 && go run .
-
-  start-all:
-    desc: "Launch identity lab (SPIRE, Envoy, control plane, sensor) plus Tauri"
-    deps: [setup]
-    cmds:
-      - echo "Starting identity-lab containers..."
-      - task: run-all
-
-  run-all:
-    internal: true
-    deps: [spire, wasm, server, oentike:tauri, envoy, sensor]
-
-  spire:
-    desc: "Start SPIRE server and agent via register_spire.sh"
-    cmds:
-      - ./register_spire.sh

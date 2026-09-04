@@ -1,8 +1,6 @@
 <div align="center">
 
-<img src="./oentike-web/public/oentike-logo.svg" alt="Oentike logo" width="112" />
-
-# Oentike
+<img src="./oentike-web/public/oentike-wordmark.svg" alt="Oentike" width="192" />
 
 Local mushroom-conditions helper for Polish forests: explainable scores, a coarse seasonal map, offline atlas later.
 
@@ -51,7 +49,7 @@ Stop UI/API with `Ctrl+C`. Stop PostGIS with `task oentike:down`.
 
 | Path | Role |
 |---|---|
-| `oentike-api/` | Product API: migrations, PostGIS, gRPC conditions |
+| `oentike-api/` | PostGIS migrations, gRPC conditions, Open-Meteo ingest |
 | `oentike-proto/` | `conditions.proto` |
 | `oentike-web/` | Astro UI + Tauri desktop |
 | `docker-compose.yml` | PostGIS (`profile: oentike`) |
@@ -60,7 +58,7 @@ Stop UI/API with `Ctrl+C`. Stop PostGIS with `task oentike:down`.
 
 ## Tooling
 
-Pinned in [`mise.toml`](./mise.toml): Go, Rust, protoc. Workflows in [`Taskfile.yml`](./Taskfile.yml).
+Pinned in [`mise.toml`](./mise.toml): Go, Rust, protoc. `task --list` is the list.
 
 ```bash
 mise install
@@ -71,7 +69,12 @@ task --list
 | Task | What |
 |---|---|
 | `dev` | Proto + migrate + API + Tauri |
+| `oentike:up` / `oentike:down` | Start / stop PostGIS |
+| `oentike:migrate` | Goose migrations |
+| `oentike:proto` | Generate gRPC stubs |
 | `oentike:api` | Health `:8081` + gRPC `:8082` (hourly Open-Meteo ingest in the background) |
 | `oentike:ingest` | One-shot Open-Meteo → `ingest_runs` + `weather_samples` |
 | `oentike:test` | Go tests |
 | `oentike:ui` | Desktop only (`FRESH=1` clears Tauri cache) |
+| `setup` | npm + rustup if missing |
+| `clean` | `cargo clean` in Tauri (after moving the repo) |
