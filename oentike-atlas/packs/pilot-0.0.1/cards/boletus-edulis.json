@@ -1,0 +1,37 @@
+{
+  "slug": "boletus-edulis",
+  "names": {
+    "pl": "Borowik szlachetny",
+    "en": "Porcini"
+  },
+  "scientific_name": "Boletus edulis",
+  "identifiers": {
+    "mycobank": null,
+    "index_fungorum": null,
+    "gbif": null
+  },
+  "hymenophore": "pores",
+  "habitat": null,
+  "phenology": null,
+  "lookalikes": [
+    {
+      "slug": "tylopilus-felleus",
+      "note": "Goryczak żółciowy — uzupełnij różnice (pory, smak) z cytowanego atlasu."
+    },
+    {
+      "slug": "boletus-reticulatus",
+      "note": "Borowik usiatkowany — uzupełnij różnice (siateczka, kapelusz) z cytowanego źródła."
+    }
+  ],
+  "protection_pl": null,
+  "citations": [],
+  "art": {
+    "cap": null,
+    "hymenophore": null,
+    "stem": null,
+    "section": null,
+    "lookalike_plate": null
+  },
+  "pack_version": "0.0.1",
+  "reviewed_at": null
+}

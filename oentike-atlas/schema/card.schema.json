@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oentike.local/atlas/card.schema.json",
+  "title": "OentikeAtlasCard",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "slug",
+    "names",
+    "scientific_name",
+    "identifiers",
+    "hymenophore",
+    "habitat",
+    "phenology",
+    "lookalikes",
+    "protection_pl",
+    "citations",
+    "pack_version",
+    "reviewed_at"
+  ],
+  "properties": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Stable machine id. UI must not show the slug as the primary label."
+    },
+    "names": {
+      "type": "object",
+      "description": "Human-facing labels. UI shows PL or EN first; Latin stays secondary.",
+      "additionalProperties": false,
+      "required": ["pl", "en"],
+      "properties": {
+        "pl": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Primary label in Polish UI."
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Primary label in English UI."
+        }
+      }
+    },
+    "scientific_name": {
+      "type": ["string", "null"],
+      "description": "Latin binomial shown beside/under the common name, never instead of it. Null until checked against a taxonomy source."
+    },
+    "identifiers": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mycobank": { "type": ["string", "null"] },
+        "index_fungorum": { "type": ["string", "null"] },
+        "gbif": { "type": ["string", "null"] }
+      }
+    },
+    "hymenophore": {
+      "type": "string",
+      "enum": ["pores", "gills", "other"],
+      "description": "Boletes must be pores — never gills."
+    },
+    "habitat": {
+      "type": ["string", "null"],
+      "description": "Short habitat note for PL forests; cite the source."
+    },
+    "phenology": {
+      "type": ["string", "null"],
+      "description": "Seasonality in Poland or temperate Europe; cite the source."
+    },
+    "lookalikes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["slug", "note"],
+        "properties": {
+          "slug": { "type": "string" },
+          "note": {
+            "type": "string",
+            "description": "Write the distinction in plain language; mention the other card by common name when possible."
+          }
+        }
+      }
+    },
+    "protection_pl": {
+      "type": ["string", "null"],
+      "description": "Legal status in Poland if any; null if unchecked, not 'unknown invented'."
+    },
+    "citations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "url"],
+        "properties": {
+          "label": { "type": "string" },
+          "url": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "art": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Paths relative to the pack; empty until our plates exist.",
+      "properties": {
+        "cap": { "type": ["string", "null"] },
+        "hymenophore": { "type": ["string", "null"] },
+        "stem": { "type": ["string", "null"] },
+        "section": { "type": ["string", "null"] },
+        "lookalike_plate": { "type": ["string", "null"] }
+      }
+    },
+    "pack_version": { "type": "string" },
+    "reviewed_at": {
+      "type": ["string", "null"],
+      "description": "YYYY-MM-DD when a human checked the citations; null until then."
+    }
+  }
+}

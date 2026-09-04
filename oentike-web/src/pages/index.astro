@@ -22,9 +22,6 @@ const factors = [
         unit: "m3/m3",
     },
 ];
-
-const bdlMapUrl =
-    "https://mapserver.bdl.lasy.gov.pl/arcgis/rest/services/WMS_BDL/MapServer/export?bbox=2463133,6544060,2477133,6558060&bboxSR=3857&imageSR=3857&size=900,500&format=png32&transparent=false&f=image";
 ---
 
 <!doctype html>
@@ -317,28 +314,29 @@ const bdlMapUrl =
                     <span class="tag">10 × 10 km</span>
                 </div>
 
-                <div class="cell-preview">
-                    <img
-                        src={bdlMapUrl}
-                        alt="Mapa oddziałów leśnych w rejonie Lasów Janowskich"
-                        data-i18n-alt="pilot.mapAlt"
-                        loading="lazy"
-                        referrerpolicy="no-referrer"
-                    />
-                    <div class="selected-cell"><span>LJ-01</span></div>
-                </div>
-                <p class="caption">
-                    <span data-i18n="pilot.sourcePrefix">Dane mapowe:</span>
-                    <a
-                        href="https://bdl.lasy.gov.pl/portal/uslugi-ogc?v=4"
-                        target="_blank"
-                        rel="noreferrer"
+                <div
+                    class="cell-preview"
+                    id="pilot-map"
+                    role="region"
+                    aria-label="Mapa oddziałów leśnych w rejonie Lasów Janowskich"
+                    data-i18n-aria="pilot.mapAlt"
+                ></div>
+                <p class="caption map-caption">
+                    <span data-i18n="pilot.interact"
+                        >Ramka oznacza komórkę analizy (10 × 10 km), nie punkt
+                        GPS.</span
                     >
-                        Bank Danych o Lasach
-                    </a>.
-                    <span data-i18n="pilot.privacy"
-                        >Analiza używa komórki, nie dokładnych punktów.</span
-                    >
+                    <span class="map-sources">
+                        <span data-i18n="pilot.sourcePrefix">Podkład:</span>
+                        <a
+                            href="https://bdl.lasy.gov.pl/portal/uslugi-ogc?v=4"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            BDL
+                        </a>
+                        · OSM
+                    </span>
                 </p>
 
                 <div class="season">
@@ -439,7 +437,24 @@ const bdlMapUrl =
             import { gsap } from "gsap";
             import i18next from "i18next";
             import { invoke } from "@tauri-apps/api/core";
+            import * as maplibregl from "maplibre-gl";
+            import "maplibre-gl/dist/maplibre-gl.css";
             import { resources } from "../i18n";
+
+            // Pilot cell: 10×10 km around the fixture centroid (EPSG:4326).
+            const pilotCenter = { lon: 22.189584, lat: 50.60125 };
+            const pilotHalfKm = 5;
+            const metersPerDegLat = 110_540;
+            const metersPerDegLon =
+                111_320 * Math.cos((pilotCenter.lat * Math.PI) / 180);
+            const dLat = (pilotHalfKm * 1000) / metersPerDegLat;
+            const dLon = (pilotHalfKm * 1000) / metersPerDegLon;
+            const pilotBounds = {
+                west: pilotCenter.lon - dLon,
+                south: pilotCenter.lat - dLat,
+                east: pilotCenter.lon + dLon,
+                north: pilotCenter.lat + dLat,
+            };
 
             const root = document.documentElement;
             const conditionTitle = document.getElementById("condition-title");
@@ -935,20 +950,25 @@ const bdlMapUrl =
 
             function fillSeasonCol(col, day) {
                 const bar = col.querySelector(".season-bar");
+                const scoreEl = col.querySelector(".season-score");
                 const weekdayEl = col.querySelector(".season-weekday");
                 const dateEl = col.querySelector(".season-date");
-                if (!bar || !weekdayEl || !dateEl) return;
+                if (!bar || !scoreEl || !weekdayEl || !dateEl) return;
                 const scored = day?.status === "ready" && day.score != null;
                 const parts = seasonDayParts(day?.date);
                 bar.classList.toggle("empty", !scored);
                 col.classList.toggle("today", parts.isToday);
                 if (scored) {
                     bar.style.height = `${Math.max(8, day.score)}%`;
+                    scoreEl.textContent = String(day.score);
+                    scoreEl.hidden = false;
                     bar.title = parts.isToday
                         ? `${day.date} (${t("season.today")}): ${day.score}`
                         : `${day.date}: ${day.score}`;
                 } else {
                     bar.style.height = "";
+                    scoreEl.textContent = "—";
+                    scoreEl.hidden = false;
                     bar.title = day?.date || "";
                 }
                 weekdayEl.textContent = parts.isToday
@@ -961,6 +981,9 @@ const bdlMapUrl =
             function makeSeasonCol(day) {
                 const col = document.createElement("div");
                 col.className = "season-col";
+                const score = document.createElement("span");
+                score.className = "season-score";
+                score.setAttribute("aria-hidden", "true");
                 const track = document.createElement("span");
                 track.className = "season-track";
                 const bar = document.createElement("span");
@@ -973,9 +996,85 @@ const bdlMapUrl =
                 const date = document.createElement("span");
                 date.className = "season-date";
                 label.append(weekday, date);
-                col.append(track, label);
+                col.append(score, track, label);
                 fillSeasonCol(col, day);
                 return col;
+            }
+
+            function drawSeasonTrend(chart, list) {
+                let svg = chart.querySelector(".season-trend");
+                if (!svg) {
+                    svg = document.createElementNS(
+                        "http://www.w3.org/2000/svg",
+                        "svg",
+                    );
+                    svg.classList.add("season-trend");
+                    svg.setAttribute("aria-hidden", "true");
+                    chart.prepend(svg);
+                }
+
+                const cols = [...chart.querySelectorAll(".season-col")];
+                if (!cols.length) {
+                    svg.replaceChildren();
+                    return;
+                }
+
+                const chartBox = chart.getBoundingClientRect();
+                const points = [];
+                list.forEach((day, index) => {
+                    if (day?.status !== "ready" || day.score == null) return;
+                    const track = cols[index]?.querySelector(".season-track");
+                    const bar = cols[index]?.querySelector(".season-bar");
+                    if (!track || !bar) return;
+                    const trackBox = track.getBoundingClientRect();
+                    const barBox = bar.getBoundingClientRect();
+                    const x =
+                        trackBox.left +
+                        trackBox.width / 2 -
+                        chartBox.left;
+                    const y = barBox.top - chartBox.top;
+                    points.push({ x, y, score: day.score });
+                });
+
+                svg.setAttribute("width", String(chartBox.width));
+                svg.setAttribute("height", String(chartBox.height));
+                svg.setAttribute(
+                    "viewBox",
+                    `0 0 ${chartBox.width} ${chartBox.height}`,
+                );
+                svg.replaceChildren();
+
+                if (points.length < 2) return;
+
+                const polyline = document.createElementNS(
+                    "http://www.w3.org/2000/svg",
+                    "polyline",
+                );
+                polyline.setAttribute(
+                    "points",
+                    points.map((p) => `${p.x},${p.y}`).join(" "),
+                );
+                polyline.setAttribute("fill", "none");
+                polyline.setAttribute("stroke", "var(--ink)");
+                polyline.setAttribute("stroke-width", "1.5");
+                polyline.setAttribute("stroke-linecap", "round");
+                polyline.setAttribute("stroke-linejoin", "round");
+                polyline.setAttribute("opacity", "0.55");
+                svg.append(polyline);
+
+                for (const point of points) {
+                    const dot = document.createElementNS(
+                        "http://www.w3.org/2000/svg",
+                        "circle",
+                    );
+                    dot.setAttribute("cx", String(point.x));
+                    dot.setAttribute("cy", String(point.y));
+                    dot.setAttribute("r", "2.5");
+                    dot.setAttribute("fill", "var(--orange)");
+                    dot.setAttribute("stroke", "var(--surface)");
+                    dot.setAttribute("stroke-width", "1");
+                    svg.append(dot);
+                }
             }
 
             function renderSeason(days) {
@@ -987,11 +1086,13 @@ const bdlMapUrl =
                         ? days
                         : Array.from({ length: 9 }, () => null);
 
-                if (chart.childElementCount === list.length) {
+                const existingCols = chart.querySelectorAll(".season-col");
+                if (existingCols.length === list.length) {
                     list.forEach((day, index) =>
-                        fillSeasonCol(chart.children[index], day),
+                        fillSeasonCol(existingCols[index], day),
                     );
                 } else {
+                    chart.querySelector(".season-trend")?.remove();
                     chart.replaceChildren(
                         ...list.map((day) => makeSeasonCol(day)),
                     );
@@ -1018,6 +1119,8 @@ const bdlMapUrl =
                             ? `${seasonDayParts(first).date} – ${seasonDayParts(last).date}`
                             : t("season.rangeFallback");
                 }
+
+                requestAnimationFrame(() => drawSeasonTrend(chart, list));
             }
 
             function applyConditionsView(response) {
@@ -1190,12 +1293,150 @@ const bdlMapUrl =
                 });
             }
 
+            function initializePilotMap() {
+                const container = document.getElementById("pilot-map");
+                if (!container || container.dataset.mapReady === "1") return;
+
+                const cellPolygon = {
+                    type: "Feature",
+                    properties: { label: "LJ-01" },
+                    geometry: {
+                        type: "Polygon",
+                        coordinates: [
+                            [
+                                [pilotBounds.west, pilotBounds.south],
+                                [pilotBounds.east, pilotBounds.south],
+                                [pilotBounds.east, pilotBounds.north],
+                                [pilotBounds.west, pilotBounds.north],
+                                [pilotBounds.west, pilotBounds.south],
+                            ],
+                        ],
+                    },
+                };
+
+                const map = new maplibregl.Map({
+                    container,
+                    style: {
+                        version: 8,
+                        sources: {
+                            osm: {
+                                type: "raster",
+                                tiles: [
+                                    "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                                ],
+                                tileSize: 256,
+                                attribution: "© OpenStreetMap",
+                                maxzoom: 19,
+                            },
+                            bdl: {
+                                type: "raster",
+                                tiles: [
+                                    "https://mapserver.bdl.lasy.gov.pl/arcgis/rest/services/WMS_BDL/MapServer/export?bbox={bbox-epsg-3857}&bboxSR=3857&imageSR=3857&size=256,256&format=png32&transparent=true&f=image",
+                                ],
+                                tileSize: 256,
+                                attribution: "BDL",
+                            },
+                            cell: {
+                                type: "geojson",
+                                data: cellPolygon,
+                            },
+                        },
+                        layers: [
+                            {
+                                id: "osm",
+                                type: "raster",
+                                source: "osm",
+                            },
+                            {
+                                id: "bdl",
+                                type: "raster",
+                                source: "bdl",
+                                paint: { "raster-opacity": 0.72 },
+                            },
+                            {
+                                id: "cell-fill",
+                                type: "fill",
+                                source: "cell",
+                                paint: {
+                                    "fill-color": "#E4772D",
+                                    "fill-opacity": 0.12,
+                                },
+                            },
+                            {
+                                id: "cell-line",
+                                type: "line",
+                                source: "cell",
+                                paint: {
+                                    "line-color": "#E4772D",
+                                    "line-width": 2,
+                                },
+                            },
+                        ],
+                    },
+                    center: [pilotCenter.lon, pilotCenter.lat],
+                    zoom: 10,
+                    minZoom: 8,
+                    maxZoom: 15,
+                    attributionControl: false,
+                });
+
+                map.addControl(
+                    new maplibregl.NavigationControl({ showCompass: false }),
+                    "top-right",
+                );
+                map.addControl(
+                    new maplibregl.AttributionControl({ compact: true }),
+                );
+
+                map.on("load", () => {
+                    // Wider than the cell alone — surrounding forest context, not a tight crop.
+                    map.fitBounds(
+                        [
+                            [pilotBounds.west, pilotBounds.south],
+                            [pilotBounds.east, pilotBounds.north],
+                        ],
+                        {
+                            padding: { top: 48, bottom: 48, left: 56, right: 56 },
+                            maxZoom: 11.2,
+                            duration: 0,
+                        },
+                    );
+
+                    const marker = document.createElement("div");
+                    marker.className = "cell-map-label";
+                    marker.textContent = "LJ-01";
+                    new maplibregl.Marker({
+                        element: marker,
+                        anchor: "center",
+                    })
+                        .setLngLat([pilotCenter.lon, pilotCenter.lat])
+                        .addTo(map);
+                });
+
+                container.dataset.mapReady = "1";
+                window.addEventListener(
+                    "resize",
+                    () => {
+                        map.resize();
+                    },
+                    { passive: true },
+                );
+            }
+
             applyTranslations();
             initializeCursor();
+            initializePilotMap();
             renderSeason(null);
             checkReadiness();
             refreshButton.addEventListener("click", checkReadiness);
             window.setInterval(checkReadiness, 30_000);
+            window.addEventListener(
+                "resize",
+                () => {
+                    if (lastSeasonDays) renderSeason(lastSeasonDays);
+                },
+                { passive: true },
+            );
 
             if (!reducedMotion) {
                 gsap.from(".site-header", {

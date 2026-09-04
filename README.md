@@ -52,6 +52,7 @@ Stop UI/API with `Ctrl+C`. Stop PostGIS with `task oentike:down`.
 | `oentike-api/` | PostGIS migrations, gRPC conditions, Open-Meteo ingest |
 | `oentike-proto/` | `conditions.proto` |
 | `oentike-web/` | Astro UI + Tauri desktop |
+| `oentike-atlas/` | Versioned species cards (pilot pack, no scores) |
 | `docker-compose.yml` | PostGIS (`profile: oentike`) |
 
 ---
