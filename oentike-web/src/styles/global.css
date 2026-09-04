@@ -583,7 +583,18 @@ h1 {
     gap: 2px;
 }
 
-.species-name small {
+.species-link {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.species-link:hover span {
+    color: var(--orange);
+}
+
+.species-name small,
+.species-link small {
     color: var(--muted);
     font-size: 8px;
     font-weight: 500;
@@ -1180,6 +1191,144 @@ footer p {
         align-items: flex-start;
         flex-direction: column;
     }
+}
+
+.atlas-page {
+    padding-bottom: 48px;
+}
+
+.atlas-intro {
+    align-items: flex-end;
+}
+
+.atlas-list {
+    list-style: none;
+    margin: 0 0 24px;
+    padding: 0;
+    border-top: var(--border-width) solid var(--line);
+}
+
+.atlas-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: var(--row-height);
+    padding: 12px 0;
+    border-bottom: var(--border-width) solid var(--line);
+}
+
+.atlas-row strong {
+    display: block;
+    font-size: 16px;
+}
+
+.atlas-row em {
+    display: block;
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 11px;
+    font-style: italic;
+    font-weight: 500;
+}
+
+.atlas-row-meta {
+    color: var(--orange);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.atlas-back {
+    margin: 0 0 28px;
+    font-size: 11px;
+    font-weight: 650;
+}
+
+.atlas-card h1 {
+    margin: 8px 0 4px;
+    font-size: clamp(28px, 4vw, 42px);
+}
+
+.atlas-latin {
+    margin: 0 0 28px;
+    color: var(--muted);
+    font-size: 14px;
+    font-style: italic;
+}
+
+.atlas-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px 40px;
+    margin: 0 0 28px;
+}
+
+.atlas-meta dt {
+    margin-bottom: 4px;
+    color: var(--muted);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.atlas-meta dd {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.atlas-empty,
+.atlas-art-slot {
+    margin: 0 0 28px;
+    padding: 18px 16px;
+    border: var(--border-width) dashed var(--line);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.55;
+    background: var(--surface-muted);
+}
+
+.atlas-lookalikes {
+    margin-bottom: 28px;
+}
+
+.atlas-lookalikes h2,
+.atlas-body h2 {
+    margin: 0 0 12px;
+    font-size: 14px;
+}
+
+.atlas-lookalikes ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.atlas-lookalikes li {
+    display: grid;
+    gap: 4px;
+    padding: 12px 0;
+    border-top: var(--border-width) solid var(--line);
+    font-size: 12px;
+}
+
+.atlas-lookalikes li span {
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.atlas-conditions-link a {
+    color: var(--orange);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.site-header nav a[aria-current="page"] {
+    color: var(--orange);
 }
 
 @media (prefers-reduced-motion: reduce) {

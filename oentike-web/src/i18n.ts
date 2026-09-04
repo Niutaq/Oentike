@@ -11,6 +11,7 @@ export const resources = {
                 conditions: "Warunki",
                 area: "Obszar",
                 sources: "Źródła",
+                atlas: "Atlas",
             },
             controls: {
                 appearance: "Ustawienia wyglądu",
@@ -98,6 +99,28 @@ export const resources = {
                 promise: "Każda przyszła ocena pokaże pochodzenie danych, wersję algorytmu i poziom pewności.",
                 version: "Oentike · wersja rozwojowa",
             },
+            atlas: {
+                metaTitle: "Oentike — Atlas",
+                eyebrow: "ATLAS",
+                title: "Gatunki pilotażowe",
+                lead: "Karty wiedzy — nazwa potoczna pierwsza, łacina obok. Bez oceny warunków i bez identyfikacji ze zdjęcia.",
+                openCard: "Karta",
+                pendingNote:
+                    "Habitat, phenology i cytacje pojawią się po uzupełnieniu packa. Lookaliki są już powiązane.",
+                back: "← Atlas",
+                cardEyebrow: "KARTA GATUNKU",
+                hymenophore: "Hymenofor",
+                pack: "Pack",
+                habitat: "Siedlisko",
+                phenology: "Sezon",
+                protection: "Ochrona w PL",
+                emptyFields:
+                    "Siedlisko, sezon i ochrona — do uzupełnienia z cytowanych źródeł.",
+                lookalikes: "Podobne gatunki",
+                artPending:
+                    "Miejsce na naszą tablicę botaniczną — jeszcze bez ilustracji.",
+                toConditions: "Zobacz warunki dla borowika",
+            },
         },
     },
     en: {
@@ -112,6 +135,7 @@ export const resources = {
                 conditions: "Conditions",
                 area: "Area",
                 sources: "Sources",
+                atlas: "Atlas",
             },
             controls: {
                 appearance: "Display settings",
@@ -198,6 +222,28 @@ export const resources = {
             footer: {
                 promise: "Every future score will expose data provenance, algorithm version, and confidence.",
                 version: "Oentike · development version",
+            },
+            atlas: {
+                metaTitle: "Oentike — Atlas",
+                eyebrow: "ATLAS",
+                title: "Pilot species",
+                lead: "Knowledge cards — common name first, Latin beside it. No condition score and no photo ID.",
+                openCard: "Card",
+                pendingNote:
+                    "Habitat, phenology, and citations appear after the pack is filled in. Lookalikes are already linked.",
+                back: "← Atlas",
+                cardEyebrow: "SPECIES CARD",
+                hymenophore: "Hymenophore",
+                pack: "Pack",
+                habitat: "Habitat",
+                phenology: "Season",
+                protection: "Protection in PL",
+                emptyFields:
+                    "Habitat, season, and protection — to be filled from cited sources.",
+                lookalikes: "Lookalikes",
+                artPending:
+                    "Space for our botanical plate — no illustration yet.",
+                toConditions: "See conditions for porcini",
             },
         },
     },

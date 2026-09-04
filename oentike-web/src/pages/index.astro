@@ -80,6 +80,7 @@ const factors = [
             <nav aria-label="Główna nawigacja" data-i18n-aria="meta.navigation">
                 <a href="#warunki" data-i18n="nav.conditions">Warunki</a>
                 <a href="#obszar" data-i18n="nav.area">Obszar</a>
+                <a href="/atlas" data-i18n="nav.atlas">Atlas</a>
             </nav>
 
             <div
@@ -201,10 +202,12 @@ const factors = [
                         <div>
                             <dt data-i18n="condition.species">Gatunek</dt>
                             <dd class="species-name">
-                                <span data-i18n="condition.speciesCommon"
-                                    >Borowik szlachetny</span
-                                >
-                                <small>Boletus edulis</small>
+                                <a class="species-link" href="/atlas/boletus-edulis">
+                                    <span data-i18n="condition.speciesCommon"
+                                        >Borowik szlachetny</span
+                                    >
+                                    <small>Boletus edulis</small>
+                                </a>
                             </dd>
                         </div>
                         <div>

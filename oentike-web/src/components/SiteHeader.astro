@@ -1,0 +1,94 @@
+---
+import MushroomIcon from "./MushroomIcon.astro";
+
+interface Props {
+    active?: "conditions" | "atlas";
+}
+
+const { active = "conditions" } = Astro.props;
+---
+
+<header class="site-header">
+    <a
+        class="brand"
+        href="/"
+        aria-label="Oentike - strona główna"
+        data-i18n-aria="meta.home"
+    >
+        <span>Oen</span>
+        <MushroomIcon class="brand-mark" variant="brand" />
+        <span>ke</span>
+    </a>
+
+    <nav aria-label="Główna nawigacja" data-i18n-aria="meta.navigation">
+        <a
+            href={active === "conditions" ? "#warunki" : "/#warunki"}
+            data-i18n="nav.conditions"
+            aria-current={active === "conditions" ? "page" : undefined}
+            >Warunki</a
+        >
+        <a
+            href={active === "conditions" ? "#obszar" : "/#obszar"}
+            data-i18n="nav.area">Obszar</a
+        >
+        <a
+            href="/atlas"
+            data-i18n="nav.atlas"
+            aria-current={active === "atlas" ? "page" : undefined}>Atlas</a
+        >
+    </nav>
+
+    <div
+        class="ux-controls"
+        aria-label="Ustawienia wyglądu"
+        data-i18n-aria="controls.appearance"
+    >
+        <div
+            class="language-control"
+            role="group"
+            aria-label="Język"
+            data-i18n-aria="controls.language"
+        >
+            <button type="button" data-language="pl">PL</button>
+            <button type="button" data-language="en">EN</button>
+        </div>
+        <div
+            class="size-control"
+            role="group"
+            aria-label="Rozmiar interfejsu"
+            data-i18n-aria="controls.size"
+        >
+            <button type="button" data-size="small" aria-label="Mały interfejs">
+                <MushroomIcon class="small" />
+            </button>
+            <button
+                type="button"
+                data-size="medium"
+                aria-label="Średni interfejs"
+            >
+                <MushroomIcon class="medium" />
+            </button>
+            <button type="button" data-size="large" aria-label="Duży interfejs">
+                <MushroomIcon class="large" />
+            </button>
+        </div>
+        <button
+            class="contrast-toggle"
+            id="contrast-toggle"
+            type="button"
+            aria-label="Włącz wysoki kontrast"
+            aria-pressed="false"
+        >
+            <MushroomIcon class="contrast" />
+        </button>
+        <button
+            class="theme-toggle"
+            id="theme-toggle"
+            type="button"
+            aria-label="Włącz ciemny motyw"
+            aria-pressed="false"
+        >
+            <MushroomIcon class="theme" variant="theme" />
+        </button>
+    </div>
+</header>

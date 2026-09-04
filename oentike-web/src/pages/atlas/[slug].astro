@@ -1,0 +1,146 @@
+---
+import "../../styles/global.css";
+import SiteHeader from "../../components/SiteHeader.astro";
+import ShellPrefs from "../../components/ShellPrefs.astro";
+import {
+    atlasCards,
+    getAtlasCard,
+    lookalikeName,
+} from "../../data/atlas";
+
+export function getStaticPaths() {
+    return atlasCards.map((card) => ({
+        params: { slug: card.slug },
+    }));
+}
+
+const { slug } = Astro.params;
+const card = getAtlasCard(slug!);
+if (!card) {
+    return Astro.redirect("/atlas");
+}
+
+const hasBody = Boolean(card.habitat || card.phenology || card.protection_pl);
+---
+
+<!doctype html>
+<html lang="pl">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+            id="page-description"
+            name="description"
+            content={`Oentike — ${card.names.pl}`}
+        />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/svg+xml" href="/oentike-logo.svg" />
+        <title>Oentike — {card.names.pl}</title>
+    </head>
+    <body data-i18n-title="atlas.metaTitle">
+        <SiteHeader active="atlas" />
+        <main class="atlas-page">
+            <p class="atlas-back">
+                <a href="/atlas" data-i18n="atlas.back">← Atlas</a>
+            </p>
+
+            <article class="atlas-card">
+                <p class="eyebrow" data-i18n="atlas.cardEyebrow">KARTA GATUNKU</p>
+                <h1
+                    data-name-pl={card.names.pl}
+                    data-name-en={card.names.en}
+                >
+                    {card.names.pl}
+                </h1>
+                {
+                    card.scientific_name ? (
+                        <p class="atlas-latin">{card.scientific_name}</p>
+                    ) : null
+                }
+
+                <dl class="atlas-meta">
+                    <div>
+                        <dt data-i18n="atlas.hymenophore">Hymenofor</dt>
+                        <dd>{card.hymenophore}</dd>
+                    </div>
+                    <div>
+                        <dt data-i18n="atlas.pack">Pack</dt>
+                        <dd>{card.pack_version}</dd>
+                    </div>
+                </dl>
+
+                {
+                    hasBody ? (
+                        <div class="atlas-body">
+                            {card.habitat ? (
+                                <section>
+                                    <h2 data-i18n="atlas.habitat">Siedlisko</h2>
+                                    <p>{card.habitat}</p>
+                                </section>
+                            ) : null}
+                            {card.phenology ? (
+                                <section>
+                                    <h2 data-i18n="atlas.phenology">Sezon</h2>
+                                    <p>{card.phenology}</p>
+                                </section>
+                            ) : null}
+                            {card.protection_pl ? (
+                                <section>
+                                    <h2 data-i18n="atlas.protection">
+                                        Ochrona w PL
+                                    </h2>
+                                    <p>{card.protection_pl}</p>
+                                </section>
+                            ) : null}
+                        </div>
+                    ) : (
+                        <p class="atlas-empty" data-i18n="atlas.emptyFields">
+                            Siedlisko, sezon i ochrona — do uzupełnienia z
+                            cytowanych źródeł.
+                        </p>
+                    )
+                }
+
+                <section class="atlas-lookalikes">
+                    <h2 data-i18n="atlas.lookalikes">Podobne gatunki</h2>
+                    <ul>
+                        {
+                            card.lookalikes.map((item) => (
+                                <li>
+                                    <a href={`/atlas/${item.slug}`}>
+                                        <strong
+                                            data-name-pl={
+                                                lookalikeName(item.slug, "pl")
+                                            }
+                                            data-name-en={
+                                                lookalikeName(item.slug, "en")
+                                            }
+                                        >
+                                            {lookalikeName(item.slug, "pl")}
+                                        </strong>
+                                    </a>
+                                    <span>{item.note}</span>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </section>
+
+                <div class="atlas-art-slot" data-i18n="atlas.artPending">
+                    Miejsce na naszą tablicę botaniczną — jeszcze bez ilustracji.
+                </div>
+
+                {
+                    card.slug === "boletus-edulis" ? (
+                        <p class="atlas-conditions-link">
+                            <a href="/#warunki" data-i18n="atlas.toConditions">
+                                Zobacz warunki dla borowika
+                            </a>
+                        </p>
+                    ) : null
+                }
+            </article>
+        </main>
+        <ShellPrefs />
+    </body>
+</html>

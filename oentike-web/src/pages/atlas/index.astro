@@ -1,0 +1,72 @@
+---
+import "../../styles/global.css";
+import SiteHeader from "../../components/SiteHeader.astro";
+import ShellPrefs from "../../components/ShellPrefs.astro";
+import { atlasCards, atlasPack } from "../../data/atlas";
+---
+
+<!doctype html>
+<html lang="pl">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+            id="page-description"
+            name="description"
+            content="Oentike — atlas gatunków pilotażowych."
+        />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/svg+xml" href="/oentike-logo.svg" />
+        <title>Oentike — Atlas</title>
+    </head>
+    <body data-i18n-title="atlas.metaTitle">
+        <SiteHeader active="atlas" />
+        <main class="atlas-page">
+            <section class="intro atlas-intro">
+                <div>
+                    <p class="eyebrow" data-i18n="atlas.eyebrow">ATLAS</p>
+                    <h1 data-i18n="atlas.title">Gatunki pilotażowe</h1>
+                    <p class="lead" data-i18n="atlas.lead">
+                        Karty wiedzy — nazwa potoczna pierwsza, łacina obok. Bez
+                        oceny warunków i bez identyfikacji ze zdjęcia.
+                    </p>
+                </div>
+                <span class="tag">pack {atlasPack.version}</span>
+            </section>
+
+            <ul class="atlas-list">
+                {
+                    atlasCards.map((card) => (
+                        <li>
+                            <a class="atlas-row" href={`/atlas/${card.slug}`}>
+                                <span>
+                                    <strong
+                                        data-name-pl={card.names.pl}
+                                        data-name-en={card.names.en}
+                                    >
+                                        {card.names.pl}
+                                    </strong>
+                                    {card.scientific_name ? (
+                                        <em>{card.scientific_name}</em>
+                                    ) : null}
+                                </span>
+                                <span
+                                    class="atlas-row-meta"
+                                    data-i18n="atlas.openCard"
+                                >
+                                    Karta
+                                </span>
+                            </a>
+                        </li>
+                    ))
+                }
+            </ul>
+
+            <p class="caption" data-i18n="atlas.pendingNote">
+                Habitat, phenology i cytacje pojawią się po uzupełnieniu packa.
+                Lookaliki są już powiązane.
+            </p>
+        </main>
+        <ShellPrefs />
+    </body>
+</html>

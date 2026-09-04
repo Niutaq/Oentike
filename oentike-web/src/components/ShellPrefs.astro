@@ -1,0 +1,144 @@
+---
+/**
+ * Shared theme boot + language/size/contrast/theme toggles for non-home pages.
+ */
+---
+
+<script is:inline>
+    (() => {
+        const root = document.documentElement;
+        try {
+            root.dataset.theme =
+                localStorage.getItem("oentike-theme") ||
+                (matchMedia("(prefers-color-scheme: dark)").matches
+                    ? "dark"
+                    : "light");
+            root.dataset.size =
+                localStorage.getItem("oentike-size") || "medium";
+            root.dataset.contrast =
+                localStorage.getItem("oentike-contrast") || "normal";
+            root.dataset.tempUnit =
+                localStorage.getItem("oentike-temp-unit") === "F" ? "F" : "C";
+        } catch {
+            root.dataset.theme = "light";
+            root.dataset.size = "medium";
+            root.dataset.contrast = "normal";
+            root.dataset.tempUnit = "C";
+        }
+    })();
+</script>
+
+<script>
+    import i18next from "i18next";
+    import { resources } from "../i18n";
+
+    const root = document.documentElement;
+    const themeToggle = document.getElementById("theme-toggle");
+    const contrastToggle = document.getElementById("contrast-toggle");
+    const sizeButtons = document.querySelectorAll("[data-size]");
+    const languageButtons = document.querySelectorAll("[data-language]");
+
+    const savedLanguage = localStorage.getItem("oentike-language");
+    const browserLanguage = navigator.language.toLowerCase().startsWith("en")
+        ? "en"
+        : "pl";
+
+    await i18next.init({
+        lng: savedLanguage || browserLanguage,
+        fallbackLng: "pl",
+        resources,
+        interpolation: { escapeValue: false },
+    });
+
+    const t = (key) => i18next.t(key);
+
+    function syncPreferences() {
+        const dark = root.dataset.theme === "dark";
+        const highContrast = root.dataset.contrast === "high";
+        const activeSize = root.dataset.size || "medium";
+        const sizeLabels = {
+            small: t("controls.small"),
+            medium: t("controls.medium"),
+            large: t("controls.large"),
+        };
+
+        themeToggle?.setAttribute("aria-pressed", String(dark));
+        themeToggle?.setAttribute(
+            "aria-label",
+            dark ? t("controls.light") : t("controls.dark"),
+        );
+        contrastToggle?.setAttribute("aria-pressed", String(highContrast));
+        contrastToggle?.setAttribute(
+            "aria-label",
+            highContrast ? t("controls.contrastOff") : t("controls.contrastOn"),
+        );
+        sizeButtons.forEach((button) => {
+            const size = button.dataset.size || "medium";
+            button.setAttribute("aria-pressed", String(size === activeSize));
+            button.setAttribute("aria-label", sizeLabels[size] || size);
+        });
+        languageButtons.forEach((button) => {
+            button.setAttribute(
+                "aria-pressed",
+                String(button.dataset.language === i18next.language),
+            );
+        });
+    }
+
+    function applyTranslations() {
+        root.lang = i18next.language;
+        document.title = t(document.body.dataset.i18nTitle || "meta.title");
+        const description = document.getElementById("page-description");
+        if (description) {
+            description.setAttribute("content", t("meta.description"));
+        }
+        document.querySelectorAll("[data-i18n]").forEach((element) => {
+            if (element.dataset.i18n) {
+                element.textContent = t(element.dataset.i18n);
+            }
+        });
+        document.querySelectorAll("[data-i18n-aria]").forEach((element) => {
+            if (element.dataset.i18nAria) {
+                element.setAttribute("aria-label", t(element.dataset.i18nAria));
+            }
+        });
+        document.querySelectorAll("[data-name-pl]").forEach((element) => {
+            element.textContent =
+                i18next.language === "en"
+                    ? element.dataset.nameEn || element.dataset.namePl || ""
+                    : element.dataset.namePl || "";
+        });
+        syncPreferences();
+    }
+
+    themeToggle?.addEventListener("click", () => {
+        const next = root.dataset.theme === "dark" ? "light" : "dark";
+        root.dataset.theme = next;
+        localStorage.setItem("oentike-theme", next);
+        syncPreferences();
+    });
+    contrastToggle?.addEventListener("click", () => {
+        const next = root.dataset.contrast === "high" ? "normal" : "high";
+        root.dataset.contrast = next;
+        localStorage.setItem("oentike-contrast", next);
+        syncPreferences();
+    });
+    sizeButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const size = button.dataset.size || "medium";
+            root.dataset.size = size;
+            localStorage.setItem("oentike-size", size);
+            syncPreferences();
+        });
+    });
+    languageButtons.forEach((button) => {
+        button.addEventListener("click", async () => {
+            const lang = button.dataset.language || "pl";
+            await i18next.changeLanguage(lang);
+            localStorage.setItem("oentike-language", lang);
+            applyTranslations();
+        });
+    });
+
+    applyTranslations();
+</script>
