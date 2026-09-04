@@ -45,8 +45,6 @@ grpcurl -plaintext -d '{"cell_id":"lasy-janowskie-01"}' \
 
 Stop UI/API with `Ctrl+C`. Stop PostGIS with `task oentike:down`.
 
-Agent rules and the intended stack (H3, signed packs, SPIFFE on the product path, atlas, Gemma last): [`AI_AGENT_PROMPT.md`](./AI_AGENT_PROMPT.md).
-
 ---
 
 ## Layout
