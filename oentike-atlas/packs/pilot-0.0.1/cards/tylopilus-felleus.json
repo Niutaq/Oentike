@@ -1,0 +1,33 @@
+{
+  "slug": "tylopilus-felleus",
+  "scientific_name": null,
+  "names": {
+    "pl": null,
+    "en": null
+  },
+  "identifiers": {
+    "mycobank": null,
+    "index_fungorum": null,
+    "gbif": null
+  },
+  "hymenophore": "pores",
+  "habitat": null,
+  "phenology": null,
+  "lookalikes": [
+    {
+      "slug": "boletus-edulis",
+      "note": "Often confused with porcini — fill bitter taste / pinkish pores from a cited source."
+    }
+  ],
+  "protection_pl": null,
+  "citations": [],
+  "art": {
+    "cap": null,
+    "hymenophore": null,
+    "stem": null,
+    "section": null,
+    "lookalike_plate": null
+  },
+  "pack_version": "0.0.1",
+  "reviewed_at": null
+}

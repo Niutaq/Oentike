@@ -1,0 +1,12 @@
+{
+  "id": "oentike-atlas-pilot",
+  "version": "0.0.1",
+  "signed": false,
+  "description": "Pilot atlas pack: porcini + two lookalikes. Unsigned schema only.",
+  "card_schema": "../../schema/card.schema.json",
+  "cards": [
+    "cards/boletus-edulis.json",
+    "cards/tylopilus-felleus.json",
+    "cards/boletus-reticulatus.json"
+  ]
+}
