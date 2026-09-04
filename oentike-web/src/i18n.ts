@@ -74,10 +74,13 @@ export const resources = {
             },
             pilot: {
                 eyebrow: "OBSZAR PILOTAŻOWY",
-                mapAlt: "Mapa oddziałów leśnych w rejonie Lasów Janowskich",
+                mapAlt: "Interaktywna mapa komórki Lasy Janowskie",
                 sourcePrefix: "Dane mapowe:",
                 privacy: "Analiza używa komórki, nie dokładnych punktów.",
-                chooseLater: "Wybór innego terenu przyjdzie po siatce komórek - na razie tylko Lasy Janowskie.",
+                interact:
+                    "Przeciągnij i powiększ. Pomarańczowa ramka to komórka 10 × 10 km — nie dokładny punkt GPS.",
+                chooseLater:
+                    "Wybór innego terenu przyjdzie po siatce komórek - na razie tylko Lasy Janowskie.",
             },
             sources: {
                 eyebrow: "INFRASTRUKTURA",
@@ -173,10 +176,13 @@ export const resources = {
             },
             pilot: {
                 eyebrow: "PILOT AREA",
-                mapAlt: "Forest division map near Lasy Janowskie",
+                mapAlt: "Interactive map of the Lasy Janowskie cell",
                 sourcePrefix: "Map data:",
                 privacy: "Analysis uses a grid cell, never precise points.",
-                chooseLater: "Choosing another forest comes after a cell grid - for now only Lasy Janowskie.",
+                interact:
+                    "Drag and zoom. The orange frame is the 10 × 10 km cell — not an exact GPS pin.",
+                chooseLater:
+                    "Choosing another forest comes after a cell grid - for now only Lasy Janowskie.",
             },
             sources: {
                 eyebrow: "INFRASTRUCTURE",
