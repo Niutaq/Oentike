@@ -75,10 +75,9 @@ export const resources = {
             pilot: {
                 eyebrow: "OBSZAR PILOTAŻOWY",
                 mapAlt: "Interaktywna mapa komórki Lasy Janowskie",
-                sourcePrefix: "Dane mapowe:",
-                privacy: "Analiza używa komórki, nie dokładnych punktów.",
                 interact:
-                    "Przeciągnij i powiększ. Pomarańczowa ramka to komórka 10 × 10 km — nie dokładny punkt GPS.",
+                    "Ramka oznacza komórkę analizy (10 × 10 km), nie punkt GPS.",
+                sourcePrefix: "Podkład:",
                 chooseLater:
                     "Wybór innego terenu przyjdzie po siatce komórek - na razie tylko Lasy Janowskie.",
             },
@@ -177,10 +176,9 @@ export const resources = {
             pilot: {
                 eyebrow: "PILOT AREA",
                 mapAlt: "Interactive map of the Lasy Janowskie cell",
-                sourcePrefix: "Map data:",
-                privacy: "Analysis uses a grid cell, never precise points.",
                 interact:
-                    "Drag and zoom. The orange frame is the 10 × 10 km cell — not an exact GPS pin.",
+                    "The frame is the analysis cell (10 × 10 km), not a GPS pin.",
+                sourcePrefix: "Base map:",
                 chooseLater:
                     "Choosing another forest comes after a cell grid - for now only Lasy Janowskie.",
             },

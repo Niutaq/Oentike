@@ -321,20 +321,22 @@ const factors = [
                     aria-label="Mapa oddziałów leśnych w rejonie Lasów Janowskich"
                     data-i18n-aria="pilot.mapAlt"
                 ></div>
-                <p class="caption">
+                <p class="caption map-caption">
                     <span data-i18n="pilot.interact"
-                        >Przeciągnij i powiększ. Pomarańczowa ramka to komórka
-                        10 × 10 km — nie dokładny punkt GPS.</span
+                        >Ramka oznacza komórkę analizy (10 × 10 km), nie punkt
+                        GPS.</span
                     >
-                    <span data-i18n="pilot.sourcePrefix">Dane mapowe:</span>
-                    <a
-                        href="https://bdl.lasy.gov.pl/portal/uslugi-ogc?v=4"
-                        target="_blank"
-                        rel="noreferrer"
-                    >
-                        Bank Danych o Lasach
-                    </a>
-                    · OSM.
+                    <span class="map-sources">
+                        <span data-i18n="pilot.sourcePrefix">Podkład:</span>
+                        <a
+                            href="https://bdl.lasy.gov.pl/portal/uslugi-ogc?v=4"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            BDL
+                        </a>
+                        · OSM
+                    </span>
                 </p>
 
                 <div class="season">
@@ -999,6 +1001,82 @@ const factors = [
                 return col;
             }
 
+            function drawSeasonTrend(chart, list) {
+                let svg = chart.querySelector(".season-trend");
+                if (!svg) {
+                    svg = document.createElementNS(
+                        "http://www.w3.org/2000/svg",
+                        "svg",
+                    );
+                    svg.classList.add("season-trend");
+                    svg.setAttribute("aria-hidden", "true");
+                    chart.prepend(svg);
+                }
+
+                const cols = [...chart.querySelectorAll(".season-col")];
+                if (!cols.length) {
+                    svg.replaceChildren();
+                    return;
+                }
+
+                const chartBox = chart.getBoundingClientRect();
+                const points = [];
+                list.forEach((day, index) => {
+                    if (day?.status !== "ready" || day.score == null) return;
+                    const track = cols[index]?.querySelector(".season-track");
+                    const bar = cols[index]?.querySelector(".season-bar");
+                    if (!track || !bar) return;
+                    const trackBox = track.getBoundingClientRect();
+                    const barBox = bar.getBoundingClientRect();
+                    const x =
+                        trackBox.left +
+                        trackBox.width / 2 -
+                        chartBox.left;
+                    const y = barBox.top - chartBox.top;
+                    points.push({ x, y, score: day.score });
+                });
+
+                svg.setAttribute("width", String(chartBox.width));
+                svg.setAttribute("height", String(chartBox.height));
+                svg.setAttribute(
+                    "viewBox",
+                    `0 0 ${chartBox.width} ${chartBox.height}`,
+                );
+                svg.replaceChildren();
+
+                if (points.length < 2) return;
+
+                const polyline = document.createElementNS(
+                    "http://www.w3.org/2000/svg",
+                    "polyline",
+                );
+                polyline.setAttribute(
+                    "points",
+                    points.map((p) => `${p.x},${p.y}`).join(" "),
+                );
+                polyline.setAttribute("fill", "none");
+                polyline.setAttribute("stroke", "var(--ink)");
+                polyline.setAttribute("stroke-width", "1.5");
+                polyline.setAttribute("stroke-linecap", "round");
+                polyline.setAttribute("stroke-linejoin", "round");
+                polyline.setAttribute("opacity", "0.55");
+                svg.append(polyline);
+
+                for (const point of points) {
+                    const dot = document.createElementNS(
+                        "http://www.w3.org/2000/svg",
+                        "circle",
+                    );
+                    dot.setAttribute("cx", String(point.x));
+                    dot.setAttribute("cy", String(point.y));
+                    dot.setAttribute("r", "2.5");
+                    dot.setAttribute("fill", "var(--orange)");
+                    dot.setAttribute("stroke", "var(--surface)");
+                    dot.setAttribute("stroke-width", "1");
+                    svg.append(dot);
+                }
+            }
+
             function renderSeason(days) {
                 const chart = document.getElementById("season-chart");
                 if (!chart) return;
@@ -1008,11 +1086,13 @@ const factors = [
                         ? days
                         : Array.from({ length: 9 }, () => null);
 
-                if (chart.childElementCount === list.length) {
+                const existingCols = chart.querySelectorAll(".season-col");
+                if (existingCols.length === list.length) {
                     list.forEach((day, index) =>
-                        fillSeasonCol(chart.children[index], day),
+                        fillSeasonCol(existingCols[index], day),
                     );
                 } else {
+                    chart.querySelector(".season-trend")?.remove();
                     chart.replaceChildren(
                         ...list.map((day) => makeSeasonCol(day)),
                     );
@@ -1039,6 +1119,8 @@ const factors = [
                             ? `${seasonDayParts(first).date} – ${seasonDayParts(last).date}`
                             : t("season.rangeFallback");
                 }
+
+                requestAnimationFrame(() => drawSeasonTrend(chart, list));
             }
 
             function applyConditionsView(response) {
@@ -1348,6 +1430,13 @@ const factors = [
             checkReadiness();
             refreshButton.addEventListener("click", checkReadiness);
             window.setInterval(checkReadiness, 30_000);
+            window.addEventListener(
+                "resize",
+                () => {
+                    if (lastSeasonDays) renderSeason(lastSeasonDays);
+                },
+                { passive: true },
+            );
 
             if (!reducedMotion) {
                 gsap.from(".site-header", {
