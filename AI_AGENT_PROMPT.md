@@ -1,45 +1,45 @@
-# Oentike — Agent Context & Architecture Manifesto
+# Oentike - Agent Context & Architecture Manifesto
 
 **To the AI Agent reading this:** This file is the source of truth. Follow it before architectural decisions. The human (owner) is learning this stack on purpose: pair with them, do not silently finish every hard part. High-quality engineering, no AI-slop comments, no fake scores.
 
 ## 1. What Oentike is
 
-Oentike is a **local field helper** for mushroom conditions (a modern, explainable take on the *idea* of grzyby.pl — not a scrape or a clone of their content). It answers: for a chosen species, in a chosen area, are conditions promising, and why?
+Oentike is a **local field helper** for mushroom conditions (a modern, explainable take on the *idea* of grzyby.pl - not a scrape or a clone of their content). It answers: for a chosen species, in a chosen area, are conditions promising, and why?
 
 It is also a **portfolio of real security / geospatial / cloud-native engineering** (readable to CBZC, SOC, cloud security): workload identity, signed data, cartography, offline, provenance. Niche technology is woven **into** the mushroom domain, not parked in a separate demo forever.
 
 Inspiration from grzyby.pl’s **radar / mapa występowania** (how the *product* works, not their data):
 
-- Coarse, regional, frequently updated picture of “how the season looks” — not a pin under a tree.
+- Coarse, regional, frequently updated picture of “how the season looks” - not a pin under a tree.
 - Time dimension: last days + trend (their logged-in “9 days” / season histogram idea).
-- Optional synoptic commentary later — generated from **our** factors, not copied text.
-- Atlas as knowledge, linked to Mycobank / Index Fungorum / GBIF-style identifiers — our cards, our art, our citations.
+- Optional synoptic commentary later - generated from **our** factors, not copied text.
+- Atlas as knowledge, linked to Mycobank / Index Fungorum / GBIF-style identifiers - our cards, our art, our citations.
 
 Oentike stays **more local than the portal**: primary UX is one cell / one trip / one species (pilot: Lasy Janowskie near Targowisko/Studzieniec, `Boletus edulis`). The national/seasonal layer is **orientation**, not a crowdsourced treasure map.
 
 ## 2. Product layers (in order)
 
-1. **Local conditions** — weather + forest context → versioned, low-confidence score for one H3 (or equivalent) cell. Missing data → explicit unavailable. Never invent a score.
-2. **Seasonal awareness map** — choropleth of *our* condition potential (and later blurred observations) at województwo / H3 coarse resolution. Public layer never exposes exact GPS. Exact points stay private on-device.
-3. **Offline field mode** — Tauri + local SQLite (encrypt private pins: SQLCipher or age). PMTiles / cell cache. Sync only over mTLS when the network returns.
-4. **Built-in atlas** — versioned, signed pack. Hand-painted botanical art matching the UI (not stock photos, not grzyby.pl images). Scientific fields + citations. Lookalike pairs. Legal protection flags for PL. Pilot: porcini + 2–3 lookalikes.
-5. **Gemma (last)** — local RAG over *our* atlas and score explanations. Never an edibility/identification verdict from a photo.
+1. **Local conditions** - weather + forest context → versioned, low-confidence score for one H3 (or equivalent) cell. Missing data → explicit unavailable. Never invent a score.
+2. **Seasonal awareness map** - choropleth of *our* condition potential (and later blurred observations) at województwo / H3 coarse resolution. Public layer never exposes exact GPS. Exact points stay private on-device.
+3. **Offline field mode** - Tauri + local SQLite (encrypt private pins: SQLCipher or age). PMTiles / cell cache. Sync only over mTLS when the network returns.
+4. **Built-in atlas** - versioned, signed pack. Hand-painted botanical art matching the UI (not stock photos, not grzyby.pl images). Scientific fields + citations. Lookalike pairs. Legal protection flags for PL. Pilot: porcini + 2–3 lookalikes.
+5. **Gemma (last)** - local RAG over *our* atlas and score explanations. Never an edibility/identification verdict from a photo.
 
-Crowd reports, if any, are opt-in, cell-blurred, and legally our own — not imported from grzyby.pl.
+Crowd reports, if any, are opt-in, cell-blurred, and legally our own - not imported from grzyby.pl.
 
 ## 3. Engineering stack (use these in-domain)
 
 | Role | Technology | Why |
 |---|---|---|
-| Workload identity | SPIFFE/SPIRE, X.509 SVIDs, mTLS | Ingest, scorer, API, Tauri/agent — no trust-on-network |
+| Workload identity | SPIFFE/SPIRE, X.509 SVIDs, mTLS | Ingest, scorer, API, Tauri/agent - no trust-on-network |
 | Events | NATS JetStream | Ingest, score invalidation, sync (subjects about mushrooms/cells, not SOC) |
 | Telemetry | OpenTelemetry → Jaeger, including store-and-forward offline | Provenance of the pipeline |
-| Edge policy | Envoy (+ WASM when a real policy exists) | Authz from SPIFFE, limits — not a toy tollbooth on mushroom JSON without a rule |
+| Edge policy | Envoy (+ WASM when a real policy exists) | Authz from SPIFFE, limits - not a toy tollbooth on mushroom JSON without a rule |
 | Geo | PostGIS, H3 (or S2), BDL via OGC API where possible, MapLibre, PMTiles | Cartography + offline tiles |
 | Data trust | Signed packs (cosign and/or TUF): atlas, tiles, weather snapshots | Supply chain of *data* |
 | Later geo intel | STAC + COG (e.g. Copernicus/Sentinel) | Habitat/moisture, not a second weather JSON |
 
-Reuse SPIRE, NATS, Envoy, OTel from the existing SecOps lab **as machinery**. New schemas, NATS subjects, and UI are **conditions, cells, atlas, sync** — not quarantine/FinOps. Do not dump mushroom tables into `oentike-control-plane` SQLite; give the product its own API/DB (`oentike-api` + PostGIS) and attach identity/events around it.
+Reuse SPIRE, NATS, Envoy, OTel from the existing SecOps lab **as machinery**. New schemas, NATS subjects, and UI are **conditions, cells, atlas, sync** - not quarantine/FinOps. Do not dump mushroom tables into `oentike-control-plane` SQLite; give the product its own API/DB (`oentike-api` + PostGIS) and attach identity/events around it.
 
 REST is a thin read API. Value is grid, signatures, offline, and explainable scores.
 
@@ -74,13 +74,13 @@ When a task is a learning beat, say so, give the exact command or file, and wait
 - Never fabricate conditions or observations.
 - Protect exact locations on any shared/public surface.
 - Idiomatic code per language; comments only for *why*. **No AI-slop comments.**
-- Reproducible: Taskfile, Compose, mise/nix — no hidden machine snowflakes.
+- Reproducible: Taskfile, Compose, mise/nix - no hidden machine snowflakes.
 
 ## 7. How to run
 
 ```bash
 task dev          # PostGIS, API, NATS, Tauri conditions UI
-task start-all    # full identity/lab stack (SPIRE, Envoy, …) — needs sudo/socket perms
+task start-all    # full identity/lab stack (SPIRE, Envoy, …) - needs sudo/socket perms
 ```
 
-Pilot slice remains: one area (Lasy Janowskie), one species. Open-Meteo ingest stores samples; `GetConditions` may fill factors but must not invent a score. Seasonal map and atlas packs come after the cell score is real — or in parallel only as empty, signed schemas, not fake heatmaps.
+Pilot slice remains: one area (Lasy Janowskie), one species. Open-Meteo ingest stores samples; `serve` refreshes the pilot cell about hourly. `GetConditions` scores `boletus-edulis` only when all three factors exist (`oentike-conditions/0.1.0-boletus`, confidence `low`) and exposes `fetched_at`. `GetSeason` is the 9-day histogram of those same scores for **one cell** - not a national choropleth and not a fake heatmap. Atlas packs and H3 maps come after this stays honest.

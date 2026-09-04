@@ -8,6 +8,8 @@ option go_package = "oentike-api/internal/conditionsv1";
 // this RPC is the conditions contract (gRPC now, SPIFFE/mTLS later).
 service ConditionsService {
   rpc GetConditions(GetConditionsRequest) returns (ConditionsResponse);
+  // Last N Warsaw civil days for one cell - our scores only, no other regions.
+  rpc GetSeason(GetSeasonRequest) returns (SeasonResponse);
 }
 
 message GetConditionsRequest {
@@ -28,11 +30,34 @@ message ConditionsResponse {
   string cell_name = 2;
   string species_slug = 3;
   string target_date = 4;
-  // ready | unavailable — business status, not the gRPC code.
+  // ready | unavailable - business status, not the gRPC code.
   string status = 5;
   optional int32 score = 6;
   string confidence = 7;
   repeated Factor factors = 8;
   string algorithm_version = 9;
   optional string input_sha256 = 10;
+  // Latest Open-Meteo ingest for this cell (RFC3339). Empty if none.
+  optional string fetched_at = 11;
+}
+
+message GetSeasonRequest {
+  string cell_id = 1;
+  string species_slug = 2;
+  // Inclusive day count ending today (Europe/Warsaw). 0 means 9. Max 14.
+  int32 days = 3;
+}
+
+message SeasonDay {
+  string date = 1;
+  string status = 2;
+  optional int32 score = 3;
+}
+
+message SeasonResponse {
+  string cell_id = 1;
+  string cell_name = 2;
+  string species_slug = 3;
+  string algorithm_version = 4;
+  repeated SeasonDay days = 5;
 }

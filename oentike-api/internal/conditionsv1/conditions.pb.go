@@ -148,15 +148,17 @@ type ConditionsResponse struct {
 	CellName    string                 `protobuf:"bytes,2,opt,name=cell_name,json=cellName,proto3" json:"cell_name,omitempty"`
 	SpeciesSlug string                 `protobuf:"bytes,3,opt,name=species_slug,json=speciesSlug,proto3" json:"species_slug,omitempty"`
 	TargetDate  string                 `protobuf:"bytes,4,opt,name=target_date,json=targetDate,proto3" json:"target_date,omitempty"`
-	// ready | unavailable — business status, not the gRPC code.
+	// ready | unavailable - business status, not the gRPC code.
 	Status           string    `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
 	Score            *int32    `protobuf:"varint,6,opt,name=score,proto3,oneof" json:"score,omitempty"`
 	Confidence       string    `protobuf:"bytes,7,opt,name=confidence,proto3" json:"confidence,omitempty"`
 	Factors          []*Factor `protobuf:"bytes,8,rep,name=factors,proto3" json:"factors,omitempty"`
 	AlgorithmVersion string    `protobuf:"bytes,9,opt,name=algorithm_version,json=algorithmVersion,proto3" json:"algorithm_version,omitempty"`
 	InputSha256      *string   `protobuf:"bytes,10,opt,name=input_sha256,json=inputSha256,proto3,oneof" json:"input_sha256,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Latest Open-Meteo ingest for this cell (RFC3339). Empty if none.
+	FetchedAt     *string `protobuf:"bytes,11,opt,name=fetched_at,json=fetchedAt,proto3,oneof" json:"fetched_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ConditionsResponse) Reset() {
@@ -259,6 +261,210 @@ func (x *ConditionsResponse) GetInputSha256() string {
 	return ""
 }
 
+func (x *ConditionsResponse) GetFetchedAt() string {
+	if x != nil && x.FetchedAt != nil {
+		return *x.FetchedAt
+	}
+	return ""
+}
+
+type GetSeasonRequest struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	CellId      string                 `protobuf:"bytes,1,opt,name=cell_id,json=cellId,proto3" json:"cell_id,omitempty"`
+	SpeciesSlug string                 `protobuf:"bytes,2,opt,name=species_slug,json=speciesSlug,proto3" json:"species_slug,omitempty"`
+	// Inclusive day count ending today (Europe/Warsaw). 0 means 9. Max 14.
+	Days          int32 `protobuf:"varint,3,opt,name=days,proto3" json:"days,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSeasonRequest) Reset() {
+	*x = GetSeasonRequest{}
+	mi := &file_conditions_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSeasonRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSeasonRequest) ProtoMessage() {}
+
+func (x *GetSeasonRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_conditions_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSeasonRequest.ProtoReflect.Descriptor instead.
+func (*GetSeasonRequest) Descriptor() ([]byte, []int) {
+	return file_conditions_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GetSeasonRequest) GetCellId() string {
+	if x != nil {
+		return x.CellId
+	}
+	return ""
+}
+
+func (x *GetSeasonRequest) GetSpeciesSlug() string {
+	if x != nil {
+		return x.SpeciesSlug
+	}
+	return ""
+}
+
+func (x *GetSeasonRequest) GetDays() int32 {
+	if x != nil {
+		return x.Days
+	}
+	return 0
+}
+
+type SeasonDay struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Date          string                 `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"`
+	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	Score         *int32                 `protobuf:"varint,3,opt,name=score,proto3,oneof" json:"score,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SeasonDay) Reset() {
+	*x = SeasonDay{}
+	mi := &file_conditions_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SeasonDay) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SeasonDay) ProtoMessage() {}
+
+func (x *SeasonDay) ProtoReflect() protoreflect.Message {
+	mi := &file_conditions_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SeasonDay.ProtoReflect.Descriptor instead.
+func (*SeasonDay) Descriptor() ([]byte, []int) {
+	return file_conditions_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *SeasonDay) GetDate() string {
+	if x != nil {
+		return x.Date
+	}
+	return ""
+}
+
+func (x *SeasonDay) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *SeasonDay) GetScore() int32 {
+	if x != nil && x.Score != nil {
+		return *x.Score
+	}
+	return 0
+}
+
+type SeasonResponse struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	CellId           string                 `protobuf:"bytes,1,opt,name=cell_id,json=cellId,proto3" json:"cell_id,omitempty"`
+	CellName         string                 `protobuf:"bytes,2,opt,name=cell_name,json=cellName,proto3" json:"cell_name,omitempty"`
+	SpeciesSlug      string                 `protobuf:"bytes,3,opt,name=species_slug,json=speciesSlug,proto3" json:"species_slug,omitempty"`
+	AlgorithmVersion string                 `protobuf:"bytes,4,opt,name=algorithm_version,json=algorithmVersion,proto3" json:"algorithm_version,omitempty"`
+	Days             []*SeasonDay           `protobuf:"bytes,5,rep,name=days,proto3" json:"days,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *SeasonResponse) Reset() {
+	*x = SeasonResponse{}
+	mi := &file_conditions_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SeasonResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SeasonResponse) ProtoMessage() {}
+
+func (x *SeasonResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_conditions_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SeasonResponse.ProtoReflect.Descriptor instead.
+func (*SeasonResponse) Descriptor() ([]byte, []int) {
+	return file_conditions_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *SeasonResponse) GetCellId() string {
+	if x != nil {
+		return x.CellId
+	}
+	return ""
+}
+
+func (x *SeasonResponse) GetCellName() string {
+	if x != nil {
+		return x.CellName
+	}
+	return ""
+}
+
+func (x *SeasonResponse) GetSpeciesSlug() string {
+	if x != nil {
+		return x.SpeciesSlug
+	}
+	return ""
+}
+
+func (x *SeasonResponse) GetAlgorithmVersion() string {
+	if x != nil {
+		return x.AlgorithmVersion
+	}
+	return ""
+}
+
+func (x *SeasonResponse) GetDays() []*SeasonDay {
+	if x != nil {
+		return x.Days
+	}
+	return nil
+}
+
 var File_conditions_proto protoreflect.FileDescriptor
 
 const file_conditions_proto_rawDesc = "" +
@@ -273,7 +479,7 @@ const file_conditions_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04unit\x18\x02 \x01(\tR\x04unit\x12\x19\n" +
 	"\x05value\x18\x03 \x01(\x01H\x00R\x05value\x88\x01\x01B\b\n" +
-	"\x06_value\"\x87\x03\n" +
+	"\x06_value\"\xba\x03\n" +
 	"\x12ConditionsResponse\x12\x17\n" +
 	"\acell_id\x18\x01 \x01(\tR\x06cellId\x12\x1b\n" +
 	"\tcell_name\x18\x02 \x01(\tR\bcellName\x12!\n" +
@@ -288,11 +494,30 @@ const file_conditions_proto_rawDesc = "" +
 	"\afactors\x18\b \x03(\v2\x1a.oentike.conditions.FactorR\afactors\x12+\n" +
 	"\x11algorithm_version\x18\t \x01(\tR\x10algorithmVersion\x12&\n" +
 	"\finput_sha256\x18\n" +
-	" \x01(\tH\x01R\vinputSha256\x88\x01\x01B\b\n" +
+	" \x01(\tH\x01R\vinputSha256\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"fetched_at\x18\v \x01(\tH\x02R\tfetchedAt\x88\x01\x01B\b\n" +
 	"\x06_scoreB\x0f\n" +
-	"\r_input_sha2562v\n" +
+	"\r_input_sha256B\r\n" +
+	"\v_fetched_at\"b\n" +
+	"\x10GetSeasonRequest\x12\x17\n" +
+	"\acell_id\x18\x01 \x01(\tR\x06cellId\x12!\n" +
+	"\fspecies_slug\x18\x02 \x01(\tR\vspeciesSlug\x12\x12\n" +
+	"\x04days\x18\x03 \x01(\x05R\x04days\"\\\n" +
+	"\tSeasonDay\x12\x12\n" +
+	"\x04date\x18\x01 \x01(\tR\x04date\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\x12\x19\n" +
+	"\x05score\x18\x03 \x01(\x05H\x00R\x05score\x88\x01\x01B\b\n" +
+	"\x06_score\"\xc9\x01\n" +
+	"\x0eSeasonResponse\x12\x17\n" +
+	"\acell_id\x18\x01 \x01(\tR\x06cellId\x12\x1b\n" +
+	"\tcell_name\x18\x02 \x01(\tR\bcellName\x12!\n" +
+	"\fspecies_slug\x18\x03 \x01(\tR\vspeciesSlug\x12+\n" +
+	"\x11algorithm_version\x18\x04 \x01(\tR\x10algorithmVersion\x121\n" +
+	"\x04days\x18\x05 \x03(\v2\x1d.oentike.conditions.SeasonDayR\x04days2\xcd\x01\n" +
 	"\x11ConditionsService\x12a\n" +
-	"\rGetConditions\x12(.oentike.conditions.GetConditionsRequest\x1a&.oentike.conditions.ConditionsResponseB#Z!oentike-api/internal/conditionsv1b\x06proto3"
+	"\rGetConditions\x12(.oentike.conditions.GetConditionsRequest\x1a&.oentike.conditions.ConditionsResponse\x12U\n" +
+	"\tGetSeason\x12$.oentike.conditions.GetSeasonRequest\x1a\".oentike.conditions.SeasonResponseB#Z!oentike-api/internal/conditionsv1b\x06proto3"
 
 var (
 	file_conditions_proto_rawDescOnce sync.Once
@@ -306,21 +531,27 @@ func file_conditions_proto_rawDescGZIP() []byte {
 	return file_conditions_proto_rawDescData
 }
 
-var file_conditions_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_conditions_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_conditions_proto_goTypes = []any{
 	(*GetConditionsRequest)(nil), // 0: oentike.conditions.GetConditionsRequest
 	(*Factor)(nil),               // 1: oentike.conditions.Factor
 	(*ConditionsResponse)(nil),   // 2: oentike.conditions.ConditionsResponse
+	(*GetSeasonRequest)(nil),     // 3: oentike.conditions.GetSeasonRequest
+	(*SeasonDay)(nil),            // 4: oentike.conditions.SeasonDay
+	(*SeasonResponse)(nil),       // 5: oentike.conditions.SeasonResponse
 }
 var file_conditions_proto_depIdxs = []int32{
 	1, // 0: oentike.conditions.ConditionsResponse.factors:type_name -> oentike.conditions.Factor
-	0, // 1: oentike.conditions.ConditionsService.GetConditions:input_type -> oentike.conditions.GetConditionsRequest
-	2, // 2: oentike.conditions.ConditionsService.GetConditions:output_type -> oentike.conditions.ConditionsResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	4, // 1: oentike.conditions.SeasonResponse.days:type_name -> oentike.conditions.SeasonDay
+	0, // 2: oentike.conditions.ConditionsService.GetConditions:input_type -> oentike.conditions.GetConditionsRequest
+	3, // 3: oentike.conditions.ConditionsService.GetSeason:input_type -> oentike.conditions.GetSeasonRequest
+	2, // 4: oentike.conditions.ConditionsService.GetConditions:output_type -> oentike.conditions.ConditionsResponse
+	5, // 5: oentike.conditions.ConditionsService.GetSeason:output_type -> oentike.conditions.SeasonResponse
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_conditions_proto_init() }
@@ -330,13 +561,14 @@ func file_conditions_proto_init() {
 	}
 	file_conditions_proto_msgTypes[1].OneofWrappers = []any{}
 	file_conditions_proto_msgTypes[2].OneofWrappers = []any{}
+	file_conditions_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_conditions_proto_rawDesc), len(file_conditions_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

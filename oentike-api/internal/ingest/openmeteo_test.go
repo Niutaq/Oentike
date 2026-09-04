@@ -21,7 +21,7 @@ func TestForecastURL(t *testing.T) {
 		"hourly=precipitation%2Csoil_temperature_6cm%2Csoil_moisture_3_to_9cm",
 		"timezone=Europe%2FWarsaw",
 		"past_days=14",
-		"forecast_days=1",
+		"forecast_days=2",
 	} {
 		if !strings.Contains(got, want) {
 			t.Fatalf("url %s missing %s", got, want)
