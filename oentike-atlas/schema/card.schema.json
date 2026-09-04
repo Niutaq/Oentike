@@ -6,8 +6,8 @@
   "additionalProperties": false,
   "required": [
     "slug",
-    "scientific_name",
     "names",
+    "scientific_name",
     "identifiers",
     "hymenophore",
     "habitat",
@@ -21,20 +21,30 @@
   "properties": {
     "slug": {
       "type": "string",
-      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
-    },
-    "scientific_name": {
-      "type": ["string", "null"],
-      "description": "Accepted binomial; null until filled from a cited taxonomy source."
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Stable machine id. UI must not show the slug as the primary label."
     },
     "names": {
       "type": "object",
+      "description": "Human-facing labels. UI shows PL or EN first; Latin stays secondary.",
       "additionalProperties": false,
       "required": ["pl", "en"],
       "properties": {
-        "pl": { "type": ["string", "null"] },
-        "en": { "type": ["string", "null"] }
+        "pl": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Primary label in Polish UI."
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Primary label in English UI."
+        }
       }
+    },
+    "scientific_name": {
+      "type": ["string", "null"],
+      "description": "Latin binomial shown beside/under the common name, never instead of it. Null until checked against a taxonomy source."
     },
     "identifiers": {
       "type": "object",
@@ -66,7 +76,10 @@
         "required": ["slug", "note"],
         "properties": {
           "slug": { "type": "string" },
-          "note": { "type": "string" }
+          "note": {
+            "type": "string",
+            "description": "Write the distinction in plain language; mention the other card by common name when possible."
+          }
         }
       }
     },

@@ -1,10 +1,10 @@
 {
   "slug": "tylopilus-felleus",
-  "scientific_name": null,
   "names": {
-    "pl": null,
-    "en": null
+    "pl": "Goryczak żółciowy",
+    "en": "Bitter bolete"
   },
+  "scientific_name": "Tylopilus felleus",
   "identifiers": {
     "mycobank": null,
     "index_fungorum": null,
@@ -16,7 +16,7 @@
   "lookalikes": [
     {
       "slug": "boletus-edulis",
-      "note": "Often confused with porcini — fill bitter taste / pinkish pores from a cited source."
+      "note": "Borowik szlachetny — uzupełnij, czemu bywa mylony (pory, gorycz) z cytowanego źródła."
     }
   ],
   "protection_pl": null,

@@ -1,10 +1,10 @@
 {
   "slug": "boletus-reticulatus",
-  "scientific_name": null,
   "names": {
-    "pl": null,
-    "en": null
+    "pl": "Borowik usiatkowany",
+    "en": "Summer bolete"
   },
+  "scientific_name": "Boletus reticulatus",
   "identifiers": {
     "mycobank": null,
     "index_fungorum": null,
@@ -16,7 +16,7 @@
   "lookalikes": [
     {
       "slug": "boletus-edulis",
-      "note": "Fill reticulate stem / cracked cap differences from a cited source."
+      "note": "Borowik szlachetny — uzupełnij różnice (siateczka na trzonie, kapelusz) z cytowanego źródła."
     }
   ],
   "protection_pl": null,
