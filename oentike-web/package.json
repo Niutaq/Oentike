@@ -12,6 +12,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@tauri-apps/api": "^2.11.1",
     "astro": "^7.1.5",
     "gsap": "^3.15.0",
     "i18next": "^26.4.1"

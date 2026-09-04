@@ -63,7 +63,7 @@ func ForecastURL(base string, latitude, longitude float64) (string, error) {
 	query.Set("hourly", "precipitation,soil_temperature_6cm,soil_moisture_3_to_9cm")
 	query.Set("timezone", "Europe/Warsaw")
 	query.Set("past_days", "14")
-	query.Set("forecast_days", "1")
+	query.Set("forecast_days", "2")
 	parsed.RawQuery = query.Encode()
 	return parsed.String(), nil
 }

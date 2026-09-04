@@ -86,6 +86,8 @@ func serve(cfg config.Config) error {
 	}
 	defer db.Close()
 
+	store := conditions.NewStore(db)
+
 	httpServer := &http.Server{
 		Addr:              cfg.HTTPAddr,
 		Handler:           httpapi.New(db),
@@ -100,11 +102,21 @@ func serve(cfg config.Config) error {
 		return fmt.Errorf("listen gRPC %s: %w", cfg.GRPCAddr, err)
 	}
 	grpcServer := grpc.NewServer()
-	conditionsv1.RegisterConditionsServiceServer(grpcServer, conditions.NewServer(conditions.NewStore(db)))
+	conditionsv1.RegisterConditionsServiceServer(grpcServer, conditions.NewServer(store, store))
 	reflection.Register(grpcServer)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+
+	go ingest.Loop(
+		ctx,
+		db,
+		ingest.DefaultHTTPClient(),
+		cfg.OpenMeteoURL,
+		ingest.DefaultCellID,
+		ingest.DefaultInterval,
+		time.Now,
+	)
 
 	errCh := make(chan error, 2)
 	go func() {

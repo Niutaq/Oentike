@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	ConditionsService_GetConditions_FullMethodName = "/oentike.conditions.ConditionsService/GetConditions"
+	ConditionsService_GetSeason_FullMethodName     = "/oentike.conditions.ConditionsService/GetSeason"
 )
 
 // ConditionsServiceClient is the client API for ConditionsService service.
@@ -30,6 +31,8 @@ const (
 // this RPC is the conditions contract (gRPC now, SPIFFE/mTLS later).
 type ConditionsServiceClient interface {
 	GetConditions(ctx context.Context, in *GetConditionsRequest, opts ...grpc.CallOption) (*ConditionsResponse, error)
+	// Last N Warsaw civil days for one cell - our scores only, no other regions.
+	GetSeason(ctx context.Context, in *GetSeasonRequest, opts ...grpc.CallOption) (*SeasonResponse, error)
 }
 
 type conditionsServiceClient struct {
@@ -50,6 +53,16 @@ func (c *conditionsServiceClient) GetConditions(ctx context.Context, in *GetCond
 	return out, nil
 }
 
+func (c *conditionsServiceClient) GetSeason(ctx context.Context, in *GetSeasonRequest, opts ...grpc.CallOption) (*SeasonResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SeasonResponse)
+	err := c.cc.Invoke(ctx, ConditionsService_GetSeason_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ConditionsServiceServer is the server API for ConditionsService service.
 // All implementations must embed UnimplementedConditionsServiceServer
 // for forward compatibility.
@@ -58,6 +71,8 @@ func (c *conditionsServiceClient) GetConditions(ctx context.Context, in *GetCond
 // this RPC is the conditions contract (gRPC now, SPIFFE/mTLS later).
 type ConditionsServiceServer interface {
 	GetConditions(context.Context, *GetConditionsRequest) (*ConditionsResponse, error)
+	// Last N Warsaw civil days for one cell - our scores only, no other regions.
+	GetSeason(context.Context, *GetSeasonRequest) (*SeasonResponse, error)
 	mustEmbedUnimplementedConditionsServiceServer()
 }
 
@@ -70,6 +85,9 @@ type UnimplementedConditionsServiceServer struct{}
 
 func (UnimplementedConditionsServiceServer) GetConditions(context.Context, *GetConditionsRequest) (*ConditionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetConditions not implemented")
+}
+func (UnimplementedConditionsServiceServer) GetSeason(context.Context, *GetSeasonRequest) (*SeasonResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetSeason not implemented")
 }
 func (UnimplementedConditionsServiceServer) mustEmbedUnimplementedConditionsServiceServer() {}
 func (UnimplementedConditionsServiceServer) testEmbeddedByValue()                           {}
@@ -110,6 +128,24 @@ func _ConditionsService_GetConditions_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ConditionsService_GetSeason_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSeasonRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConditionsServiceServer).GetSeason(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConditionsService_GetSeason_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConditionsServiceServer).GetSeason(ctx, req.(*GetSeasonRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ConditionsService_ServiceDesc is the grpc.ServiceDesc for ConditionsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -120,6 +156,10 @@ var ConditionsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetConditions",
 			Handler:    _ConditionsService_GetConditions_Handler,
+		},
+		{
+			MethodName: "GetSeason",
+			Handler:    _ConditionsService_GetSeason_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

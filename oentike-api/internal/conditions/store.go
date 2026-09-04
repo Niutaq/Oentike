@@ -82,3 +82,55 @@ func (s *Store) Factors(ctx context.Context, cellID, targetDate string) (FactorS
 	}
 	return snap, nil
 }
+
+func (s *Store) LatestIngest(ctx context.Context, cellID string) (*time.Time, error) {
+	var fetched time.Time
+	err := s.db.QueryRow(ctx, `
+		SELECT fetched_at
+		FROM ingest_runs
+		WHERE cell_id = $1
+		ORDER BY fetched_at DESC
+		LIMIT 1
+	`, cellID).Scan(&fetched)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("load latest ingest: %w", err)
+	}
+	return &fetched, nil
+}
+
+type ScoreRecord struct {
+	CellID           string
+	SpeciesSlug      string
+	TargetDate       string
+	Status           string
+	Score            *int32
+	Confidence       string
+	FactorsJSON      []byte
+	AlgorithmVersion string
+	InputSHA256      string
+}
+
+func (s *Store) SaveScore(ctx context.Context, rec ScoreRecord) error {
+	_, err := s.db.Exec(ctx, `
+		INSERT INTO condition_scores (
+			cell_id, species_slug, target_date, status, score, confidence,
+			factors, algorithm_version, input_sha256
+		) VALUES ($1, $2, $3::date, $4, $5, $6, $7::jsonb, $8, $9)
+		ON CONFLICT (cell_id, species_slug, target_date, algorithm_version)
+		DO UPDATE SET
+			status = EXCLUDED.status,
+			score = EXCLUDED.score,
+			confidence = EXCLUDED.confidence,
+			factors = EXCLUDED.factors,
+			input_sha256 = EXCLUDED.input_sha256,
+			calculated_at = now()
+	`, rec.CellID, rec.SpeciesSlug, rec.TargetDate, rec.Status, rec.Score,
+		rec.Confidence, rec.FactorsJSON, rec.AlgorithmVersion, rec.InputSHA256)
+	if err != nil {
+		return fmt.Errorf("save condition score: %w", err)
+	}
+	return nil
+}

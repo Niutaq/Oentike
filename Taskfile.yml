@@ -121,7 +121,7 @@ tasks:
       - cd oentike-web && env -u npm_config_devdir npx astro dev stop >/dev/null 2>&1 || true
       - |
         if [ "{{.FRESH}}" = "1" ]; then
-          echo "FRESH=1 — clearing Tauri build cache..."
+          echo "FRESH=1 - clearing Tauri build cache..."
           task clean
         fi
       - task: oentike:icons

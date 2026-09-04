@@ -3,9 +3,24 @@ import "../styles/global.css";
 import MushroomIcon from "../components/MushroomIcon.astro";
 
 const factors = [
-    { label: "factors.rain", period: "factors.rainPeriod", unit: "mm" },
-    { label: "factors.soil", period: "factors.soilPeriod", unit: "°C" },
-    { label: "factors.humidity", period: "factors.humidityPeriod", unit: "%" },
+    {
+        id: "precipitation",
+        label: "factors.rain",
+        period: "factors.rainPeriod",
+        unit: "mm",
+    },
+    {
+        id: "soil_temperature",
+        label: "factors.soil",
+        period: "factors.soilPeriod",
+        unit: "°C",
+    },
+    {
+        id: "soil_moisture",
+        label: "factors.humidity",
+        period: "factors.humidityPeriod",
+        unit: "m3/m3",
+    },
 ];
 
 const bdlMapUrl =
@@ -21,7 +36,7 @@ const bdlMapUrl =
         <meta
             id="page-description"
             name="description"
-            content="Oentike — przejrzysta analiza warunków grzybowych dla polskich lasów."
+            content="Oentike - przejrzysta analiza warunków grzybowych dla polskich lasów."
         />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/svg+xml" href="/oentike-logo.svg" />
@@ -39,10 +54,15 @@ const bdlMapUrl =
                         localStorage.getItem("oentike-size") || "medium";
                     root.dataset.contrast =
                         localStorage.getItem("oentike-contrast") || "normal";
+                    root.dataset.tempUnit =
+                        localStorage.getItem("oentike-temp-unit") === "F"
+                            ? "F"
+                            : "C";
                 } catch {
                     root.dataset.theme = "light";
                     root.dataset.size = "medium";
                     root.dataset.contrast = "normal";
+                    root.dataset.tempUnit = "C";
                 }
             })();
         </script>
@@ -52,7 +72,7 @@ const bdlMapUrl =
             <a
                 class="brand"
                 href="/"
-                aria-label="Oentike — strona główna"
+                aria-label="Oentike - strona główna"
                 data-i18n-aria="meta.home"
             >
                 <span>Oen</span>
@@ -63,7 +83,6 @@ const bdlMapUrl =
             <nav aria-label="Główna nawigacja" data-i18n-aria="meta.navigation">
                 <a href="#warunki" data-i18n="nav.conditions">Warunki</a>
                 <a href="#obszar" data-i18n="nav.area">Obszar</a>
-                <a href="#zrodla" data-i18n="nav.sources">Źródła</a>
             </nav>
 
             <div
@@ -135,7 +154,7 @@ const bdlMapUrl =
                     <p class="eyebrow" id="current-date">LASY JANOWSKIE</p>
                     <h1 data-i18n="intro.title">Warunki dla grzybów</h1>
                     <p class="lead" data-i18n="intro.lead">
-                        Wyjaśnialna ocena oparta na pogodzie — bez zgadywania i
+                        Wyjaśnialna ocena oparta na pogodzie - bez zgadywania i
                         bez ujawniania dokładnych miejsc.
                     </p>
                 </div>
@@ -163,6 +182,7 @@ const bdlMapUrl =
                             OCENA WARUNKÓW
                         </p>
                         <span
+                            id="condition-availability"
                             class="availability"
                             data-i18n="condition.unavailable">Brak danych</span
                         >
@@ -183,7 +203,12 @@ const bdlMapUrl =
                     <dl class="metadata">
                         <div>
                             <dt data-i18n="condition.species">Gatunek</dt>
-                            <dd>Boletus edulis</dd>
+                            <dd class="species-name">
+                                <span data-i18n="condition.speciesCommon"
+                                    >Borowik szlachetny</span
+                                >
+                                <small>Boletus edulis</small>
+                            </dd>
                         </div>
                         <div>
                             <dt data-i18n="condition.area">Obszar</dt>
@@ -204,11 +229,14 @@ const bdlMapUrl =
 
                 <div
                     class="score"
+                    id="score-panel"
                     aria-label="Wynik nie został jeszcze obliczony"
                 >
-                    <span>—</span>
+                    <span id="score-value">-</span>
                     <small>/ 100</small>
-                    <p data-i18n="condition.notCalculated">Nie obliczono</p>
+                    <p id="score-caption" data-i18n="condition.notCalculated">
+                        Nie obliczono
+                    </p>
                 </div>
             </section>
 
@@ -236,9 +264,40 @@ const bdlMapUrl =
                                     <span data-i18n={factor.period} />
                                 </div>
                                 <p>
-                                    <b>—</b> {factor.unit}
+                                    <b id={`factor-value-${factor.id}`}>-</b>
+                                    {factor.id === "soil_temperature" ? (
+                                        <span
+                                            class="unit-toggle"
+                                            id={`factor-unit-${factor.id}`}
+                                            role="group"
+                                            aria-label="Jednostka temperatury"
+                                            data-i18n-aria="controls.tempUnit"
+                                        >
+                                            <button
+                                                type="button"
+                                                data-temp-unit="C"
+                                                aria-pressed="true"
+                                            >
+                                                °C
+                                            </button>
+                                            <button
+                                                type="button"
+                                                data-temp-unit="F"
+                                                aria-pressed="false"
+                                            >
+                                                °F
+                                            </button>
+                                        </span>
+                                    ) : (
+                                        <span id={`factor-unit-${factor.id}`}>
+                                            {factor.unit}
+                                        </span>
+                                    )}
                                 </p>
-                                <small data-i18n="factors.noSamples">
+                                <small
+                                    id={`factor-no-samples-${factor.id}`}
+                                    data-i18n="factors.noSamples"
+                                >
                                     Brak próbek
                                 </small>
                             </article>
@@ -247,53 +306,86 @@ const bdlMapUrl =
                 </div>
             </section>
 
-            <div class="details-grid">
-                <section class="detail-card" id="obszar">
-                    <div class="section-title compact">
-                        <div>
-                            <p class="eyebrow" data-i18n="pilot.eyebrow">
-                                OBSZAR PILOTAŻOWY
-                            </p>
-                            <h2>Lasy Janowskie 01</h2>
-                        </div>
-                        <span class="tag">10 × 10 km</span>
+            <section class="detail-card area-card" id="obszar">
+                <div class="section-title compact">
+                    <div>
+                        <p class="eyebrow" data-i18n="pilot.eyebrow">
+                            OBSZAR PILOTAŻOWY
+                        </p>
+                        <h2>Lasy Janowskie 01</h2>
                     </div>
+                    <span class="tag">10 × 10 km</span>
+                </div>
 
-                    <div class="cell-preview">
-                        <img
-                            src={bdlMapUrl}
-                            alt="Mapa oddziałów leśnych w rejonie Lasów Janowskich"
-                            data-i18n-alt="pilot.mapAlt"
-                            loading="lazy"
-                            referrerpolicy="no-referrer"
-                        />
-                        <div class="selected-cell"><span>LJ-01</span></div>
-                    </div>
-                    <p class="caption">
-                        <span data-i18n="pilot.sourcePrefix">Dane mapowe:</span>
-                        <a
-                            href="https://bdl.lasy.gov.pl/portal/uslugi-ogc?v=4"
-                            target="_blank"
-                            rel="noreferrer"
-                        >
-                            Bank Danych o Lasach
-                        </a>.
-                        <span data-i18n="pilot.privacy"
-                            >Analiza używa komórki, nie dokładnych punktów.</span
-                        >
+                <div class="cell-preview">
+                    <img
+                        src={bdlMapUrl}
+                        alt="Mapa oddziałów leśnych w rejonie Lasów Janowskich"
+                        data-i18n-alt="pilot.mapAlt"
+                        loading="lazy"
+                        referrerpolicy="no-referrer"
+                    />
+                    <div class="selected-cell"><span>LJ-01</span></div>
+                </div>
+                <p class="caption">
+                    <span data-i18n="pilot.sourcePrefix">Dane mapowe:</span>
+                    <a
+                        href="https://bdl.lasy.gov.pl/portal/uslugi-ogc?v=4"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        Bank Danych o Lasach
+                    </a>.
+                    <span data-i18n="pilot.privacy"
+                        >Analiza używa komórki, nie dokładnych punktów.</span
+                    >
+                </p>
+
+                <div class="season">
+                    <p class="eyebrow" data-i18n="season.eyebrow">
+                        TREND · 9 DNI
                     </p>
-                </section>
-
-                <section class="detail-card" id="zrodla">
-                    <div class="section-title compact">
-                        <div>
-                            <p class="eyebrow" data-i18n="sources.eyebrow">
-                                INFRASTRUKTURA
-                            </p>
-                            <h2 data-i18n="sources.title">Źródła</h2>
-                        </div>
+                    <h3 data-i18n="season.title">Sezon w danej komórce</h3>
+                    <p
+                        class="season-range"
+                        id="season-range"
+                        data-i18n="season.rangeFallback"
+                    >
+                        Zakres dni pojawi się po zasileniu
+                    </p>
+                    <div
+                        class="season-chart"
+                        id="season-chart"
+                        role="img"
+                        aria-label="Histogram sezonu - brak ocen"
+                    >
                     </div>
+                    <p class="caption" data-i18n="season.note">
+                        Słupki to nasze oceny dla tej komórki - nie mapa Polski
+                        i nie obserwacja z lasu. Pusty słupek = brak kompletnych
+                        czynników.
+                    </p>
+                </div>
+                <p class="caption pilot-next" data-i18n="pilot.chooseLater">
+                    Wybór innego terenu przyjdzie po siatce komórek - na razie
+                    tylko Lasy Janowskie.
+                </p>
+            </section>
 
+            <footer>
+                <div class="footer-copy">
+                    <p data-i18n="footer.promise">
+                        Każda przyszła ocena pokaże pochodzenie danych, wersję
+                        algorytmu i poziom pewności.
+                    </p>
+                    <span data-i18n="footer.version"
+                        >Oentike · wersja rozwojowa</span
+                    >
+                </div>
+                <details class="sources-panel" id="zrodla">
+                    <summary data-i18n="sources.summary">
+                        Na czym oparte są dane
+                    </summary>
                     <div class="source-list">
                         <div class="source-row">
                             <span class="source-dot"></span>
@@ -327,22 +419,14 @@ const bdlMapUrl =
                                     >historia i prognoza pogody</small
                                 >
                             </div>
-                            <b class="pending" data-i18n="sources.pending"
-                                >Do podłączenia</b
+                            <b
+                                id="weather-status"
+                                class="pending"
+                                data-i18n="sources.pending">Do podłączenia</b
                             >
                         </div>
                     </div>
-                </section>
-            </div>
-
-            <footer>
-                <p data-i18n="footer.promise">
-                    Każda przyszła ocena pokaże pochodzenie danych, wersję
-                    algorytmu i poziom pewności.
-                </p>
-                <span data-i18n="footer.version"
-                    >Oentike · wersja rozwojowa</span
-                >
+                </details>
             </footer>
         </main>
 
@@ -354,6 +438,7 @@ const bdlMapUrl =
         <script>
             import { gsap } from "gsap";
             import i18next from "i18next";
+            import { invoke } from "@tauri-apps/api/core";
             import { resources } from "../i18n";
 
             const root = document.documentElement;
@@ -362,9 +447,16 @@ const bdlMapUrl =
                 "condition-description",
             );
             const databaseStatus = document.getElementById("database-status");
+            const weatherStatus = document.getElementById("weather-status");
             const lastCheck = document.getElementById("last-check");
             const refreshButton = document.getElementById("refresh-button");
             const refreshIcon = document.querySelector(".refresh-icon");
+            const scoreValue = document.getElementById("score-value");
+            const scoreCaption = document.getElementById("score-caption");
+            const scorePanel = document.getElementById("score-panel");
+            const availabilityBadge = document.getElementById(
+                "condition-availability",
+            );
             const themeToggle = document.getElementById("theme-toggle");
             const contrastToggle = document.getElementById("contrast-toggle");
             const themeWipe = document.getElementById("theme-wipe");
@@ -375,7 +467,53 @@ const bdlMapUrl =
                 "(prefers-reduced-motion: reduce)",
             ).matches;
             let readinessState = "checking";
-            let displayedTime = "";
+            let displayedStamp = "";
+            let displayedScore = "";
+            let lastConditions = null;
+            let lastSeasonDays = null;
+
+            // UI pilot fixture (exact point stays private; one cell only).
+            const pilotCellID = "lasy-janowskie-01";
+            const pilotSpeciesSlug = "boletus-edulis";
+            const pilotTargetDate = "";
+
+            const tempUnitButtons =
+                document.querySelectorAll("[data-temp-unit]");
+
+            const factorDefs = [
+                { id: "precipitation", unit: "mm" },
+                { id: "soil_temperature", unit: "°C" },
+                { id: "soil_moisture", unit: "m3/m3" },
+            ];
+
+            function tempUnit() {
+                return root.dataset.tempUnit === "F" ? "F" : "C";
+            }
+
+            function formatFactor(factorId, value) {
+                if (typeof value !== "number") return String(value);
+                if (factorId === "soil_moisture") return value.toFixed(3);
+                if (factorId === "soil_temperature" && tempUnit() === "F") {
+                    return ((value * 9) / 5 + 32).toFixed(1);
+                }
+                if (
+                    factorId === "precipitation" ||
+                    factorId === "soil_temperature"
+                ) {
+                    return value.toFixed(1);
+                }
+                return value.toFixed(2);
+            }
+
+            function syncTempUnit() {
+                const unit = tempUnit();
+                tempUnitButtons.forEach((button) => {
+                    button.setAttribute(
+                        "aria-pressed",
+                        String(button.dataset.tempUnit === unit),
+                    );
+                });
+            }
 
             const savedLanguage = localStorage.getItem("oentike-language");
             const browserLanguage = navigator.language
@@ -426,6 +564,8 @@ const bdlMapUrl =
                     `${date} · Lasy Janowskie`.toLocaleUpperCase(locale());
 
                 setState(readinessState);
+                applyConditionsView(lastConditions);
+                renderSeason(lastSeasonDays);
                 syncPreferences();
             }
 
@@ -474,6 +614,7 @@ const bdlMapUrl =
                         String(button.dataset.language === i18next.language),
                     );
                 });
+                syncTempUnit();
             }
 
             function animatePreferenceChange(callback) {
@@ -543,6 +684,16 @@ const bdlMapUrl =
                             },
                         );
                     }
+                });
+            });
+
+            tempUnitButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    const unit = button.dataset.tempUnit === "F" ? "F" : "C";
+                    root.dataset.tempUnit = unit;
+                    localStorage.setItem("oentike-temp-unit", unit);
+                    syncTempUnit();
+                    applyConditionsView(lastConditions);
                 });
             });
 
@@ -618,16 +769,25 @@ const bdlMapUrl =
                 }
             });
 
-            function animateTime(date) {
-                const value = new Intl.DateTimeFormat(locale(), {
+            function formatFetchedAt(iso) {
+                if (!iso) return "";
+                const date = new Date(iso);
+                if (Number.isNaN(date.getTime())) return "";
+                return new Intl.DateTimeFormat(locale(), {
                     hour: "2-digit",
                     minute: "2-digit",
+                    timeZone: "Europe/Warsaw",
                 }).format(date);
+            }
 
-                if (value === displayedTime) {
+            function animateStamp(value, ariaLabel) {
+                if (!lastCheck) return;
+                if (value === displayedStamp) {
+                    if (ariaLabel)
+                        lastCheck.setAttribute("aria-label", ariaLabel);
                     return;
                 }
-                displayedTime = value;
+                displayedStamp = value;
 
                 lastCheck.replaceChildren(
                     ...Array.from(value, (character) => {
@@ -639,7 +799,7 @@ const bdlMapUrl =
                         return span;
                     }),
                 );
-                lastCheck.setAttribute("aria-label", value);
+                lastCheck.setAttribute("aria-label", ariaLabel || value);
 
                 if (!reducedMotion) {
                     gsap.from(lastCheck.querySelectorAll(".time-digit"), {
@@ -652,13 +812,35 @@ const bdlMapUrl =
                 }
             }
 
-            function startLiveClock() {
-                animateTime(new Date());
-                const untilNextMinute = 60_000 - (Date.now() % 60_000) + 50;
-                window.setTimeout(() => {
-                    animateTime(new Date());
-                    window.setInterval(() => animateTime(new Date()), 60_000);
-                }, untilNextMinute);
+            function animateScore(value) {
+                if (!scoreValue) return;
+                const text = value == null ? "-" : String(value);
+                if (text === displayedScore) return;
+                displayedScore = text;
+
+                if (value == null) {
+                    scoreValue.textContent = "-";
+                    return;
+                }
+
+                scoreValue.replaceChildren(
+                    ...Array.from(text, (character) => {
+                        const span = document.createElement("span");
+                        span.textContent = character;
+                        span.className = "score-digit";
+                        return span;
+                    }),
+                );
+
+                if (!reducedMotion) {
+                    gsap.from(scoreValue.querySelectorAll(".score-digit"), {
+                        yPercent: 90,
+                        opacity: 0,
+                        duration: 0.42,
+                        stagger: 0.04,
+                        ease: "back.out(1.7)",
+                    });
+                }
             }
 
             function setState(state) {
@@ -691,6 +873,251 @@ const bdlMapUrl =
                 databaseStatus.className = "";
             }
 
+            function setFactorValue(factorId, value, unit) {
+                const valueEl = document.getElementById(
+                    `factor-value-${factorId}`,
+                );
+                const unitEl = document.getElementById(
+                    `factor-unit-${factorId}`,
+                );
+                const noSamplesEl = document.getElementById(
+                    `factor-no-samples-${factorId}`,
+                );
+                if (!valueEl || !noSamplesEl) return;
+
+                if (value === null || value === undefined) {
+                    valueEl.textContent = "-";
+                    if (unitEl && !unitEl.classList.contains("unit-toggle")) {
+                        unitEl.textContent = unit ?? "";
+                    }
+                    noSamplesEl.style.display = "";
+                    return;
+                }
+
+                valueEl.textContent = formatFactor(factorId, value);
+                if (unitEl && !unitEl.classList.contains("unit-toggle")) {
+                    unitEl.textContent = unit ?? "";
+                }
+                noSamplesEl.style.display = "none";
+            }
+
+            function parseCivilDate(iso) {
+                if (!iso) return null;
+                const parts = iso.split("-").map(Number);
+                if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+                return new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+            }
+
+            function seasonDayParts(iso) {
+                const date = parseCivilDate(iso);
+                if (!date) return { weekday: "-", date: "", isToday: false };
+                const weekday = new Intl.DateTimeFormat(locale(), {
+                    weekday: "short",
+                    timeZone: "UTC",
+                })
+                    .format(date)
+                    .replace(/\.$/, "");
+                const day = String(date.getUTCDate()).padStart(2, "0");
+                const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+                const today = new Date();
+                const warsawToday = new Intl.DateTimeFormat("en-CA", {
+                    timeZone: "Europe/Warsaw",
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                }).format(today);
+                return {
+                    weekday,
+                    date: `${day}.${month}`,
+                    isToday: iso === warsawToday,
+                };
+            }
+
+            function fillSeasonCol(col, day) {
+                const bar = col.querySelector(".season-bar");
+                const weekdayEl = col.querySelector(".season-weekday");
+                const dateEl = col.querySelector(".season-date");
+                if (!bar || !weekdayEl || !dateEl) return;
+                const scored = day?.status === "ready" && day.score != null;
+                const parts = seasonDayParts(day?.date);
+                bar.classList.toggle("empty", !scored);
+                col.classList.toggle("today", parts.isToday);
+                if (scored) {
+                    bar.style.height = `${Math.max(8, day.score)}%`;
+                    bar.title = parts.isToday
+                        ? `${day.date} (${t("season.today")}): ${day.score}`
+                        : `${day.date}: ${day.score}`;
+                } else {
+                    bar.style.height = "";
+                    bar.title = day?.date || "";
+                }
+                weekdayEl.textContent = parts.isToday
+                    ? t("season.today")
+                    : parts.weekday;
+                dateEl.textContent = parts.date;
+                col.dataset.date = day?.date || "";
+            }
+
+            function makeSeasonCol(day) {
+                const col = document.createElement("div");
+                col.className = "season-col";
+                const track = document.createElement("span");
+                track.className = "season-track";
+                const bar = document.createElement("span");
+                bar.className = "season-bar";
+                track.append(bar);
+                const label = document.createElement("small");
+                label.className = "season-label";
+                const weekday = document.createElement("span");
+                weekday.className = "season-weekday";
+                const date = document.createElement("span");
+                date.className = "season-date";
+                label.append(weekday, date);
+                col.append(track, label);
+                fillSeasonCol(col, day);
+                return col;
+            }
+
+            function renderSeason(days) {
+                const chart = document.getElementById("season-chart");
+                if (!chart) return;
+                lastSeasonDays = days;
+                const list =
+                    Array.isArray(days) && days.length
+                        ? days
+                        : Array.from({ length: 9 }, () => null);
+
+                if (chart.childElementCount === list.length) {
+                    list.forEach((day, index) =>
+                        fillSeasonCol(chart.children[index], day),
+                    );
+                } else {
+                    chart.replaceChildren(
+                        ...list.map((day) => makeSeasonCol(day)),
+                    );
+                }
+
+                const scored = list.filter(
+                    (day) => day?.status === "ready" && day.score != null,
+                );
+                chart.setAttribute(
+                    "aria-label",
+                    scored.length
+                        ? scored
+                              .map((day) => `${day.date}: ${day.score}`)
+                              .join(", ")
+                        : t("season.chartEmpty"),
+                );
+
+                const rangeEl = document.getElementById("season-range");
+                const first = list.find((day) => day?.date)?.date;
+                const last = [...list].reverse().find((day) => day?.date)?.date;
+                if (rangeEl) {
+                    rangeEl.textContent =
+                        first && last
+                            ? `${seasonDayParts(first).date} – ${seasonDayParts(last).date}`
+                            : t("season.rangeFallback");
+                }
+            }
+
+            function applyConditionsView(response) {
+                lastConditions = response;
+                if (!response || !Array.isArray(response.factors)) return;
+
+                let anyFactorValue = false;
+                for (const def of factorDefs) {
+                    const factor = response.factors.find(
+                        (f) => f.id === def.id,
+                    );
+                    const value = factor?.value ?? null;
+                    const unit = factor?.unit ?? def.unit;
+                    if (value !== null && value !== undefined) {
+                        anyFactorValue = true;
+                    }
+                    setFactorValue(def.id, value, unit);
+                }
+
+                const stamp = formatFetchedAt(response.fetchedAt);
+                if (stamp) {
+                    animateStamp(stamp);
+                } else {
+                    animateStamp("--:--", t("condition.neverChecked"));
+                }
+
+                if (response.status === "ready" && response.score != null) {
+                    animateScore(response.score);
+                    if (scoreCaption) {
+                        scoreCaption.textContent = t("condition.confidenceLow");
+                    }
+                    if (scorePanel) {
+                        scorePanel.setAttribute(
+                            "aria-label",
+                            `${response.score} / 100`,
+                        );
+                    }
+                    if (availabilityBadge) {
+                        availabilityBadge.textContent = t(
+                            "condition.availabilityReady",
+                        );
+                    }
+                    conditionTitle.textContent = t("condition.scoredTitle");
+                    conditionDescription.textContent = t(
+                        "condition.scoredDescription",
+                    );
+                } else if (anyFactorValue) {
+                    animateScore(null);
+                    conditionTitle.textContent = t("condition.ingestedTitle");
+                    conditionDescription.textContent = t(
+                        "condition.ingestedDescription",
+                    );
+                } else {
+                    animateScore(null);
+                }
+
+                if (weatherStatus) {
+                    const nextState = anyFactorValue ? "connected" : "pending";
+                    weatherStatus.className = nextState;
+                    weatherStatus.textContent = t(
+                        nextState === "connected"
+                            ? "sources.connected"
+                            : "sources.pending",
+                    );
+                }
+            }
+
+            async function loadConditions() {
+                if (!window.__TAURI_INTERNALS__) return;
+
+                try {
+                    const response = await invoke("get_conditions_ui", {
+                        cellId: pilotCellID,
+                        speciesSlug: pilotSpeciesSlug,
+                        targetDate: pilotTargetDate,
+                    });
+                    applyConditionsView(response);
+                } catch (error) {
+                    console.error("get_conditions_ui", error);
+                }
+            }
+
+            async function loadSeason() {
+                if (!window.__TAURI_INTERNALS__) {
+                    renderSeason(null);
+                    return;
+                }
+
+                try {
+                    const response = await invoke("get_season_ui", {
+                        cellId: pilotCellID,
+                        speciesSlug: pilotSpeciesSlug,
+                    });
+                    renderSeason(response?.days ?? null);
+                } catch (error) {
+                    console.error("get_season_ui", error);
+                    renderSeason(null);
+                }
+            }
+
             async function checkReadiness() {
                 setState("checking");
                 refreshButton.disabled = true;
@@ -708,13 +1135,17 @@ const bdlMapUrl =
                         cache: "no-store",
                     });
                     const payload = await response.json();
-                    setState(
-                        response.ok && payload.status === "ready"
-                            ? "ready"
-                            : "unavailable",
-                    );
+                    const ok = response.ok && payload.status === "ready";
+                    setState(ok ? "ready" : "unavailable");
+                    if (ok) {
+                        await loadConditions();
+                        await loadSeason();
+                    } else {
+                        renderSeason(null);
+                    }
                 } catch {
                     setState("unavailable");
+                    renderSeason(null);
                 } finally {
                     spin?.kill();
                     gsap.set(refreshIcon, { rotate: 0 });
@@ -761,7 +1192,7 @@ const bdlMapUrl =
 
             applyTranslations();
             initializeCursor();
-            startLiveClock();
+            renderSeason(null);
             checkReadiness();
             refreshButton.addEventListener("click", checkReadiness);
             window.setInterval(checkReadiness, 30_000);
