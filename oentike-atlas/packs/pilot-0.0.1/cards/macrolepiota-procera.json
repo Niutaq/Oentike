@@ -1,0 +1,37 @@
+{
+  "slug": "macrolepiota-procera",
+  "names": {
+    "pl": "Czubajka kania",
+    "en": "Parasol mushroom"
+  },
+  "scientific_name": "Macrolepiota procera",
+  "identifiers": {
+    "mycobank": null,
+    "index_fungorum": null,
+    "gbif": null
+  },
+  "hymenophore": "gills",
+  "habitat": "Obrzeża lasów, polany, łąki, zręby i widne lasy liściaste oraz mieszane.",
+  "phenology": "Koniec lata i jesień (sierpień - listopad).",
+  "lookalikes": [
+    {
+      "slug": "chlorophyllum-rachodes",
+      "note": "Czubajka czerwieniejąca - po uszkodzeniu miąższ czerwienieje (kania nie zmienia koloru), trzon nie ma wzoru wężowej skórki."
+    },
+    {
+      "slug": "amanita-phalloides",
+      "note": "Muchomor zielonawy (sromotnikowy) - ZABÓJCZY TRUCIZNA. Kania ma ruchomy pierścień na trzonie i wzór łusek, muchomor ma gładki trzon z bulwą w pochwie i nieruchomy pierścień."
+    }
+  ],
+  "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
+  "citations": [],
+  "art": {
+    "cap": "/atlas/art/v0/macrolepiota-procera.cap.svg",
+    "hymenophore": "/atlas/art/v0/macrolepiota-procera.hymenophore.svg",
+    "stem": "/atlas/art/v0/macrolepiota-procera.stem.svg",
+    "section": "/atlas/art/v0/macrolepiota-procera.section.svg",
+    "lookalike_plate": null
+  },
+  "pack_version": "0.0.1",
+  "reviewed_at": null
+}

@@ -54,3 +54,9 @@ test-venv/
 *.db
 *.sqlite
 *.sqlite3
+
+# Ignored per user request
+*.txt
+*.bin
+scratch_*.go
+

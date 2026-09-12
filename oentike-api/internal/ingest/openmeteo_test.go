@@ -18,7 +18,7 @@ func TestForecastURL(t *testing.T) {
 	for _, want := range []string{
 		"latitude=50.601250",
 		"longitude=22.189584",
-		"hourly=precipitation%2Csoil_temperature_6cm%2Csoil_moisture_3_to_9cm",
+		"hourly=precipitation%2Csoil_temperature_6cm%2Csoil_moisture_3_to_9cm%2Ctemperature_2m",
 		"timezone=Europe%2FWarsaw",
 		"past_days=14",
 		"forecast_days=2",
@@ -42,7 +42,8 @@ func TestParseForecastHashesBodyAndSplitsPastForecast(t *testing.T) {
 			"time": ["2026-09-03T10:00", "2026-09-03T14:00"],
 			"precipitation": [0.2, 1.5],
 			"soil_temperature_6cm": [15.4, 16.1],
-			"soil_moisture_3_to_9cm": [0.096, 0.101]
+			"soil_moisture_3_to_9cm": [0.096, 0.101],
+			"temperature_2m": [12.0, 14.5]
 		}
 	}`)
 	fetchedAt := time.Date(2026, 9, 3, 12, 0, 0, 0, warsaw)
@@ -79,7 +80,8 @@ func TestParseForecastRejectsBadMoisture(t *testing.T) {
 			"time": ["2026-09-03T10:00"],
 			"precipitation": [0],
 			"soil_temperature_6cm": [10],
-			"soil_moisture_3_to_9cm": [1.2]
+			"soil_moisture_3_to_9cm": [1.2],
+			"temperature_2m": [12]
 		}
 	}`)
 	_, err := ParseForecast(body, "u", time.Now(), warsaw)

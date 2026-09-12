@@ -9,16 +9,41 @@ import (
 )
 
 type fakeLookup struct {
-	cell      Cell
-	cellErr   error
-	snap      FactorSnapshot
-	snapErr   error
-	fetchedAt *time.Time
-	fetchErr  error
+	cell           Cell
+	cellErr        error
+	materialize    Cell
+	materializeErr error
+	snap           FactorSnapshot
+	snapErr        error
+	fetchedAt      *time.Time
+	fetchErr       error
 }
 
 func (f fakeLookup) Cell(context.Context, string) (Cell, error) {
 	return f.cell, f.cellErr
+}
+
+func (f fakeLookup) MaterializeForestUnit(context.Context, string) (Cell, error) {
+	if f.materializeErr != nil {
+		return Cell{}, f.materializeErr
+	}
+	if f.materialize.ID != "" {
+		return f.materialize, nil
+	}
+	if f.cellErr != nil {
+		return Cell{}, ErrForestUnitNotFound
+	}
+	return f.cell, nil
+}
+
+func (f fakeLookup) SearchCells(context.Context, string, int) ([]Cell, error) {
+	if f.cellErr != nil {
+		return nil, f.cellErr
+	}
+	if f.cell.ID == "" {
+		return nil, nil
+	}
+	return []Cell{f.cell}, nil
 }
 
 func (f fakeLookup) Factors(context.Context, string, string) (FactorSnapshot, error) {
@@ -29,10 +54,21 @@ func (f fakeLookup) LatestIngest(context.Context, string) (*time.Time, error) {
 	return f.fetchedAt, f.fetchErr
 }
 
+type fakeWeather struct {
+	ingested bool
+	err      error
+	calls    int
+}
+
+func (f *fakeWeather) Refresh(context.Context, string) (bool, error) {
+	f.calls++
+	return f.ingested, f.err
+}
+
 func TestGetConditionsUnavailableWithoutWeather(t *testing.T) {
 	server := NewServer(fakeLookup{
 		cell: Cell{ID: "lasy-janowskie-01", Name: "Lasy Janowskie 01"},
-	}, nil)
+	}, nil, nil)
 	server.now = func() time.Time {
 		return time.Date(2026, 9, 3, 12, 0, 0, 0, time.UTC)
 	}
@@ -77,7 +113,7 @@ func TestGetConditionsScoresWhenFactorsComplete(t *testing.T) {
 			SoilTemperatureC: &soilT,
 			SoilMoistureM3M3: &soilM,
 		},
-	}, nil)
+	}, nil, nil)
 	server.now = func() time.Time {
 		return time.Date(2026, 9, 3, 12, 0, 0, 0, time.UTC)
 	}
@@ -119,7 +155,7 @@ func TestGetConditionsIncludesFetchedAt(t *testing.T) {
 			SoilMoistureM3M3: &soilM,
 		},
 		fetchedAt: &fetched,
-	}, nil)
+	}, nil, nil)
 
 	got, err := server.GetConditions(context.Background(), &conditionsv1.GetConditionsRequest{
 		CellId: "lasy-janowskie-01",
@@ -141,7 +177,7 @@ func TestGetConditionsUnknownSpeciesStaysUnavailable(t *testing.T) {
 			SoilTemperatureC: &soilT,
 			SoilMoistureM3M3: &soilM,
 		},
-	}, nil)
+	}, nil, nil)
 
 	got, err := server.GetConditions(context.Background(), &conditionsv1.GetConditionsRequest{
 		CellId:      "lasy-janowskie-01",
@@ -174,7 +210,7 @@ func TestFactorsFromRoundsDisplayValues(t *testing.T) {
 }
 
 func TestGetConditionsRequiresCell(t *testing.T) {
-	server := NewServer(fakeLookup{}, nil)
+	server := NewServer(fakeLookup{}, nil, nil)
 	_, err := server.GetConditions(context.Background(), &conditionsv1.GetConditionsRequest{})
 	if err == nil {
 		t.Fatal("expected error")
@@ -182,12 +218,37 @@ func TestGetConditionsRequiresCell(t *testing.T) {
 }
 
 func TestGetConditionsUnknownCell(t *testing.T) {
-	server := NewServer(fakeLookup{cellErr: ErrCellNotFound}, nil)
+	server := NewServer(fakeLookup{cellErr: ErrCellNotFound}, nil, nil)
 	_, err := server.GetConditions(context.Background(), &conditionsv1.GetConditionsRequest{
 		CellId: "nope",
 	})
 	if err == nil {
 		t.Fatal("expected error")
+	}
+}
+
+func TestGetConditionsMaterializesForestUnit(t *testing.T) {
+	server := NewServer(fakeLookup{
+		cellErr: ErrCellNotFound,
+		materialize: Cell{
+			ID:   "nadl-06-12",
+			Name: "Nadleśnictwo Janów Lubelski",
+			Lon:  22.43,
+			Lat:  50.71,
+		},
+	}, nil, nil)
+
+	got, err := server.GetConditions(context.Background(), &conditionsv1.GetConditionsRequest{
+		CellId: "nadl-06-12",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.GetCellId() != "nadl-06-12" {
+		t.Fatalf("cell %q", got.GetCellId())
+	}
+	if got.GetCellName() != "Nadleśnictwo Janów Lubelski" {
+		t.Fatalf("name %q", got.GetCellName())
 	}
 }
 
@@ -200,7 +261,7 @@ func TestGetSeasonNineDaysFromOurScores(t *testing.T) {
 			SoilTemperatureC: &soilT,
 			SoilMoistureM3M3: &soilM,
 		},
-	}, nil)
+	}, nil, nil)
 	server.now = func() time.Time {
 		return time.Date(2026, 9, 4, 12, 0, 0, 0, time.UTC)
 	}
@@ -234,7 +295,7 @@ func TestGetSeasonUnknownSpeciesStaysUnavailable(t *testing.T) {
 			SoilTemperatureC: &soilT,
 			SoilMoistureM3M3: &soilM,
 		},
-	}, nil)
+	}, nil, nil)
 
 	got, err := server.GetSeason(context.Background(), &conditionsv1.GetSeasonRequest{
 		CellId:      "lasy-janowskie-01",
@@ -251,9 +312,85 @@ func TestGetSeasonUnknownSpeciesStaysUnavailable(t *testing.T) {
 }
 
 func TestGetSeasonRequiresCell(t *testing.T) {
-	server := NewServer(fakeLookup{}, nil)
+	server := NewServer(fakeLookup{}, nil, nil)
 	_, err := server.GetSeason(context.Background(), &conditionsv1.GetSeasonRequest{})
 	if err == nil {
 		t.Fatal("expected error")
+	}
+}
+
+func TestSearchCellsReturnsLookupHits(t *testing.T) {
+	server := NewServer(fakeLookup{
+		cell: Cell{
+			ID:    "bory-tucholskie-01",
+			Name:  "Bory Tucholskie 01",
+			Lon:   17.55,
+			Lat:   53.81,
+			West:  17.4,
+			South: 53.7,
+			East:  17.7,
+			North: 53.9,
+		},
+	}, nil, nil)
+
+	got, err := server.SearchCells(context.Background(), &conditionsv1.SearchCellsRequest{
+		Query: "bory",
+		Limit: 10,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got.GetCells()) != 1 {
+		t.Fatalf("cells %d", len(got.GetCells()))
+	}
+	cell := got.GetCells()[0]
+	if cell.GetId() != "bory-tucholskie-01" {
+		t.Fatalf("id %q", cell.GetId())
+	}
+	if cell.GetLon() != 17.55 || cell.GetLat() != 53.81 {
+		t.Fatalf("centroid %v,%v", cell.GetLon(), cell.GetLat())
+	}
+	if cell.GetWest() != 17.4 || cell.GetNorth() != 53.9 {
+		t.Fatalf("bbox %v,%v,%v,%v", cell.GetWest(), cell.GetSouth(), cell.GetEast(), cell.GetNorth())
+	}
+}
+
+func TestSearchCellsEmptyLookup(t *testing.T) {
+	server := NewServer(fakeLookup{}, nil, nil)
+	got, err := server.SearchCells(context.Background(), &conditionsv1.SearchCellsRequest{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got.GetCells()) != 0 {
+		t.Fatalf("expected empty, got %d", len(got.GetCells()))
+	}
+}
+
+func TestEnsureCellRefreshesWeather(t *testing.T) {
+	weather := &fakeWeather{ingested: true}
+	server := NewServer(fakeLookup{
+		cell: Cell{
+			ID:   "nadl-06-12",
+			Name: "Nadleśnictwo Janów Lubelski",
+			Lon:  22.43,
+			Lat:  50.71,
+			West: 22.2, South: 50.5, East: 22.6, North: 50.9,
+		},
+	}, nil, weather)
+
+	got, err := server.EnsureCell(context.Background(), &conditionsv1.EnsureCellRequest{
+		CellId: "nadl-06-12",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !got.GetIngested() {
+		t.Fatal("expected ingested")
+	}
+	if weather.calls != 1 {
+		t.Fatalf("weather calls %d", weather.calls)
+	}
+	if got.GetCell().GetId() != "nadl-06-12" {
+		t.Fatalf("id %q", got.GetCell().GetId())
 	}
 }

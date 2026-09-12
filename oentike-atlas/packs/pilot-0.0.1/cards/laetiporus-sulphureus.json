@@ -1,0 +1,28 @@
+{
+  "slug": "laetiporus-sulphureus",
+  "names": {
+    "pl": "Żółciak siarkowy",
+    "en": "Chicken of the woods"
+  },
+  "scientific_name": "Laetiporus sulphureus",
+  "identifiers": {
+    "mycobank": null,
+    "index_fungorum": null,
+    "gbif": null
+  },
+  "hymenophore": "pores",
+  "habitat": "Na pniach drzew liściastych (często dęby, wierzby, robinie, drzewa owocowe). Grzyb nadrzewny (pasożyt i saprotrof).",
+  "phenology": "Głównie wiosna i lato (od maja do września).",
+  "lookalikes": [],
+  "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
+  "citations": [],
+  "art": {
+    "cap": "/atlas/art/v0/laetiporus-sulphureus.cap.svg",
+    "hymenophore": "/atlas/art/v0/laetiporus-sulphureus.hymenophore.svg",
+    "stem": "/atlas/art/v0/laetiporus-sulphureus.stem.svg",
+    "section": "/atlas/art/v0/laetiporus-sulphureus.section.svg",
+    "lookalike_plate": null
+  },
+  "pack_version": "0.0.1",
+  "reviewed_at": null
+}

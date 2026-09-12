@@ -41,12 +41,25 @@ tasks:
         fi
 
   oentike:ingest:
-    desc: "Fetch Open-Meteo for the pilot cell and store weather_samples"
+    desc: "Fetch Open-Meteo for materialized cells (or CELL=id for one)"
     silent: true
     deps: [oentike:migrate]
     dir: oentike-api
     cmds:
-      - go run ./cmd/oentike-api ingest
+      - |
+        if [ -n "${CELL:-}" ]; then
+          go run ./cmd/oentike-api ingest "$CELL"
+        else
+          go run ./cmd/oentike-api ingest
+        fi
+
+  oentike:sync-bdl:
+    desc: "Pull BDL Nadleśnictwa (~429) into forest_units via WFS"
+    silent: true
+    deps: [oentike:migrate]
+    dir: oentike-api
+    cmds:
+      - go run ./cmd/oentike-api sync-bdl
 
   oentike:test:
     desc: "Run Oentike API tests"

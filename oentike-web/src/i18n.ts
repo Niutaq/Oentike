@@ -11,6 +11,7 @@ export const resources = {
                 conditions: "Warunki",
                 area: "Obszar",
                 sources: "Źródła",
+                atlas: "Atlas",
             },
             controls: {
                 appearance: "Ustawienia wyglądu",
@@ -47,6 +48,8 @@ export const resources = {
                 offlineDescription: "Backend jest niedostępny. Oentike nie zastąpi danych symulacją.",
                 species: "Gatunek",
                 area: "Obszar",
+                areaSearch: "Szukaj obszaru leśnego",
+                areaPlaceholder: "Szukaj lasu…",
                 updated: "Aktualizacja",
                 neverChecked: "Jeszcze nie sprawdzono",
                 notCalculated: "Nie obliczono",
@@ -74,12 +77,12 @@ export const resources = {
             },
             pilot: {
                 eyebrow: "OBSZAR PILOTAŻOWY",
-                mapAlt: "Interaktywna mapa komórki Lasy Janowskie",
+                mapAlt: "Interaktywna mapa wybranej komórki analizy",
                 interact:
                     "Ramka oznacza komórkę analizy (10 × 10 km), nie punkt GPS.",
                 sourcePrefix: "Podkład:",
                 chooseLater:
-                    "Wybór innego terenu przyjdzie po siatce komórek - na razie tylko Lasy Janowskie.",
+                    "Wpisz nazwę lasu powyżej - pilotażowe komórki 10 × 10 km w kilku regionach Polski.",
             },
             sources: {
                 eyebrow: "INFRASTRUKTURA",
@@ -97,6 +100,40 @@ export const resources = {
             footer: {
                 promise: "Każda przyszła ocena pokaże pochodzenie danych, wersję algorytmu i poziom pewności.",
                 version: "Oentike · wersja rozwojowa",
+                atlas: "Atlas gatunków",
+            },
+            hymenophore: {
+                pores: "Rurki",
+                folds: "Fałdy (pseudo-blaszki)",
+                gills: "Blaszki",
+                teeth: "Kolce"
+            },
+            atlas: {
+                metaTitle: "Oentike - Atlas",
+                eyebrow: "ATLAS",
+                title: "Gatunki pilotażowe",
+                teaserTitle: "Gatunki pilotażowe",
+                teaserLead:
+                    "Karty wiedzy - nazwa potoczna, podobne gatunki, ochrona. Bez oceny warunków i bez identyfikacji ze zdjęcia.",
+                teaserCta: "Otwórz atlas",
+                lead: "Karty wiedzy - nazwa potoczna pierwsza, łacina obok. Bez oceny warunków i bez identyfikacji ze zdjęcia.",
+                openCard: "Karta",
+                pendingNote:
+                    "Cytacje i identyfikatory taksonomiczne możesz dodać później. Podobne gatunki są już powiązane.",
+                back: "← Atlas",
+                cardEyebrow: "KARTA GATUNKU",
+                hymenophore: "Hymenofor",
+                pack: "Pack",
+                habitat: "Siedlisko",
+                phenology: "Sezon",
+                protection: "Ochrona w PL",
+                emptyFields:
+                    "Siedlisko, sezon i ochrona - do uzupełnienia z cytowanych źródeł.",
+                lookalikes: "Podobne gatunki",
+                artTitle: "Tablice",
+                artPending:
+                    "Miejsce na naszą tablicę botaniczną - jeszcze bez ilustracji.",
+                toConditions: "Zobacz warunki dla borowika",
             },
         },
     },
@@ -112,6 +149,7 @@ export const resources = {
                 conditions: "Conditions",
                 area: "Area",
                 sources: "Sources",
+                atlas: "Atlas",
             },
             controls: {
                 appearance: "Display settings",
@@ -148,6 +186,8 @@ export const resources = {
                 offlineDescription: "The backend is unavailable. Oentike will not replace data with a simulation.",
                 species: "Species",
                 area: "Area",
+                areaSearch: "Search forest area",
+                areaPlaceholder: "Search a forest…",
                 updated: "Updated",
                 neverChecked: "Not checked yet",
                 notCalculated: "Not calculated",
@@ -175,12 +215,12 @@ export const resources = {
             },
             pilot: {
                 eyebrow: "PILOT AREA",
-                mapAlt: "Interactive map of the Lasy Janowskie cell",
+                mapAlt: "Interactive map of the selected analysis cell",
                 interact:
                     "The frame is the analysis cell (10 × 10 km), not a GPS pin.",
                 sourcePrefix: "Base map:",
                 chooseLater:
-                    "Choosing another forest comes after a cell grid - for now only Lasy Janowskie.",
+                    "Type a forest name above - pilot 10 × 10 km cells in a few regions of Poland.",
             },
             sources: {
                 eyebrow: "INFRASTRUCTURE",
@@ -198,6 +238,40 @@ export const resources = {
             footer: {
                 promise: "Every future score will expose data provenance, algorithm version, and confidence.",
                 version: "Oentike · development version",
+                atlas: "Species atlas",
+            },
+            hymenophore: {
+                pores: "Pores (tubes)",
+                folds: "Folds (false gills)",
+                gills: "Gills",
+                teeth: "Teeth / spines"
+            },
+            atlas: {
+                metaTitle: "Oentike - Atlas",
+                eyebrow: "ATLAS",
+                title: "Pilot species",
+                teaserTitle: "Pilot species",
+                teaserLead:
+                    "Knowledge cards - common names, lookalikes, protection. No condition score and no photo ID.",
+                teaserCta: "Open atlas",
+                lead: "Knowledge cards - common name first, Latin beside it. No condition score and no photo ID.",
+                openCard: "Card",
+                pendingNote:
+                    "Citations and taxonomic IDs can be added later. Lookalikes are already linked.",
+                back: "← Atlas",
+                cardEyebrow: "SPECIES CARD",
+                hymenophore: "Hymenophore",
+                pack: "Pack",
+                habitat: "Habitat",
+                phenology: "Season",
+                protection: "Protection in PL",
+                emptyFields:
+                    "Habitat, season, and protection - to be filled from cited sources.",
+                lookalikes: "Lookalikes",
+                artTitle: "Plates",
+                artPending:
+                    "Space for our botanical plate - no illustration yet.",
+                toConditions: "See conditions for porcini",
             },
         },
     },

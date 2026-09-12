@@ -39,6 +39,27 @@ func CellPointByID(ctx context.Context, db *pgxpool.Pool, id string) (CellPoint,
 	return cell, nil
 }
 
+func ListCellIDs(ctx context.Context, db *pgxpool.Pool) ([]string, error) {
+	rows, err := db.Query(ctx, `SELECT id FROM cells ORDER BY id`)
+	if err != nil {
+		return nil, fmt.Errorf("list cells: %w", err)
+	}
+	defer rows.Close()
+
+	ids := make([]string, 0)
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, fmt.Errorf("scan cell id: %w", err)
+		}
+		ids = append(ids, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate cells: %w", err)
+	}
+	return ids, nil
+}
+
 func Save(ctx context.Context, db *pgxpool.Pool, cellID string, fetchedAt time.Time, forecast Forecast) (int64, error) {
 	tx, err := db.Begin(ctx)
 	if err != nil {
@@ -68,18 +89,19 @@ func Save(ctx context.Context, db *pgxpool.Pool, cellID string, fetchedAt time.T
 			INSERT INTO weather_samples (
 				cell_id, valid_at, data_kind,
 				precipitation_mm, soil_temperature_6cm_c, soil_moisture_3_to_9cm_m3_m3,
-				ingest_run_id
-			) VALUES ($1, $2, $3, $4, $5, $6, $7)
+				air_temperature_2m_c, ingest_run_id
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 			ON CONFLICT (cell_id, valid_at) DO UPDATE SET
 				data_kind = EXCLUDED.data_kind,
 				precipitation_mm = EXCLUDED.precipitation_mm,
 				soil_temperature_6cm_c = EXCLUDED.soil_temperature_6cm_c,
 				soil_moisture_3_to_9cm_m3_m3 = EXCLUDED.soil_moisture_3_to_9cm_m3_m3,
+				air_temperature_2m_c = EXCLUDED.air_temperature_2m_c,
 				ingest_run_id = EXCLUDED.ingest_run_id,
 				updated_at = now()
 		`, cellID, sample.ValidAt, sample.DataKind,
 			sample.PrecipitationMM, sample.SoilTemperature6cmC, sample.SoilMoisture3To9cmM3,
-			runID)
+			sample.AirTemperature2mC, runID)
 	}
 	results := tx.SendBatch(ctx, batch)
 	for range forecast.Samples {

@@ -1,0 +1,51 @@
+---
+---
+<div class="custom-cursor" id="custom-cursor" aria-hidden="true">
+    <span></span>
+</div>
+<script>
+    import { gsap } from "gsap";
+    const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function initCursor() {
+        const root = document.documentElement;
+        if (
+            reducedMotion ||
+            !matchMedia("(hover: hover) and (pointer: fine)").matches
+        ) {
+            return;
+        }
+
+        const cursor = document.getElementById("custom-cursor");
+        if (!cursor) return;
+
+        root.classList.add("custom-cursor-enabled");
+        const moveX = gsap.quickTo(cursor, "x", {
+            duration: 0.18,
+            ease: "power3.out",
+        });
+        const moveY = gsap.quickTo(cursor, "y", {
+            duration: 0.18,
+            ease: "power3.out",
+        });
+
+        window.addEventListener("pointermove", (event) => {
+            cursor.classList.add("active");
+            moveX(event.clientX);
+            moveY(event.clientY);
+        });
+        document.addEventListener("pointerover", (event) => {
+            const interactive =
+                event.target instanceof Element &&
+                event.target.closest("a, button");
+            gsap.to(cursor, {
+                scale: interactive ? 1.65 : 1,
+                rotate: interactive ? 12 : 0,
+                duration: 0.22,
+                ease: "power2.out",
+            });
+        });
+    }
+
+    initCursor();
+</script>

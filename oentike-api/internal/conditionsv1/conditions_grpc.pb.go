@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	ConditionsService_GetConditions_FullMethodName = "/oentike.conditions.ConditionsService/GetConditions"
 	ConditionsService_GetSeason_FullMethodName     = "/oentike.conditions.ConditionsService/GetSeason"
+	ConditionsService_SearchCells_FullMethodName   = "/oentike.conditions.ConditionsService/SearchCells"
+	ConditionsService_EnsureCell_FullMethodName    = "/oentike.conditions.ConditionsService/EnsureCell"
 )
 
 // ConditionsServiceClient is the client API for ConditionsService service.
@@ -33,6 +35,10 @@ type ConditionsServiceClient interface {
 	GetConditions(ctx context.Context, in *GetConditionsRequest, opts ...grpc.CallOption) (*ConditionsResponse, error)
 	// Last N Warsaw civil days for one cell - our scores only, no other regions.
 	GetSeason(ctx context.Context, in *GetSeasonRequest, opts ...grpc.CallOption) (*SeasonResponse, error)
+	// Prefix / substring search over BDL nadleśnictwa (forest_units).
+	SearchCells(ctx context.Context, in *SearchCellsRequest, opts ...grpc.CallOption) (*SearchCellsResponse, error)
+	// Materialize a forest unit into cells and refresh weather if needed.
+	EnsureCell(ctx context.Context, in *EnsureCellRequest, opts ...grpc.CallOption) (*EnsureCellResponse, error)
 }
 
 type conditionsServiceClient struct {
@@ -63,6 +69,26 @@ func (c *conditionsServiceClient) GetSeason(ctx context.Context, in *GetSeasonRe
 	return out, nil
 }
 
+func (c *conditionsServiceClient) SearchCells(ctx context.Context, in *SearchCellsRequest, opts ...grpc.CallOption) (*SearchCellsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SearchCellsResponse)
+	err := c.cc.Invoke(ctx, ConditionsService_SearchCells_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *conditionsServiceClient) EnsureCell(ctx context.Context, in *EnsureCellRequest, opts ...grpc.CallOption) (*EnsureCellResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(EnsureCellResponse)
+	err := c.cc.Invoke(ctx, ConditionsService_EnsureCell_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ConditionsServiceServer is the server API for ConditionsService service.
 // All implementations must embed UnimplementedConditionsServiceServer
 // for forward compatibility.
@@ -73,6 +99,10 @@ type ConditionsServiceServer interface {
 	GetConditions(context.Context, *GetConditionsRequest) (*ConditionsResponse, error)
 	// Last N Warsaw civil days for one cell - our scores only, no other regions.
 	GetSeason(context.Context, *GetSeasonRequest) (*SeasonResponse, error)
+	// Prefix / substring search over BDL nadleśnictwa (forest_units).
+	SearchCells(context.Context, *SearchCellsRequest) (*SearchCellsResponse, error)
+	// Materialize a forest unit into cells and refresh weather if needed.
+	EnsureCell(context.Context, *EnsureCellRequest) (*EnsureCellResponse, error)
 	mustEmbedUnimplementedConditionsServiceServer()
 }
 
@@ -88,6 +118,12 @@ func (UnimplementedConditionsServiceServer) GetConditions(context.Context, *GetC
 }
 func (UnimplementedConditionsServiceServer) GetSeason(context.Context, *GetSeasonRequest) (*SeasonResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetSeason not implemented")
+}
+func (UnimplementedConditionsServiceServer) SearchCells(context.Context, *SearchCellsRequest) (*SearchCellsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SearchCells not implemented")
+}
+func (UnimplementedConditionsServiceServer) EnsureCell(context.Context, *EnsureCellRequest) (*EnsureCellResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method EnsureCell not implemented")
 }
 func (UnimplementedConditionsServiceServer) mustEmbedUnimplementedConditionsServiceServer() {}
 func (UnimplementedConditionsServiceServer) testEmbeddedByValue()                           {}
@@ -146,6 +182,42 @@ func _ConditionsService_GetSeason_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ConditionsService_SearchCells_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchCellsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConditionsServiceServer).SearchCells(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConditionsService_SearchCells_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConditionsServiceServer).SearchCells(ctx, req.(*SearchCellsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConditionsService_EnsureCell_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EnsureCellRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConditionsServiceServer).EnsureCell(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConditionsService_EnsureCell_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConditionsServiceServer).EnsureCell(ctx, req.(*EnsureCellRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ConditionsService_ServiceDesc is the grpc.ServiceDesc for ConditionsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -160,6 +232,14 @@ var ConditionsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSeason",
 			Handler:    _ConditionsService_GetSeason_Handler,
+		},
+		{
+			MethodName: "SearchCells",
+			Handler:    _ConditionsService_SearchCells_Handler,
+		},
+		{
+			MethodName: "EnsureCell",
+			Handler:    _ConditionsService_EnsureCell_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
