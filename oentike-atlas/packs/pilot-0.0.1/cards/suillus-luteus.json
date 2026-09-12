@@ -1,0 +1,33 @@
+{
+  "slug": "suillus-luteus",
+  "names": {
+    "pl": "Maślak zwyczajny",
+    "en": "Slippery Jack"
+  },
+  "scientific_name": "Suillus luteus",
+  "identifiers": {
+    "mycobank": null,
+    "index_fungorum": null,
+    "gbif": null
+  },
+  "hymenophore": "pores",
+  "habitat": "Lasy iglaste, niemal wyłącznie pod sosnami. Częsty na młodych plantacjach sosnowych i piaszczystych glebach.",
+  "phenology": "Koniec lata i jesień (sierpień - listopad).",
+  "lookalikes": [
+    {
+      "slug": "suillus-granulatus",
+      "note": "Maślak ziarnisty - bardzo podobny, ale NIE posiada pierścienia na trzonie. Pory młodych owocników wydzielają kropelki płynu (tzw. płacz)."
+    }
+  ],
+  "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
+  "citations": [],
+  "art": {
+    "cap": "/atlas/art/v0/suillus-luteus.cap.svg",
+    "hymenophore": "/atlas/art/v0/suillus-luteus.hymenophore.svg",
+    "stem": "/atlas/art/v0/suillus-luteus.stem.svg",
+    "section": "/atlas/art/v0/suillus-luteus.section.svg",
+    "lookalike_plate": null
+  },
+  "pack_version": "0.0.1",
+  "reviewed_at": null
+}

@@ -17,9 +17,9 @@ Versioned knowledge cards for the field helper. **No scores here.** No stock pho
 
 ## Pilot species
 
-1. Borowik szlachetny (`boletus-edulis`) — scored in the conditions API
-2. Goryczak żółciowy (`tylopilus-felleus`) — lookalike, no score
-3. Borowik usiatkowany (`boletus-reticulatus`) — lookalike / cousin, no score
+1. Borowik szlachetny (`boletus-edulis`) - scored in the conditions API
+2. Goryczak żółciowy (`tylopilus-felleus`) - lookalike, no score
+3. Borowik usiatkowany (`boletus-reticulatus`) - lookalike / cousin, no score
 
 Art stays out of git until we have our own plates (cream / ink / orange; **pores**, not gills).
 

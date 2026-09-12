@@ -2,10 +2,12 @@
 import "../../styles/global.css";
 import SiteHeader from "../../components/SiteHeader.astro";
 import ShellPrefs from "../../components/ShellPrefs.astro";
+import QuietFooter from "../../components/QuietFooter.astro";
 import {
     atlasCards,
     getAtlasCard,
     lookalikeName,
+    cardArtViews,
 } from "../../data/atlas";
 
 export function getStaticPaths() {
@@ -21,6 +23,14 @@ if (!card) {
 }
 
 const hasBody = Boolean(card.habitat || card.phenology || card.protection_pl);
+const artViews = cardArtViews(card);
+const artLabels: Record<string, { pl: string; en: string }> = {
+    cap: { pl: "Kapelusz", en: "Cap" },
+    hymenophore: { pl: "Hymenofor", en: "Hymenophore" },
+    stem: { pl: "Trzon", en: "Stem" },
+    section: { pl: "Przekrój", en: "Section" },
+    lookalike_plate: { pl: "Lookalik", en: "Lookalike" },
+};
 ---
 
 <!doctype html>
@@ -31,11 +41,11 @@ const hasBody = Boolean(card.habitat || card.phenology || card.protection_pl);
         <meta
             id="page-description"
             name="description"
-            content={`Oentike — ${card.names.pl}`}
+            content={`Oentike - ${card.names.pl}`}
         />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/svg+xml" href="/oentike-logo.svg" />
-        <title>Oentike — {card.names.pl}</title>
+        <title>Oentike - {card.names.pl}</title>
     </head>
     <body data-i18n-title="atlas.metaTitle">
         <SiteHeader active="atlas" />
@@ -61,11 +71,7 @@ const hasBody = Boolean(card.habitat || card.phenology || card.protection_pl);
                 <dl class="atlas-meta">
                     <div>
                         <dt data-i18n="atlas.hymenophore">Hymenofor</dt>
-                        <dd>{card.hymenophore}</dd>
-                    </div>
-                    <div>
-                        <dt data-i18n="atlas.pack">Pack</dt>
-                        <dd>{card.pack_version}</dd>
+                        <dd data-i18n={`hymenophore.${card.hymenophore}`}>{card.hymenophore}</dd>
                     </div>
                 </dl>
 
@@ -95,7 +101,7 @@ const hasBody = Boolean(card.habitat || card.phenology || card.protection_pl);
                         </div>
                     ) : (
                         <p class="atlas-empty" data-i18n="atlas.emptyFields">
-                            Siedlisko, sezon i ochrona — do uzupełnienia z
+                            Siedlisko, sezon i ochrona - do uzupełnienia z
                             cytowanych źródeł.
                         </p>
                     )
@@ -126,9 +132,47 @@ const hasBody = Boolean(card.habitat || card.phenology || card.protection_pl);
                     </ul>
                 </section>
 
-                <div class="atlas-art-slot" data-i18n="atlas.artPending">
-                    Miejsce na naszą tablicę botaniczną — jeszcze bez ilustracji.
-                </div>
+                {
+                    artViews.length ? (
+                        <section class="atlas-art-plate" aria-label="Tablice">
+                            <h2 data-i18n="atlas.artTitle">Tablice</h2>
+                            <ul class="atlas-art-grid">
+                                {artViews.map((view) => (
+                                    <li>
+                                        <figure>
+                                            <img
+                                                src={view.src}
+                                                alt=""
+                                                width="512"
+                                                height="512"
+                                                loading="lazy"
+                                            />
+                                            <figcaption
+                                                data-name-pl={
+                                                    artLabels[view.key]?.pl
+                                                }
+                                                data-name-en={
+                                                    artLabels[view.key]?.en
+                                                }
+                                            >
+                                                {artLabels[view.key]?.pl ||
+                                                    view.key}
+                                            </figcaption>
+                                        </figure>
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+                    ) : (
+                        <div
+                            class="atlas-art-slot"
+                            data-i18n="atlas.artPending"
+                        >
+                            Miejsce na naszą tablicę botaniczną - jeszcze bez
+                            ilustracji.
+                        </div>
+                    )
+                }
 
                 {
                     card.slug === "boletus-edulis" ? (
@@ -141,6 +185,7 @@ const hasBody = Boolean(card.habitat || card.phenology || card.protection_pl);
                 }
             </article>
         </main>
+        <QuietFooter />
         <ShellPrefs />
     </body>
 </html>

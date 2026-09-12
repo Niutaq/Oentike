@@ -16,8 +16,14 @@ import (
 
 type Lookup interface {
 	Cell(ctx context.Context, id string) (Cell, error)
+	MaterializeForestUnit(ctx context.Context, id string) (Cell, error)
+	SearchCells(ctx context.Context, query string, limit int) ([]Cell, error)
 	Factors(ctx context.Context, cellID, targetDate string) (FactorSnapshot, error)
 	LatestIngest(ctx context.Context, cellID string) (*time.Time, error)
+}
+
+type WeatherRefresher interface {
+	Refresh(ctx context.Context, cellID string) (ingested bool, err error)
 }
 
 type Persister interface {
@@ -28,14 +34,44 @@ type Server struct {
 	conditionsv1.UnimplementedConditionsServiceServer
 	lookup  Lookup
 	persist Persister
+	weather WeatherRefresher
 	now     func() time.Time
 }
 
-func NewServer(lookup Lookup, persist Persister) *Server {
+func NewServer(lookup Lookup, persist Persister, weather WeatherRefresher) *Server {
 	return &Server{
 		lookup:  lookup,
 		persist: persist,
+		weather: weather,
 		now:     time.Now,
+	}
+}
+
+func (s *Server) resolveCell(ctx context.Context, cellID string) (Cell, error) {
+	cell, err := s.lookup.Cell(ctx, cellID)
+	if err == nil {
+		return cell, nil
+	}
+	if !errors.Is(err, ErrCellNotFound) {
+		return Cell{}, err
+	}
+	cell, err = s.lookup.MaterializeForestUnit(ctx, cellID)
+	if errors.Is(err, ErrForestUnitNotFound) {
+		return Cell{}, ErrCellNotFound
+	}
+	return cell, err
+}
+
+func summaryFrom(cell Cell) *conditionsv1.CellSummary {
+	return &conditionsv1.CellSummary{
+		Id:    cell.ID,
+		Name:  cell.Name,
+		Lon:   cell.Lon,
+		Lat:   cell.Lat,
+		West:  cell.West,
+		South: cell.South,
+		East:  cell.East,
+		North: cell.North,
 	}
 }
 
@@ -55,12 +91,19 @@ func (s *Server) GetConditions(ctx context.Context, req *conditionsv1.GetConditi
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	cell, err := s.lookup.Cell(ctx, cellID)
+	cell, err := s.resolveCell(ctx, cellID)
 	if errors.Is(err, ErrCellNotFound) {
 		return nil, status.Errorf(codes.NotFound, "unknown cell %q", cellID)
 	}
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "load cell: %v", err)
+	}
+
+	if s.weather != nil {
+		if _, err := s.weather.Refresh(ctx, cell.ID); err != nil {
+			// Keep serving cached factors when refresh fails.
+			_ = err
+		}
 	}
 
 	snap, err := s.lookup.Factors(ctx, cell.ID, targetDate)
@@ -157,12 +200,18 @@ func (s *Server) GetSeason(ctx context.Context, req *conditionsv1.GetSeasonReque
 		return nil, status.Errorf(codes.Internal, "parse today: %v", err)
 	}
 
-	cell, err := s.lookup.Cell(ctx, cellID)
+	cell, err := s.resolveCell(ctx, cellID)
 	if errors.Is(err, ErrCellNotFound) {
 		return nil, status.Errorf(codes.NotFound, "unknown cell %q", cellID)
 	}
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "load cell: %v", err)
+	}
+
+	if s.weather != nil {
+		if _, err := s.weather.Refresh(ctx, cell.ID); err != nil {
+			_ = err
+		}
 	}
 
 	days := make([]*conditionsv1.SeasonDay, 0, n)
@@ -193,6 +242,44 @@ func (s *Server) GetSeason(ctx context.Context, req *conditionsv1.GetSeasonReque
 		SpeciesSlug:      species,
 		AlgorithmVersion: algorithmVersion,
 		Days:             days,
+	}, nil
+}
+
+func (s *Server) SearchCells(ctx context.Context, req *conditionsv1.SearchCellsRequest) (*conditionsv1.SearchCellsResponse, error) {
+	cells, err := s.lookup.SearchCells(ctx, req.GetQuery(), int(req.GetLimit()))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "search cells: %v", err)
+	}
+	out := make([]*conditionsv1.CellSummary, 0, len(cells))
+	for _, cell := range cells {
+		out = append(out, summaryFrom(cell))
+	}
+	return &conditionsv1.SearchCellsResponse{Cells: out}, nil
+}
+
+func (s *Server) EnsureCell(ctx context.Context, req *conditionsv1.EnsureCellRequest) (*conditionsv1.EnsureCellResponse, error) {
+	cellID := strings.TrimSpace(req.GetCellId())
+	if cellID == "" {
+		return nil, status.Error(codes.InvalidArgument, "cell_id is required")
+	}
+	cell, err := s.resolveCell(ctx, cellID)
+	if errors.Is(err, ErrCellNotFound) {
+		return nil, status.Errorf(codes.NotFound, "unknown cell %q", cellID)
+	}
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "load cell: %v", err)
+	}
+
+	ingested := false
+	if s.weather != nil {
+		ingested, err = s.weather.Refresh(ctx, cell.ID)
+		if err != nil {
+			return nil, status.Errorf(codes.Unavailable, "weather ingest: %v", err)
+		}
+	}
+	return &conditionsv1.EnsureCellResponse{
+		Cell:     summaryFrom(cell),
+		Ingested: ingested,
 	}, nil
 }
 

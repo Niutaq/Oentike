@@ -465,6 +465,302 @@ func (x *SeasonResponse) GetDays() []*SeasonDay {
 	return nil
 }
 
+type SearchCellsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Empty returns cells ordered by name (up to limit).
+	Query string `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
+	// 0 means 20. Max 20.
+	Limit         int32 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchCellsRequest) Reset() {
+	*x = SearchCellsRequest{}
+	mi := &file_conditions_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchCellsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchCellsRequest) ProtoMessage() {}
+
+func (x *SearchCellsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_conditions_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchCellsRequest.ProtoReflect.Descriptor instead.
+func (*SearchCellsRequest) Descriptor() ([]byte, []int) {
+	return file_conditions_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *SearchCellsRequest) GetQuery() string {
+	if x != nil {
+		return x.Query
+	}
+	return ""
+}
+
+func (x *SearchCellsRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+type CellSummary struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name  string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Centroid in WGS84.
+	Lon float64 `protobuf:"fixed64,3,opt,name=lon,proto3" json:"lon,omitempty"`
+	Lat float64 `protobuf:"fixed64,4,opt,name=lat,proto3" json:"lat,omitempty"`
+	// Bounding box in WGS84 for the map frame.
+	West          float64 `protobuf:"fixed64,5,opt,name=west,proto3" json:"west,omitempty"`
+	South         float64 `protobuf:"fixed64,6,opt,name=south,proto3" json:"south,omitempty"`
+	East          float64 `protobuf:"fixed64,7,opt,name=east,proto3" json:"east,omitempty"`
+	North         float64 `protobuf:"fixed64,8,opt,name=north,proto3" json:"north,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CellSummary) Reset() {
+	*x = CellSummary{}
+	mi := &file_conditions_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CellSummary) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CellSummary) ProtoMessage() {}
+
+func (x *CellSummary) ProtoReflect() protoreflect.Message {
+	mi := &file_conditions_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CellSummary.ProtoReflect.Descriptor instead.
+func (*CellSummary) Descriptor() ([]byte, []int) {
+	return file_conditions_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CellSummary) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *CellSummary) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CellSummary) GetLon() float64 {
+	if x != nil {
+		return x.Lon
+	}
+	return 0
+}
+
+func (x *CellSummary) GetLat() float64 {
+	if x != nil {
+		return x.Lat
+	}
+	return 0
+}
+
+func (x *CellSummary) GetWest() float64 {
+	if x != nil {
+		return x.West
+	}
+	return 0
+}
+
+func (x *CellSummary) GetSouth() float64 {
+	if x != nil {
+		return x.South
+	}
+	return 0
+}
+
+func (x *CellSummary) GetEast() float64 {
+	if x != nil {
+		return x.East
+	}
+	return 0
+}
+
+func (x *CellSummary) GetNorth() float64 {
+	if x != nil {
+		return x.North
+	}
+	return 0
+}
+
+type SearchCellsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cells         []*CellSummary         `protobuf:"bytes,1,rep,name=cells,proto3" json:"cells,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchCellsResponse) Reset() {
+	*x = SearchCellsResponse{}
+	mi := &file_conditions_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchCellsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchCellsResponse) ProtoMessage() {}
+
+func (x *SearchCellsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_conditions_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchCellsResponse.ProtoReflect.Descriptor instead.
+func (*SearchCellsResponse) Descriptor() ([]byte, []int) {
+	return file_conditions_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *SearchCellsResponse) GetCells() []*CellSummary {
+	if x != nil {
+		return x.Cells
+	}
+	return nil
+}
+
+type EnsureCellRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CellId        string                 `protobuf:"bytes,1,opt,name=cell_id,json=cellId,proto3" json:"cell_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EnsureCellRequest) Reset() {
+	*x = EnsureCellRequest{}
+	mi := &file_conditions_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EnsureCellRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EnsureCellRequest) ProtoMessage() {}
+
+func (x *EnsureCellRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_conditions_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EnsureCellRequest.ProtoReflect.Descriptor instead.
+func (*EnsureCellRequest) Descriptor() ([]byte, []int) {
+	return file_conditions_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *EnsureCellRequest) GetCellId() string {
+	if x != nil {
+		return x.CellId
+	}
+	return ""
+}
+
+type EnsureCellResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cell          *CellSummary           `protobuf:"bytes,1,opt,name=cell,proto3" json:"cell,omitempty"`
+	Ingested      bool                   `protobuf:"varint,2,opt,name=ingested,proto3" json:"ingested,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EnsureCellResponse) Reset() {
+	*x = EnsureCellResponse{}
+	mi := &file_conditions_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EnsureCellResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EnsureCellResponse) ProtoMessage() {}
+
+func (x *EnsureCellResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_conditions_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EnsureCellResponse.ProtoReflect.Descriptor instead.
+func (*EnsureCellResponse) Descriptor() ([]byte, []int) {
+	return file_conditions_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *EnsureCellResponse) GetCell() *CellSummary {
+	if x != nil {
+		return x.Cell
+	}
+	return nil
+}
+
+func (x *EnsureCellResponse) GetIngested() bool {
+	if x != nil {
+		return x.Ingested
+	}
+	return false
+}
+
 var File_conditions_proto protoreflect.FileDescriptor
 
 const file_conditions_proto_rawDesc = "" +
@@ -514,10 +810,32 @@ const file_conditions_proto_rawDesc = "" +
 	"\tcell_name\x18\x02 \x01(\tR\bcellName\x12!\n" +
 	"\fspecies_slug\x18\x03 \x01(\tR\vspeciesSlug\x12+\n" +
 	"\x11algorithm_version\x18\x04 \x01(\tR\x10algorithmVersion\x121\n" +
-	"\x04days\x18\x05 \x03(\v2\x1d.oentike.conditions.SeasonDayR\x04days2\xcd\x01\n" +
+	"\x04days\x18\x05 \x03(\v2\x1d.oentike.conditions.SeasonDayR\x04days\"@\n" +
+	"\x12SearchCellsRequest\x12\x14\n" +
+	"\x05query\x18\x01 \x01(\tR\x05query\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\"\xa9\x01\n" +
+	"\vCellSummary\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
+	"\x03lon\x18\x03 \x01(\x01R\x03lon\x12\x10\n" +
+	"\x03lat\x18\x04 \x01(\x01R\x03lat\x12\x12\n" +
+	"\x04west\x18\x05 \x01(\x01R\x04west\x12\x14\n" +
+	"\x05south\x18\x06 \x01(\x01R\x05south\x12\x12\n" +
+	"\x04east\x18\a \x01(\x01R\x04east\x12\x14\n" +
+	"\x05north\x18\b \x01(\x01R\x05north\"L\n" +
+	"\x13SearchCellsResponse\x125\n" +
+	"\x05cells\x18\x01 \x03(\v2\x1f.oentike.conditions.CellSummaryR\x05cells\",\n" +
+	"\x11EnsureCellRequest\x12\x17\n" +
+	"\acell_id\x18\x01 \x01(\tR\x06cellId\"e\n" +
+	"\x12EnsureCellResponse\x123\n" +
+	"\x04cell\x18\x01 \x01(\v2\x1f.oentike.conditions.CellSummaryR\x04cell\x12\x1a\n" +
+	"\bingested\x18\x02 \x01(\bR\bingested2\x8a\x03\n" +
 	"\x11ConditionsService\x12a\n" +
 	"\rGetConditions\x12(.oentike.conditions.GetConditionsRequest\x1a&.oentike.conditions.ConditionsResponse\x12U\n" +
-	"\tGetSeason\x12$.oentike.conditions.GetSeasonRequest\x1a\".oentike.conditions.SeasonResponseB#Z!oentike-api/internal/conditionsv1b\x06proto3"
+	"\tGetSeason\x12$.oentike.conditions.GetSeasonRequest\x1a\".oentike.conditions.SeasonResponse\x12^\n" +
+	"\vSearchCells\x12&.oentike.conditions.SearchCellsRequest\x1a'.oentike.conditions.SearchCellsResponse\x12[\n" +
+	"\n" +
+	"EnsureCell\x12%.oentike.conditions.EnsureCellRequest\x1a&.oentike.conditions.EnsureCellResponseB#Z!oentike-api/internal/conditionsv1b\x06proto3"
 
 var (
 	file_conditions_proto_rawDescOnce sync.Once
@@ -531,7 +849,7 @@ func file_conditions_proto_rawDescGZIP() []byte {
 	return file_conditions_proto_rawDescData
 }
 
-var file_conditions_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_conditions_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_conditions_proto_goTypes = []any{
 	(*GetConditionsRequest)(nil), // 0: oentike.conditions.GetConditionsRequest
 	(*Factor)(nil),               // 1: oentike.conditions.Factor
@@ -539,19 +857,30 @@ var file_conditions_proto_goTypes = []any{
 	(*GetSeasonRequest)(nil),     // 3: oentike.conditions.GetSeasonRequest
 	(*SeasonDay)(nil),            // 4: oentike.conditions.SeasonDay
 	(*SeasonResponse)(nil),       // 5: oentike.conditions.SeasonResponse
+	(*SearchCellsRequest)(nil),   // 6: oentike.conditions.SearchCellsRequest
+	(*CellSummary)(nil),          // 7: oentike.conditions.CellSummary
+	(*SearchCellsResponse)(nil),  // 8: oentike.conditions.SearchCellsResponse
+	(*EnsureCellRequest)(nil),    // 9: oentike.conditions.EnsureCellRequest
+	(*EnsureCellResponse)(nil),   // 10: oentike.conditions.EnsureCellResponse
 }
 var file_conditions_proto_depIdxs = []int32{
-	1, // 0: oentike.conditions.ConditionsResponse.factors:type_name -> oentike.conditions.Factor
-	4, // 1: oentike.conditions.SeasonResponse.days:type_name -> oentike.conditions.SeasonDay
-	0, // 2: oentike.conditions.ConditionsService.GetConditions:input_type -> oentike.conditions.GetConditionsRequest
-	3, // 3: oentike.conditions.ConditionsService.GetSeason:input_type -> oentike.conditions.GetSeasonRequest
-	2, // 4: oentike.conditions.ConditionsService.GetConditions:output_type -> oentike.conditions.ConditionsResponse
-	5, // 5: oentike.conditions.ConditionsService.GetSeason:output_type -> oentike.conditions.SeasonResponse
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	1,  // 0: oentike.conditions.ConditionsResponse.factors:type_name -> oentike.conditions.Factor
+	4,  // 1: oentike.conditions.SeasonResponse.days:type_name -> oentike.conditions.SeasonDay
+	7,  // 2: oentike.conditions.SearchCellsResponse.cells:type_name -> oentike.conditions.CellSummary
+	7,  // 3: oentike.conditions.EnsureCellResponse.cell:type_name -> oentike.conditions.CellSummary
+	0,  // 4: oentike.conditions.ConditionsService.GetConditions:input_type -> oentike.conditions.GetConditionsRequest
+	3,  // 5: oentike.conditions.ConditionsService.GetSeason:input_type -> oentike.conditions.GetSeasonRequest
+	6,  // 6: oentike.conditions.ConditionsService.SearchCells:input_type -> oentike.conditions.SearchCellsRequest
+	9,  // 7: oentike.conditions.ConditionsService.EnsureCell:input_type -> oentike.conditions.EnsureCellRequest
+	2,  // 8: oentike.conditions.ConditionsService.GetConditions:output_type -> oentike.conditions.ConditionsResponse
+	5,  // 9: oentike.conditions.ConditionsService.GetSeason:output_type -> oentike.conditions.SeasonResponse
+	8,  // 10: oentike.conditions.ConditionsService.SearchCells:output_type -> oentike.conditions.SearchCellsResponse
+	10, // 11: oentike.conditions.ConditionsService.EnsureCell:output_type -> oentike.conditions.EnsureCellResponse
+	8,  // [8:12] is the sub-list for method output_type
+	4,  // [4:8] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_conditions_proto_init() }
@@ -568,7 +897,7 @@ func file_conditions_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_conditions_proto_rawDesc), len(file_conditions_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

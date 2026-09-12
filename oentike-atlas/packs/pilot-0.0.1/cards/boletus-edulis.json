@@ -11,25 +11,25 @@
     "gbif": null
   },
   "hymenophore": "pores",
-  "habitat": null,
-  "phenology": null,
+  "habitat": "Lasy iglaste i mieszane, często pod świerkiem, sosną i bukiem; gleby raczej kwaśne do świeżych, wilgotne po opadach.",
+  "phenology": "Lato i jesień - zwykle od lipca do października, gdy gleba jest wilgotna po deszczach.",
   "lookalikes": [
     {
       "slug": "tylopilus-felleus",
-      "note": "Goryczak żółciowy — uzupełnij różnice (pory, smak) z cytowanego atlasu."
+      "note": "Goryczak żółciowy: rurki z wiekiem różowawe, siateczka na trzonie ciemniejsza, smak gorzki (nie oceniamy jadalności w UI - tylko morfologia)."
     },
     {
       "slug": "boletus-reticulatus",
-      "note": "Borowik usiatkowany — uzupełnij różnice (siateczka, kapelusz) z cytowanego źródła."
+      "note": "Borowik usiatkowany: siateczka zwykle na całym trzonie, kapelusz często suchy i spękany, pojawia się wcześniej w sezonie."
     }
   ],
-  "protection_pl": null,
+  "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
   "citations": [],
   "art": {
-    "cap": null,
-    "hymenophore": null,
-    "stem": null,
-    "section": null,
+    "cap": "/atlas/art/v0/boletus-edulis.cap.svg",
+    "hymenophore": "/atlas/art/v0/boletus-edulis.hymenophore.svg",
+    "stem": "/atlas/art/v0/boletus-edulis.stem.svg",
+    "section": "/atlas/art/v0/boletus-edulis.section.svg",
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",

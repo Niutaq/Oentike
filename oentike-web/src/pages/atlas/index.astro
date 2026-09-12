@@ -2,6 +2,7 @@
 import "../../styles/global.css";
 import SiteHeader from "../../components/SiteHeader.astro";
 import ShellPrefs from "../../components/ShellPrefs.astro";
+import QuietFooter from "../../components/QuietFooter.astro";
 import { atlasCards, atlasPack } from "../../data/atlas";
 ---
 
@@ -13,11 +14,11 @@ import { atlasCards, atlasPack } from "../../data/atlas";
         <meta
             id="page-description"
             name="description"
-            content="Oentike — atlas gatunków pilotażowych."
+            content="Oentike - atlas gatunków pilotażowych."
         />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/svg+xml" href="/oentike-logo.svg" />
-        <title>Oentike — Atlas</title>
+        <title>Oentike - Atlas</title>
     </head>
     <body data-i18n-title="atlas.metaTitle">
         <SiteHeader active="atlas" />
@@ -27,7 +28,7 @@ import { atlasCards, atlasPack } from "../../data/atlas";
                     <p class="eyebrow" data-i18n="atlas.eyebrow">ATLAS</p>
                     <h1 data-i18n="atlas.title">Gatunki pilotażowe</h1>
                     <p class="lead" data-i18n="atlas.lead">
-                        Karty wiedzy — nazwa potoczna pierwsza, łacina obok. Bez
+                        Karty wiedzy - nazwa potoczna pierwsza, łacina obok. Bez
                         oceny warunków i bez identyfikacji ze zdjęcia.
                     </p>
                 </div>
@@ -63,10 +64,11 @@ import { atlasCards, atlasPack } from "../../data/atlas";
             </ul>
 
             <p class="caption" data-i18n="atlas.pendingNote">
-                Habitat, phenology i cytacje pojawią się po uzupełnieniu packa.
-                Lookaliki są już powiązane.
+                Cytacje i identyfikatory taksonomiczne możesz dodać później.
+                Podobne gatunki są już powiązane.
             </p>
         </main>
+        <QuietFooter />
         <ShellPrefs />
     </body>
 </html>

@@ -24,6 +24,7 @@ type Sample struct {
 	PrecipitationMM      *float64
 	SoilTemperature6cmC  *float64
 	SoilMoisture3To9cmM3 *float64
+	AirTemperature2mC    *float64
 }
 
 type Forecast struct {
@@ -47,6 +48,7 @@ type hourlyJSON struct {
 	Precipitation      []*float64 `json:"precipitation"`
 	SoilTemperature6cm []*float64 `json:"soil_temperature_6cm"`
 	SoilMoisture3To9cm []*float64 `json:"soil_moisture_3_to_9cm"`
+	Temperature2m      []*float64 `json:"temperature_2m"`
 }
 
 func ForecastURL(base string, latitude, longitude float64) (string, error) {
@@ -60,7 +62,7 @@ func ForecastURL(base string, latitude, longitude float64) (string, error) {
 	query := parsed.Query()
 	query.Set("latitude", strconv.FormatFloat(latitude, 'f', 6, 64))
 	query.Set("longitude", strconv.FormatFloat(longitude, 'f', 6, 64))
-	query.Set("hourly", "precipitation,soil_temperature_6cm,soil_moisture_3_to_9cm")
+	query.Set("hourly", "precipitation,soil_temperature_6cm,soil_moisture_3_to_9cm,temperature_2m")
 	query.Set("timezone", "Europe/Warsaw")
 	query.Set("past_days", "14")
 	query.Set("forecast_days", "2")
@@ -88,6 +90,9 @@ func ParseForecast(body []byte, requestURL string, fetchedAt time.Time, loc *tim
 	if err := sameLength("soil_moisture_3_to_9cm", n, len(hourly.SoilMoisture3To9cm)); err != nil {
 		return Forecast{}, err
 	}
+	if err := sameLength("temperature_2m", n, len(hourly.Temperature2m)); err != nil {
+		return Forecast{}, err
+	}
 
 	samples := make([]Sample, 0, n)
 	for i, raw := range hourly.Time {
@@ -98,6 +103,7 @@ func ParseForecast(body []byte, requestURL string, fetchedAt time.Time, loc *tim
 		precip := hourly.Precipitation[i]
 		soilT := hourly.SoilTemperature6cm[i]
 		soilM := hourly.SoilMoisture3To9cm[i]
+		airT := hourly.Temperature2m[i]
 		if err := validateSample(precip, soilM); err != nil {
 			return Forecast{}, fmt.Errorf("hour %s: %w", raw, err)
 		}
@@ -111,6 +117,7 @@ func ParseForecast(body []byte, requestURL string, fetchedAt time.Time, loc *tim
 			PrecipitationMM:      precip,
 			SoilTemperature6cmC:  soilT,
 			SoilMoisture3To9cmM3: soilM,
+			AirTemperature2mC:    airT,
 		})
 	}
 

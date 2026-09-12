@@ -11,21 +11,21 @@
     "gbif": null
   },
   "hymenophore": "pores",
-  "habitat": null,
-  "phenology": null,
+  "habitat": "Lasy iglaste i mieszane, często na uboższych, piaszczystych glebach; bywa pod sosną i świerkiem.",
+  "phenology": "Lato i jesień - sezon zbliżony do borowika szlachetnego.",
   "lookalikes": [
     {
       "slug": "boletus-edulis",
-      "note": "Borowik szlachetny — uzupełnij, czemu bywa mylony (pory, gorycz) z cytowanego źródła."
+      "note": "Borowik szlachetny: rurki kremowo-żółtawe (nie różowe), miąższ łagodny w smaku, siateczka delikatniejsza u góry trzonu."
     }
   ],
-  "protection_pl": null,
+  "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
   "citations": [],
   "art": {
-    "cap": null,
-    "hymenophore": null,
-    "stem": null,
-    "section": null,
+    "cap": "/atlas/art/v0/tylopilus-felleus.cap.svg",
+    "hymenophore": "/atlas/art/v0/tylopilus-felleus.hymenophore.svg",
+    "stem": "/atlas/art/v0/tylopilus-felleus.stem.svg",
+    "section": "/atlas/art/v0/tylopilus-felleus.section.svg",
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",

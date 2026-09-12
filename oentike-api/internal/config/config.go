@@ -9,6 +9,7 @@ type Config struct {
 	HTTPAddr     string
 	GRPCAddr     string
 	OpenMeteoURL string
+	BdlWFSURL    string
 }
 
 func Load() Config {
@@ -17,6 +18,7 @@ func Load() Config {
 		HTTPAddr:     valueOrDefault("HTTP_ADDR", ":8081"),
 		GRPCAddr:     valueOrDefault("GRPC_ADDR", ":8082"),
 		OpenMeteoURL: valueOrDefault("OPEN_METEO_URL", "https://api.open-meteo.com"),
+		BdlWFSURL:    valueOrDefault("BDL_WFS_URL", "https://wfs.bdl.lasy.gov.pl/geoserver/BDL/ows"),
 	}
 }
 

@@ -58,7 +58,7 @@
     "hymenophore": {
       "type": "string",
       "enum": ["pores", "gills", "other"],
-      "description": "Boletes must be pores — never gills."
+      "description": "Boletes must be pores - never gills."
     },
     "habitat": {
       "type": ["string", "null"],

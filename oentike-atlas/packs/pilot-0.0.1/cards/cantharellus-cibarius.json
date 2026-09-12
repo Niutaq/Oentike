@@ -1,0 +1,33 @@
+{
+  "slug": "cantharellus-cibarius",
+  "names": {
+    "pl": "Pieprznik jadalny (Kurka)",
+    "en": "Chanterelle"
+  },
+  "scientific_name": "Cantharellus cibarius",
+  "identifiers": {
+    "mycobank": null,
+    "index_fungorum": null,
+    "gbif": null
+  },
+  "hymenophore": "folds",
+  "habitat": "Lasy iglaste i liściaste, często pod sosnami i świerkami, w mchu lub pod opadłymi liśćmi.",
+  "phenology": "Bardzo wczesny grzyb - od czerwca aż do późnej jesieni (listopad).",
+  "lookalikes": [
+    {
+      "slug": "hygrophoropsis-aurantiaca",
+      "note": "Lisówka pomarańczowa (fałszywa kurka) - posiada prawdziwe, cienkie blaszki (a nie fałdy), cieńszy trzon i intensywniejszy pomarańczowy kolor."
+    }
+  ],
+  "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
+  "citations": [],
+  "art": {
+    "cap": "/atlas/art/v0/cantharellus-cibarius.cap.svg",
+    "hymenophore": "/atlas/art/v0/cantharellus-cibarius.hymenophore.svg",
+    "stem": "/atlas/art/v0/cantharellus-cibarius.stem.svg",
+    "section": "/atlas/art/v0/cantharellus-cibarius.section.svg",
+    "lookalike_plate": null
+  },
+  "pack_version": "0.0.1",
+  "reviewed_at": null
+}

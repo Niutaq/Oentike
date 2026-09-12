@@ -45,6 +45,45 @@ struct SeasonOut {
     days: Vec<SeasonDayOut>,
 }
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct CellSummaryOut {
+    id: String,
+    name: String,
+    lon: f64,
+    lat: f64,
+    west: f64,
+    south: f64,
+    east: f64,
+    north: f64,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SearchCellsOut {
+    cells: Vec<CellSummaryOut>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct EnsureCellOut {
+    cell: CellSummaryOut,
+    ingested: bool,
+}
+
+fn cell_summary_out(c: CellSummary) -> CellSummaryOut {
+    CellSummaryOut {
+        id: c.id,
+        name: c.name,
+        lon: c.lon,
+        lat: c.lat,
+        west: c.west,
+        south: c.south,
+        east: c.east,
+        north: c.north,
+    }
+}
+
 mod commands {
     use super::*;
 
@@ -147,6 +186,71 @@ mod commands {
             days,
         })
     }
+
+    #[tauri::command]
+    pub async fn search_cells_ui(
+        query: Option<String>,
+        limit: Option<i32>,
+        grpc_addr: Option<String>,
+    ) -> Result<SearchCellsOut, String> {
+        let grpc_addr =
+            grpc_addr.unwrap_or_else(|| "http://127.0.0.1:8082".to_string());
+        let endpoint = Endpoint::from_shared(grpc_addr)
+            .map_err(|e| format!("parse grpc endpoint: {e}"))?;
+
+        let mut client = conditions_service_client::ConditionsServiceClient::connect(endpoint)
+            .await
+            .map_err(|e| format!("connect grpc: {e}"))?;
+
+        let req = SearchCellsRequest {
+            query: query.unwrap_or_default(),
+            limit: limit.unwrap_or(0),
+        };
+
+        let resp = client
+            .search_cells(req)
+            .await
+            .map_err(|e| format!("grpc search_cells: {e}"))?
+            .into_inner();
+
+        let cells = resp
+            .cells
+            .into_iter()
+            .map(cell_summary_out)
+            .collect();
+
+        Ok(SearchCellsOut { cells })
+    }
+
+    #[tauri::command]
+    pub async fn ensure_cell_ui(
+        cell_id: String,
+        grpc_addr: Option<String>,
+    ) -> Result<EnsureCellOut, String> {
+        let grpc_addr =
+            grpc_addr.unwrap_or_else(|| "http://127.0.0.1:8082".to_string());
+        let endpoint = Endpoint::from_shared(grpc_addr)
+            .map_err(|e| format!("parse grpc endpoint: {e}"))?;
+
+        let mut client = conditions_service_client::ConditionsServiceClient::connect(endpoint)
+            .await
+            .map_err(|e| format!("connect grpc: {e}"))?;
+
+        let resp = client
+            .ensure_cell(EnsureCellRequest { cell_id })
+            .await
+            .map_err(|e| format!("grpc ensure_cell: {e}"))?
+            .into_inner();
+
+        let cell = resp
+            .cell
+            .ok_or_else(|| "grpc ensure_cell: missing cell".to_string())?;
+
+        Ok(EnsureCellOut {
+            cell: cell_summary_out(cell),
+            ingested: resp.ingested,
+        })
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -154,7 +258,9 @@ pub fn run() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             commands::get_conditions_ui,
-            commands::get_season_ui
+            commands::get_season_ui,
+            commands::search_cells_ui,
+            commands::ensure_cell_ui
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {

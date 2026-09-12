@@ -10,6 +10,10 @@ service ConditionsService {
   rpc GetConditions(GetConditionsRequest) returns (ConditionsResponse);
   // Last N Warsaw civil days for one cell - our scores only, no other regions.
   rpc GetSeason(GetSeasonRequest) returns (SeasonResponse);
+  // Prefix / substring search over BDL nadleśnictwa (forest_units).
+  rpc SearchCells(SearchCellsRequest) returns (SearchCellsResponse);
+  // Materialize a forest unit into cells and refresh weather if needed.
+  rpc EnsureCell(EnsureCellRequest) returns (EnsureCellResponse);
 }
 
 message GetConditionsRequest {
@@ -60,4 +64,37 @@ message SeasonResponse {
   string species_slug = 3;
   string algorithm_version = 4;
   repeated SeasonDay days = 5;
+}
+
+message SearchCellsRequest {
+  // Empty returns cells ordered by name (up to limit).
+  string query = 1;
+  // 0 means 20. Max 20.
+  int32 limit = 2;
+}
+
+message CellSummary {
+  string id = 1;
+  string name = 2;
+  // Centroid in WGS84.
+  double lon = 3;
+  double lat = 4;
+  // Bounding box in WGS84 for the map frame.
+  double west = 5;
+  double south = 6;
+  double east = 7;
+  double north = 8;
+}
+
+message SearchCellsResponse {
+  repeated CellSummary cells = 1;
+}
+
+message EnsureCellRequest {
+  string cell_id = 1;
+}
+
+message EnsureCellResponse {
+  CellSummary cell = 1;
+  bool ingested = 2;
 }
