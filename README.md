@@ -23,16 +23,30 @@ Local mushroom-conditions helper for Polish forests: explainable scores, a coars
 
 Pilot: searchable **BDL nadleśnictwa** (~429 after `task oentike:sync-bdl`), default **Nadleśnictwo Janów Lubelski** (`nadl-05-31`), species `boletus-edulis`. UI typeahead calls `SearchCells` over `forest_units`; selecting an area materializes it into `cells` and ingests Open-Meteo on demand (`EnsureCell` / `GetConditions`). Score color tracks 0-100 on the panel. `task oentike:ingest` refreshes weather for **materialized** cells only (`CELL=id` for one); while `serve` is up the background loop refreshes each due materialized cell about once an hour (skipped per cell if the last fetch is younger than 50 minutes). `GetConditions` scores with `oentike-conditions/0.1.0-boletus` when all three factors exist and returns `fetched_at` of that ingest. `GetSeason` returns the last 9 Warsaw days of **our** scores for the selected cell - empty days stay `unavailable`, never a fake Poland heatmap.
 
+## Quick Start
+
+If you have `mise` installed ([mise.jdx.dev](https://mise.jdx.dev)), you can set up and run the application with:
+
 ```bash
-task oentike:sync-bdl
-task dev
+mise install
+mise trust
+mise exec -- task setup
+mise exec -- task oentike:sync-bdl
+mise exec -- task dev
 ```
+*(If you have `mise` activated in your shell, you can simply run `task setup`, `task oentike:sync-bdl`, and `task dev`)*
+
+> **Note for Linux users:** Tauri requires specific system dependencies to compile the desktop app. On Ubuntu/Debian-based distributions, install them before running `task dev`:
+> ```bash
+> sudo apt update && sudo apt install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+> ```
+
 
 | What | Where |
 |---|---|
 | HTTP health / ready | `http://127.0.0.1:8081/healthz`, `/readyz` |
 | Conditions RPC | gRPC `:8082` `GetConditions`, `GetSeason`, `SearchCells`, `EnsureCell` |
-| PostGIS | `127.0.0.1:5432` database `oentike` |
+| PostGIS | `127.0.0.1:54321` database `oentike` |
 
 ```bash
 grpcurl -plaintext -d '{"cell_id":"nadl-05-31"}' \
@@ -66,12 +80,12 @@ Stop UI/API with `Ctrl+C`. Stop PostGIS with `task oentike:down`.
 
 ## Tooling
 
-Pinned in [`mise.toml`](./mise.toml): Go, Rust, protoc. `task --list` is the list.
+Pinned in [`mise.toml`](./mise.toml): Go, Rust, protoc, task. `task --list` is the list.
 
 ```bash
 mise install
 mise trust
-task --list
+mise exec -- task --list
 ```
 
 | Task | What |

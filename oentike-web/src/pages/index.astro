@@ -49,7 +49,7 @@ const factors = [
                             ? "dark"
                             : "light");
                     root.dataset.size =
-                        localStorage.getItem("oentike-size") || "medium";
+                        localStorage.getItem("oentike-size") || "large";
                     root.dataset.contrast =
                         localStorage.getItem("oentike-contrast") || "normal";
                     root.dataset.tempUnit =
@@ -58,7 +58,7 @@ const factors = [
                             : "C";
                 } catch {
                     root.dataset.theme = "light";
-                    root.dataset.size = "medium";
+                    root.dataset.size = "large";
                     root.dataset.contrast = "normal";
                     root.dataset.tempUnit = "C";
                 }
@@ -714,7 +714,7 @@ const factors = [
             function syncPreferences() {
                 const dark = root.dataset.theme === "dark";
                 const highContrast = root.dataset.contrast === "high";
-                const activeSize = root.dataset.size || "medium";
+                const activeSize = root.dataset.size || "large";
                 const sizeLabels = {
                     small: t("controls.small"),
                     medium: t("controls.medium"),

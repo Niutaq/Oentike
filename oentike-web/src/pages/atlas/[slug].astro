@@ -73,6 +73,36 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                         <dt data-i18n="atlas.hymenophore">Hymenofor</dt>
                         <dd data-i18n={`hymenophore.${card.hymenophore}`}>{card.hymenophore}</dd>
                     </div>
+                    {card.identifiers?.mycobank ? (
+                        <div>
+                            <dt>MycoBank</dt>
+                            <dd>
+                                <a href={`https://www.mycobank.org/name/${card.identifiers.mycobank}`} target="_blank" rel="noreferrer">
+                                    {card.identifiers.mycobank}
+                                </a>
+                            </dd>
+                        </div>
+                    ) : null}
+                    {card.identifiers?.index_fungorum ? (
+                        <div>
+                            <dt>Index Fungorum</dt>
+                            <dd>
+                                <a href={`https://www.indexfungorum.org/names/NamesRecord.asp?RecordID=${card.identifiers.index_fungorum}`} target="_blank" rel="noreferrer">
+                                    {card.identifiers.index_fungorum}
+                                </a>
+                            </dd>
+                        </div>
+                    ) : null}
+                    {card.identifiers?.gbif ? (
+                        <div>
+                            <dt>GBIF</dt>
+                            <dd>
+                                <a href={`https://www.gbif.org/species/${card.identifiers.gbif}`} target="_blank" rel="noreferrer">
+                                    {card.identifiers.gbif}
+                                </a>
+                            </dd>
+                        </div>
+                    ) : null}
                 </dl>
 
                 {
@@ -172,6 +202,27 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                             ilustracji.
                         </div>
                     )
+                }
+
+                {
+                    card.citations && card.citations.length > 0 ? (
+                        <section class="atlas-citations">
+                            <h2 data-i18n="atlas.citationsTitle">Źródła i cytacje</h2>
+                            <ul>
+                                {card.citations.map((citation) => (
+                                    <li>
+                                        {citation.url ? (
+                                            <a href={citation.url} target="_blank" rel="noreferrer">
+                                                {citation.label}
+                                            </a>
+                                        ) : (
+                                            citation.label
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+                    ) : null
                 }
 
                 {

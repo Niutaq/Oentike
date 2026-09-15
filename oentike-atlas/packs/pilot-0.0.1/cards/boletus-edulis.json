@@ -6,9 +6,9 @@
   },
   "scientific_name": "Boletus edulis",
   "identifiers": {
-    "mycobank": null,
-    "index_fungorum": null,
-    "gbif": null
+    "mycobank": "221297",
+    "index_fungorum": "221297",
+    "gbif": "5954874"
   },
   "hymenophore": "pores",
   "habitat": "Lasy iglaste i mieszane, często pod świerkiem, sosną i bukiem; gleby raczej kwaśne do świeżych, wilgotne po opadach.",
@@ -24,7 +24,16 @@
     }
   ],
   "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
-  "citations": [],
+  "citations": [
+    {
+      "label": "Index Fungorum (Record ID: 221297)",
+      "url": null
+    },
+    {
+      "label": "GBIF Secretariat: GBIF Backbone Taxonomy (Boletus edulis Bull., 1782)",
+      "url": null
+    }
+  ],
   "art": {
     "cap": "/atlas/art/v0/boletus-edulis.cap.svg",
     "hymenophore": "/atlas/art/v0/boletus-edulis.hymenophore.svg",
@@ -33,5 +42,5 @@
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",
-  "reviewed_at": null
+  "reviewed_at": "2026-09-15T12:00:00Z"
 }

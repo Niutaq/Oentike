@@ -17,14 +17,14 @@ import CustomCursor from "./CustomCursor.astro";
                     ? "dark"
                     : "light");
             root.dataset.size =
-                localStorage.getItem("oentike-size") || "medium";
+                localStorage.getItem("oentike-size") || "large";
             root.dataset.contrast =
                 localStorage.getItem("oentike-contrast") || "normal";
             root.dataset.tempUnit =
                 localStorage.getItem("oentike-temp-unit") === "F" ? "F" : "C";
         } catch {
             root.dataset.theme = "light";
-            root.dataset.size = "medium";
+            root.dataset.size = "large";
             root.dataset.contrast = "normal";
             root.dataset.tempUnit = "C";
         }
@@ -58,7 +58,7 @@ import CustomCursor from "./CustomCursor.astro";
     function syncPreferences() {
         const dark = root.dataset.theme === "dark";
         const highContrast = root.dataset.contrast === "high";
-        const activeSize = root.dataset.size || "medium";
+        const activeSize = root.dataset.size || "large";
         const sizeLabels = {
             small: t("controls.small"),
             medium: t("controls.medium"),
@@ -76,7 +76,7 @@ import CustomCursor from "./CustomCursor.astro";
             highContrast ? t("controls.contrastOff") : t("controls.contrastOn"),
         );
         sizeButtons.forEach((button) => {
-            const size = button.dataset.size || "medium";
+            const size = button.dataset.size || "large";
             button.setAttribute("aria-pressed", String(size === activeSize));
             button.setAttribute("aria-label", sizeLabels[size] || size);
         });
@@ -128,7 +128,7 @@ import CustomCursor from "./CustomCursor.astro";
     });
     sizeButtons.forEach((button) => {
         button.addEventListener("click", () => {
-            const size = button.dataset.size || "medium";
+            const size = button.dataset.size || "large";
             root.dataset.size = size;
             localStorage.setItem("oentike-size", size);
             syncPreferences();

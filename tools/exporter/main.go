@@ -34,7 +34,7 @@ type ForestData struct {
 }
 
 func main() {
-	dbURL := "postgres://oentike:oentike@127.0.0.1:5432/oentike?sslmode=disable"
+	dbURL := "postgres://oentike:oentike@127.0.0.1:54321/oentike?sslmode=disable"
 	db, err := sql.Open("pgx", dbURL)
 	if err != nil {
 		log.Fatalf("DB connect failed: %v", err)

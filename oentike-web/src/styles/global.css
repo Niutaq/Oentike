@@ -1,4 +1,5 @@
 :root {
+    --font-scale: 1;
     color-scheme: light;
     --background: #f6f5ef;
     --surface: #fffefa;
@@ -25,6 +26,7 @@
 }
 
 html[data-size="small"] {
+    --font-scale: 0.9;
     --content-width: 1020px;
     --header-height: 66px;
     --main-spacing: 46px;
@@ -35,13 +37,15 @@ html[data-size="small"] {
 }
 
 html[data-size="large"] {
-    --content-width: 1200px;
-    --header-height: 88px;
-    --main-spacing: 76px;
-    --card-padding: 48px;
-    --row-height: 78px;
-    --section-gap: 78px;
-    --title-size: 66px;
+    --font-scale: 1.45;
+     
+    --content-width: 1400px;
+    --header-height: 110px;
+    --main-spacing: 96px;
+    --card-padding: 64px;
+    --row-height: 96px;
+    --section-gap: 96px;
+    --title-size: 80px;
 }
 
 html[data-theme="dark"] {
@@ -194,7 +198,7 @@ svg {
     align-items: center;
     gap: 0;
     width: fit-content;
-    font-size: 18px;
+    font-size: calc(18px * var(--font-scale, 1));
     font-weight: 760;
     letter-spacing: -0.04em;
 }
@@ -233,7 +237,7 @@ svg {
     align-items: center;
     gap: 27px;
     color: var(--muted);
-    font-size: 12px;
+    font-size: calc(12px * var(--font-scale, 1));
     font-weight: 600;
 }
 
@@ -278,14 +282,14 @@ svg {
     height: 25px;
     border: 0;
     border-radius: 5px;
-    font-size: 8px;
+    font-size: calc(8px * var(--font-scale, 1));
     font-weight: 800;
 }
 
 .language-control button {
     border: 0;
     border-radius: 5px;
-    font-size: 7px;
+    font-size: calc(7px * var(--font-scale, 1));
     letter-spacing: 0.04em;
 }
 
@@ -438,7 +442,7 @@ main {
 .eyebrow {
     margin: 0 0 11px;
     color: var(--muted);
-    font-size: 9px;
+    font-size: calc(9px * var(--font-scale, 1));
     font-weight: 760;
     letter-spacing: 0.14em;
 }
@@ -466,7 +470,7 @@ h1 {
     max-width: 610px;
     margin-bottom: 0;
     color: var(--muted);
-    font-size: 14px;
+    font-size: calc(14px * var(--font-scale, 1));
     line-height: 1.65;
 }
 
@@ -480,7 +484,7 @@ h1 {
     border-radius: 8px;
     background: transparent;
     cursor: pointer;
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
     font-weight: 700;
     transition:
         border-color 150ms ease,
@@ -533,7 +537,7 @@ h1 {
     border-radius: 99px;
     color: var(--muted);
     background: var(--surface-muted);
-    font-size: 9px;
+    font-size: calc(9px * var(--font-scale, 1));
     font-weight: 700;
 }
 
@@ -547,7 +551,7 @@ h1 {
     max-width: 610px;
     margin-bottom: 29px;
     color: var(--muted);
-    font-size: 12px;
+    font-size: calc(12px * var(--font-scale, 1));
     line-height: 1.65;
 }
 
@@ -565,7 +569,7 @@ h1 {
 .metadata dt {
     margin-bottom: 4px;
     color: var(--muted);
-    font-size: 8px;
+    font-size: calc(8px * var(--font-scale, 1));
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -573,7 +577,7 @@ h1 {
 
 .metadata dd {
     margin: 0;
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
     font-weight: 650;
 }
 
@@ -596,7 +600,7 @@ h1 {
 .species-name small,
 .species-link small {
     color: var(--muted);
-    font-size: 8px;
+    font-size: calc(8px * var(--font-scale, 1));
     font-weight: 500;
     font-style: italic;
 }
@@ -630,7 +634,7 @@ h1 {
 }
 
 .score span {
-    font-size: 64px;
+    font-size: calc(64px * var(--font-scale, 1));
     font-weight: 520;
     letter-spacing: -0.08em;
     line-height: 0.9;
@@ -652,13 +656,13 @@ h1 {
 .score small {
     margin-top: 5px;
     color: rgba(255, 255, 255, 0.48);
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
 }
 
 .score p {
     margin: 22px 0 0;
     color: rgba(255, 255, 255, 0.67);
-    font-size: 9px;
+    font-size: calc(9px * var(--font-scale, 1));
     font-weight: 650;
 }
 
@@ -673,13 +677,13 @@ h1 {
 
 .section-title h2 {
     margin-bottom: 0;
-    font-size: 24px;
+    font-size: calc(24px * var(--font-scale, 1));
 }
 
 .section-title > p {
     margin-bottom: 2px;
     color: var(--muted);
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
 }
 
 .factor-list {
@@ -702,13 +706,13 @@ h1 {
 }
 
 .factor-row strong {
-    font-size: 12px;
+    font-size: calc(12px * var(--font-scale, 1));
 }
 
 .factor-row span,
 .factor-row small {
     color: var(--muted);
-    font-size: 9px;
+    font-size: calc(9px * var(--font-scale, 1));
 }
 
 .factor-row > p {
@@ -717,13 +721,13 @@ h1 {
     gap: 8px;
     margin: 0;
     color: var(--muted);
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
 }
 
 .factor-row > p b {
     margin-right: 0;
     color: var(--ink);
-    font-size: 17px;
+    font-size: calc(17px * var(--font-scale, 1));
 }
 
 .unit-toggle {
@@ -740,7 +744,7 @@ h1 {
     border-radius: 4px;
     color: var(--muted);
     background: transparent;
-    font-size: 8px;
+    font-size: calc(8px * var(--font-scale, 1));
     font-weight: 800;
     cursor: pointer;
 }
@@ -778,7 +782,7 @@ h1 {
 }
 
 .section-title.compact h2 {
-    font-size: 18px;
+    font-size: calc(18px * var(--font-scale, 1));
 }
 
 .tag {
@@ -814,7 +818,7 @@ h1 {
 }
 
 .cell-preview .maplibregl-ctrl-attrib {
-    font-size: 8px;
+    font-size: calc(8px * var(--font-scale, 1));
     background: color-mix(in srgb, var(--surface) 88%, transparent);
 }
 
@@ -822,7 +826,7 @@ h1 {
     padding: 2px 5px;
     color: #fff;
     background: var(--forest);
-    font-size: 8px;
+    font-size: calc(8px * var(--font-scale, 1));
     font-weight: 800;
     letter-spacing: 0.04em;
     pointer-events: none;
@@ -835,7 +839,7 @@ h1 {
 .caption {
     margin: 11px 0 0;
     color: var(--muted);
-    font-size: 9px;
+    font-size: calc(9px * var(--font-scale, 1));
 }
 
 .caption a {
@@ -867,13 +871,13 @@ h1 {
 
 .season h3 {
     margin: 0 0 4px;
-    font-size: 15px;
+    font-size: calc(15px * var(--font-scale, 1));
 }
 
 .season-range {
     margin: 0 0 14px;
     color: var(--muted);
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
     font-variant-numeric: tabular-nums;
     font-weight: 650;
 }
@@ -912,7 +916,7 @@ h1 {
 .season-score {
     min-height: 12px;
     color: var(--muted);
-    font-size: 9px;
+    font-size: calc(9px * var(--font-scale, 1));
     font-weight: 750;
     font-variant-numeric: tabular-nums;
     line-height: 1;
@@ -950,20 +954,20 @@ h1 {
     align-items: center;
     gap: 2px;
     color: var(--muted);
-    font-size: 8px;
+    font-size: calc(8px * var(--font-scale, 1));
     font-variant-numeric: tabular-nums;
     line-height: 1;
 }
 
 .season-weekday {
-    font-size: 7px;
+    font-size: calc(7px * var(--font-scale, 1));
     letter-spacing: 0.03em;
     text-transform: lowercase;
 }
 
 .season-date {
     color: var(--ink);
-    font-size: 8px;
+    font-size: calc(8px * var(--font-scale, 1));
     font-weight: 700;
 }
 
@@ -993,7 +997,7 @@ h1 {
 .atlas-teaser-link {
     display: inline-block;
     color: var(--ink);
-    font-size: 13px;
+    font-size: calc(13px * var(--font-scale, 1));
     font-weight: 750;
     letter-spacing: -0.02em;
     text-decoration: none;
@@ -1038,13 +1042,13 @@ h1 {
 
 .source-row strong {
     margin-bottom: 4px;
-    font-size: 11px;
+    font-size: calc(11px * var(--font-scale, 1));
 }
 
 .source-row small,
 .source-row b {
     color: var(--muted);
-    font-size: 8px;
+    font-size: calc(8px * var(--font-scale, 1));
 }
 
 .source-row b.connected {
@@ -1067,7 +1071,7 @@ footer {
     padding-top: 22px;
     border-top: var(--border-width) solid var(--line);
     color: var(--muted);
-    font-size: 9px;
+    font-size: calc(9px * var(--font-scale, 1));
 }
 
 .footer-copy {
@@ -1106,7 +1110,7 @@ footer {
     padding: 28px 20px 40px;
     max-width: 42rem;
     color: var(--muted);
-    font-size: 9px;
+    font-size: calc(9px * var(--font-scale, 1));
 }
 
 .site-footer-quiet a {
@@ -1141,7 +1145,7 @@ footer p {
     width: fit-content;
     cursor: pointer;
     list-style: none;
-    font-size: 8px;
+    font-size: calc(8px * var(--font-scale, 1));
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -1198,7 +1202,7 @@ footer p {
     }
 
     h1 {
-        font-size: 42px;
+        font-size: calc(42px * var(--font-scale, 1));
     }
 
     .condition-card {
@@ -1217,7 +1221,7 @@ footer p {
     }
 
     .score span {
-        font-size: 50px;
+        font-size: calc(50px * var(--font-scale, 1));
     }
 
     .score p {
@@ -1291,21 +1295,21 @@ footer p {
 
 .atlas-row strong {
     display: block;
-    font-size: 16px;
+    font-size: calc(16px * var(--font-scale, 1));
 }
 
 .atlas-row em {
     display: block;
     margin-top: 3px;
     color: var(--muted);
-    font-size: 11px;
+    font-size: calc(11px * var(--font-scale, 1));
     font-style: italic;
     font-weight: 500;
 }
 
 .atlas-row-meta {
     color: var(--orange);
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -1313,7 +1317,7 @@ footer p {
 
 .atlas-back {
     margin: 0 0 28px;
-    font-size: 11px;
+    font-size: calc(11px * var(--font-scale, 1));
     font-weight: 650;
 }
 
@@ -1325,7 +1329,7 @@ footer p {
 .atlas-latin {
     margin: 0 0 28px;
     color: var(--muted);
-    font-size: 14px;
+    font-size: calc(14px * var(--font-scale, 1));
     font-style: italic;
 }
 
@@ -1339,7 +1343,7 @@ footer p {
 .atlas-meta dt {
     margin-bottom: 4px;
     color: var(--muted);
-    font-size: 8px;
+    font-size: calc(8px * var(--font-scale, 1));
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -1347,7 +1351,7 @@ footer p {
 
 .atlas-meta dd {
     margin: 0;
-    font-size: 12px;
+    font-size: calc(12px * var(--font-scale, 1));
     font-weight: 650;
 }
 
@@ -1358,7 +1362,7 @@ footer p {
     border: var(--border-width) dashed var(--line);
     border-radius: 8px;
     color: var(--muted);
-    font-size: 12px;
+    font-size: calc(12px * var(--font-scale, 1));
     line-height: 1.55;
     background: var(--surface-muted);
 }
@@ -1369,7 +1373,7 @@ footer p {
 
 .atlas-art-plate h2 {
     margin: 0 0 12px;
-    font-size: 14px;
+    font-size: calc(14px * var(--font-scale, 1));
 }
 
 .atlas-art-grid {
@@ -1397,7 +1401,7 @@ footer p {
 .atlas-art-grid figcaption {
     margin-top: 6px;
     color: var(--muted);
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
     font-weight: 650;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -1416,7 +1420,7 @@ footer p {
 .atlas-lookalikes h2,
 .atlas-body h2 {
     margin: 0 0 12px;
-    font-size: 14px;
+    font-size: calc(14px * var(--font-scale, 1));
 }
 
 .atlas-lookalikes ul {
@@ -1430,7 +1434,7 @@ footer p {
     gap: 4px;
     padding: 12px 0;
     border-top: var(--border-width) solid var(--line);
-    font-size: 12px;
+    font-size: calc(12px * var(--font-scale, 1));
 }
 
 .atlas-lookalikes li span {
@@ -1440,7 +1444,7 @@ footer p {
 
 .atlas-conditions-link a {
     color: var(--orange);
-    font-size: 12px;
+    font-size: calc(12px * var(--font-scale, 1));
     font-weight: 700;
 }
 
@@ -1546,7 +1550,7 @@ html[data-theme="dark"] .native-select {
 .area-suggestions li {
     padding: 8px 12px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: calc(12px * var(--font-scale, 1));
     font-weight: 600;
     color: var(--ink);
 }
@@ -1555,4 +1559,24 @@ html[data-theme="dark"] .native-select {
 .area-suggestions li:focus-visible {
     background: var(--surface-muted);
     color: var(--orange);
+}
+
+.atlas-citations {
+    margin-top: var(--section-gap);
+    padding-top: var(--card-padding);
+    border-top: var(--border-width) solid var(--line);
+}
+.atlas-citations h2 {
+    font-size: 16px;
+    margin-bottom: 12px;
+}
+.atlas-citations ul {
+    list-style: disc;
+    padding-left: 20px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 11px;
+}
+.atlas-citations li {
+    margin-bottom: 6px;
 }

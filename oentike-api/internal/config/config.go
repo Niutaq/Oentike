@@ -2,7 +2,7 @@ package config
 
 import "os"
 
-const defaultDatabaseURL = "postgres://oentike:oentike@localhost:5432/oentike?sslmode=disable"
+const defaultDatabaseURL = "postgres://oentike:oentike@localhost:54321/oentike?sslmode=disable"
 
 type Config struct {
 	DatabaseURL  string

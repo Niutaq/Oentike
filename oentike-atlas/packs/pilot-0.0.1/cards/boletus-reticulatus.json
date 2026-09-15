@@ -6,9 +6,9 @@
   },
   "scientific_name": "Boletus reticulatus",
   "identifiers": {
-    "mycobank": null,
-    "index_fungorum": null,
-    "gbif": null
+    "mycobank": "200521",
+    "index_fungorum": "200521",
+    "gbif": "5954691"
   },
   "hymenophore": "pores",
   "habitat": "Ciepłe lasy liściaste i mieszane, często pod dębem i bukiem; lubi cieplejsze, prześwietlone stanowiska.",
@@ -20,7 +20,16 @@
     }
   ],
   "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
-  "citations": [],
+  "citations": [
+    {
+      "label": "Index Fungorum (Record ID: 200521)",
+      "url": null
+    },
+    {
+      "label": "GBIF Secretariat: GBIF Backbone Taxonomy (Boletus reticulatus Schaeff.)",
+      "url": null
+    }
+  ],
   "art": {
     "cap": "/atlas/art/v0/boletus-reticulatus.cap.svg",
     "hymenophore": "/atlas/art/v0/boletus-reticulatus.hymenophore.svg",
@@ -29,5 +38,5 @@
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",
-  "reviewed_at": null
+  "reviewed_at": "2026-09-15T12:00:00Z"
 }

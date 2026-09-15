@@ -86,8 +86,16 @@ tasks:
     deps: [oentike:serve, oentike:dev-ui]
 
   setup:
-    desc: "Install web dependencies (and Rust via rustup if missing)"
+    desc: "Install web dependencies (and Rust via rustup if missing, and check Linux sysdeps)"
     cmds:
+      - |
+        if [ "$(uname -s)" = "Linux" ]; then
+          if ! command -v pkg-config >/dev/null 2>&1 || ! pkg-config --exists javascriptcoregtk-4.1; then
+            echo "ERROR: Missing Tauri Linux system dependencies (e.g. libwebkit2gtk-4.1-dev)."
+            echo "Please run: sudo apt update && sudo apt install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev"
+            exit 1
+          fi
+        fi
       - |
         if ! command -v cargo >/dev/null 2>&1 && [ ! -f "$HOME/.cargo/bin/cargo" ]; then
           echo "Installing Rust via rustup..."

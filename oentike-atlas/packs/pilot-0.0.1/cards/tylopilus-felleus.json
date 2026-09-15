@@ -6,9 +6,9 @@
   },
   "scientific_name": "Tylopilus felleus",
   "identifiers": {
-    "mycobank": null,
-    "index_fungorum": null,
-    "gbif": null
+    "mycobank": "122480",
+    "index_fungorum": "122480",
+    "gbif": "2524910"
   },
   "hymenophore": "pores",
   "habitat": "Lasy iglaste i mieszane, często na uboższych, piaszczystych glebach; bywa pod sosną i świerkiem.",
@@ -20,7 +20,16 @@
     }
   ],
   "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
-  "citations": [],
+  "citations": [
+    {
+      "label": "Index Fungorum (Record ID: 122480)",
+      "url": null
+    },
+    {
+      "label": "GBIF Secretariat: GBIF Backbone Taxonomy (Tylopilus felleus)",
+      "url": null
+    }
+  ],
   "art": {
     "cap": "/atlas/art/v0/tylopilus-felleus.cap.svg",
     "hymenophore": "/atlas/art/v0/tylopilus-felleus.hymenophore.svg",
@@ -29,5 +38,5 @@
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",
-  "reviewed_at": null
+  "reviewed_at": "2026-09-15T12:00:00Z"
 }
