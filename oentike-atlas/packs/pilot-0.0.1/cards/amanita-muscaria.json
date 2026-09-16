@@ -1,0 +1,28 @@
+{
+    "slug": "amanita-muscaria",
+    "names": {
+        "pl": "TODO",
+        "en": "TODO"
+    },
+    "scientific_name": "Amanita muscaria (L.) Lam.",
+    "hymenophore": "TODO",
+    "habitat": null,
+    "phenology": null,
+    "lookalikes": [],
+    "protection_pl": null,
+    "citations": [
+        {
+            "label": "GBIF Backbone Taxonomy",
+            "url": "https://www.gbif.org/species/8168319"
+        }
+    ],
+    "art": {
+        "cap": null,
+        "hymenophore": null,
+        "stem": null,
+        "section": null,
+        "lookalike_plate": null
+    },
+    "pack_version": "pilot-0.0.1",
+    "reviewed_at": "2026-09-16T09:45:41.289Z"
+}

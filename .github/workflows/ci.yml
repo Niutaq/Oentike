@@ -1,0 +1,53 @@
+name: Oentike CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.27'
+          
+      - name: Run Go Tests
+        working-directory: ./oentike-api
+        run: go test -v ./...
+        
+      - name: Install gofumpt
+        run: go install mvdan.cc/gofumpt@latest
+        
+      - name: Check Formatting
+        working-directory: ./oentike-api
+        run: |
+          UNFORMATTED=$(gofumpt -l .)
+          if [ -n "$UNFORMATTED" ]; then
+            echo "The following files are not formatted with gofumpt:"
+            echo "$UNFORMATTED"
+            exit 1
+          fi
+
+  frontend-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          
+      - name: Install Dependencies
+        working-directory: ./oentike-web
+        run: npm ci
+        
+      - name: Build and Validate (Astro + Zod)
+        working-directory: ./oentike-web
+        run: npm run build

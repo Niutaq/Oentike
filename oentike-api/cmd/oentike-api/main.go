@@ -14,6 +14,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/proto"
 
 	"oentike-api/internal/bdl"
 	"oentike-api/internal/conditions"
@@ -132,7 +133,9 @@ func serve(cfg config.Config) error {
 	if err != nil {
 		return fmt.Errorf("listen gRPC %s: %w", cfg.GRPCAddr, err)
 	}
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(networkInterceptor),
+	)
 	conditionsv1.RegisterConditionsServiceServer(grpcServer, conditions.NewServer(store, store, weather))
 	reflection.Register(grpcServer)
 
@@ -177,4 +180,35 @@ func shutdownServers(httpServer *http.Server, grpcServer *grpc.Server) {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	_ = httpServer.Shutdown(shutdownCtx)
+}
+
+func networkInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	start := time.Now()
+
+	reqSize := 0
+	if p, ok := req.(proto.Message); ok {
+		reqSize = proto.Size(p)
+	}
+
+	res, err := handler(ctx, req)
+	duration := time.Since(start)
+
+	resSize := 0
+	if p, ok := res.(proto.Message); ok {
+		resSize = proto.Size(p)
+	}
+
+	fmt.Printf("\n--- [NETWORK | LAYER 7] NEW gRPC PACKET ---\n")
+	fmt.Printf("Method: %s\n", info.FullMethod)
+	fmt.Printf("Latency: %v\n", duration)
+	fmt.Printf("Payload Size (Protobuf): Req: %d bytes | Res: %d bytes\n", reqSize, resSize)
+
+	if err != nil {
+		fmt.Printf("Status: ERROR (%v)\n", err)
+	} else {
+		fmt.Printf("Status: SUCCESS (HTTP/2)\n")
+	}
+	fmt.Printf("-------------------------------------------\n\n")
+
+	return res, err
 }

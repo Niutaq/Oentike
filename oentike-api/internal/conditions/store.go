@@ -11,18 +11,20 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var ErrCellNotFound = errors.New("cell not found")
-var ErrForestUnitNotFound = errors.New("forest unit not found")
+var (
+	ErrCellNotFound       = errors.New("cell not found")
+	ErrForestUnitNotFound = errors.New("forest unit not found")
+)
 
 type Cell struct {
-	ID    string
-	Name  string
-	Lon   float64
-	Lat   float64
-	West  float64
-	South float64
-	East  float64
-	North float64
+	ID         string
+	Name       string
+	Lon        float64
+	Lat        float64
+	West       float64
+	South      float64
+	East       float64
+	North      float64
 	HabitatFit float64
 }
 

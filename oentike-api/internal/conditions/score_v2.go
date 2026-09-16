@@ -53,27 +53,27 @@ func scoreBoletusV2(cellID, targetDate string, snap FactorSnapshotV2) (ScoreResu
 	}
 
 	payload := struct {
-		Algorithm      string  `json:"algorithm"`
-		CellID         string  `json:"cell_id"`
-		SpeciesSlug    string  `json:"species_slug"`
-		TargetDate     string  `json:"target_date"`
-		Precip14d      float64 `json:"precip_14d"`
-		Precip3d       float64 `json:"precip_3d"`
-		SoilTemp       float64 `json:"soil_temp_6cm"`
-		SoilMoisture   float64 `json:"soil_moisture_3_9cm"`
-		AirTempMin     float64 `json:"air_temp_min_2m"`
-		HabitatFit     float64 `json:"habitat_fit"`
+		Algorithm    string  `json:"algorithm"`
+		CellID       string  `json:"cell_id"`
+		SpeciesSlug  string  `json:"species_slug"`
+		TargetDate   string  `json:"target_date"`
+		Precip14d    float64 `json:"precip_14d"`
+		Precip3d     float64 `json:"precip_3d"`
+		SoilTemp     float64 `json:"soil_temp_6cm"`
+		SoilMoisture float64 `json:"soil_moisture_3_9cm"`
+		AirTempMin   float64 `json:"air_temp_min_2m"`
+		HabitatFit   float64 `json:"habitat_fit"`
 	}{
-		Algorithm:      algorithmVersionV2,
-		CellID:         cellID,
-		SpeciesSlug:    pilotSpeciesV2,
-		TargetDate:     targetDate,
-		Precip14d:      *snap.Precipitation14dMM,
-		Precip3d:       *snap.Precipitation3dMM,
-		SoilTemp:       *snap.SoilTemperatureC,
-		SoilMoisture:   *snap.SoilMoistureM3M3,
-		AirTempMin:     *snap.AirTempMin2mC,
-		HabitatFit:     *snap.HabitatFit,
+		Algorithm:    algorithmVersionV2,
+		CellID:       cellID,
+		SpeciesSlug:  pilotSpeciesV2,
+		TargetDate:   targetDate,
+		Precip14d:    *snap.Precipitation14dMM,
+		Precip3d:     *snap.Precipitation3dMM,
+		SoilTemp:     *snap.SoilTemperatureC,
+		SoilMoisture: *snap.SoilMoistureM3M3,
+		AirTempMin:   *snap.AirTempMin2mC,
+		HabitatFit:   *snap.HabitatFit,
 	}
 
 	raw, err := json.Marshal(payload)

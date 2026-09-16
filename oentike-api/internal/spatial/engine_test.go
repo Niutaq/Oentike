@@ -14,10 +14,10 @@ func TestEngine_FindCell(t *testing.T) {
 	defer engine.Close()
 
 	tests := []struct {
-		name     string
-		lon      float64
-		lat      float64
-		wantID   string
+		name      string
+		lon       float64
+		lat       float64
+		wantID    string
 		wantFound bool
 	}{
 		{"Center of Janow (nadl-05-31)", 22.37771, 50.70819, "nadl-05-31", true},

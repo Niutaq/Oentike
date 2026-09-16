@@ -7,26 +7,30 @@ import luteus from "../../../oentike-atlas/packs/pilot-0.0.1/cards/suillus-luteu
 import sulphureus from "../../../oentike-atlas/packs/pilot-0.0.1/cards/laetiporus-sulphureus.json";
 import pack from "../../../oentike-atlas/packs/pilot-0.0.1/pack.json";
 
-export type AtlasCard = {
-    slug: string;
-    names: { pl: string; en: string };
-    scientific_name: string | null;
-    hymenophore: string;
-    habitat: string | null;
-    phenology: string | null;
-    lookalikes: { slug: string; note: string }[];
-    protection_pl: string | null;
-    citations: { label: string; url: string | null }[];
-    art: {
-        cap: string | null;
-        hymenophore: string | null;
-        stem: string | null;
-        section: string | null;
-        lookalike_plate: string | null;
-    };
-    pack_version: string;
-    reviewed_at: string | null;
-};
+import { z } from "zod";
+
+export const AtlasCardSchema = z.object({
+    slug: z.string(),
+    names: z.object({ pl: z.string(), en: z.string() }),
+    scientific_name: z.string().nullable(),
+    hymenophore: z.string(),
+    habitat: z.string().nullable(),
+    phenology: z.string().nullable(),
+    lookalikes: z.array(z.object({ slug: z.string(), note: z.string() })),
+    protection_pl: z.string().nullable(),
+    citations: z.array(z.object({ label: z.string(), url: z.string().nullable() })),
+    art: z.object({
+        cap: z.string().nullable(),
+        hymenophore: z.string().nullable(),
+        stem: z.string().nullable(),
+        section: z.string().nullable(),
+        lookalike_plate: z.string().nullable(),
+    }),
+    pack_version: z.string(),
+    reviewed_at: z.string().nullable(),
+});
+
+export type AtlasCard = z.infer<typeof AtlasCardSchema>;
 
 export const artViewOrder = [
     "cap",
@@ -50,13 +54,13 @@ export function cardArtViews(card: AtlasCard) {
 export const atlasPack = pack;
 
 export const atlasCards: AtlasCard[] = [
-    edulis as AtlasCard,
-    felleus as AtlasCard,
-    cibarius as AtlasCard,
-    procera as AtlasCard,
-    luteus as AtlasCard,
-    sulphureus as AtlasCard,
-    reticulatus as AtlasCard,
+    AtlasCardSchema.parse(edulis),
+    AtlasCardSchema.parse(felleus),
+    AtlasCardSchema.parse(cibarius),
+    AtlasCardSchema.parse(procera),
+    AtlasCardSchema.parse(luteus),
+    AtlasCardSchema.parse(sulphureus),
+    AtlasCardSchema.parse(reticulatus),
 ];
 
 export function getAtlasCard(slug: string): AtlasCard | undefined {
