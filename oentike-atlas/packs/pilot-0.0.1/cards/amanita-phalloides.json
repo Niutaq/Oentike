@@ -1,0 +1,41 @@
+{
+    "slug": "amanita-phalloides",
+    "names": {
+        "pl": "Muchomor zielonawy (sromotnikowy)",
+        "en": "Death Cap"
+    },
+    "scientific_name": "Amanita phalloides (Vaill. ex Fr.) Link",
+    "hymenophore": "gills",
+    "habitat": [
+        "Lasy liściaste, rzadziej iglaste",
+        "Szczególnie pod dębami, bukami, grabami"
+    ],
+    "phenology": [
+        "Lipiec",
+        "Sierpień",
+        "Wrzesień",
+        "Październik",
+        "Listopad"
+    ],
+    "lookalikes": [
+        "macrolepiota-procera",
+        "agaricus-campestris",
+        "tricholoma-equestre"
+    ],
+    "protection_pl": null,
+    "citations": [
+        {
+            "label": "GBIF Backbone Taxonomy",
+            "url": "https://www.gbif.org/species/5240325"
+        }
+    ],
+    "art": {
+        "cap": null,
+        "hymenophore": null,
+        "stem": null,
+        "section": null,
+        "lookalike_plate": null
+    },
+    "pack_version": "pilot-0.0.1",
+    "reviewed_at": "2026-09-21T11:14:27.000Z"
+}

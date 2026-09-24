@@ -18,6 +18,16 @@ services:
       retries: 15
       start_period: 5s
 
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: oentike-jaeger
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+
 volumes:
   postgis-data:
     name: oentike-postgis-data

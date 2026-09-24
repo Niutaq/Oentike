@@ -23,7 +23,10 @@ import (
 	"oentike-api/internal/database"
 	"oentike-api/internal/httpapi"
 	"oentike-api/internal/ingest"
+	"oentike-api/internal/telemetry"
 	"oentike-api/migrations"
+
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 )
 
 func main() {
@@ -107,6 +110,19 @@ func serve(cfg config.Config) error {
 	startupCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	tp, err := telemetry.InitProvider(startupCtx, "127.0.0.1:4317", "oentike-api")
+	if err != nil {
+		log.Printf("Failed to initialize telemetry: %v", err)
+	} else {
+		defer func() {
+			shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer shutdownCancel()
+			if err := tp.Shutdown(shutdownCtx); err != nil {
+				log.Printf("Error shutting down tracer provider: %v", err)
+			}
+		}()
+	}
+
 	db, err := database.Open(startupCtx, cfg.DatabaseURL)
 	if err != nil {
 		return err
@@ -134,6 +150,7 @@ func serve(cfg config.Config) error {
 		return fmt.Errorf("listen gRPC %s: %w", cfg.GRPCAddr, err)
 	}
 	grpcServer := grpc.NewServer(
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.UnaryInterceptor(networkInterceptor),
 	)
 	conditionsv1.RegisterConditionsServiceServer(grpcServer, conditions.NewServer(store, store, weather))

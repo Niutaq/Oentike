@@ -1,0 +1,38 @@
+{
+    "slug": "imleria-badia",
+    "names": {
+        "pl": "Podgrzybek brunatny",
+        "en": "Bay Bolete"
+    },
+    "scientific_name": "Imleria badia (Fr.) Vizzini",
+    "hymenophore": "pores",
+    "habitat": [
+        "Lasy iglaste i mieszane",
+        "Często pod sosnami i świerkami"
+    ],
+    "phenology": [
+        "Sierpień",
+        "Wrzesień",
+        "Październik",
+        "Listopad"
+    ],
+    "lookalikes": [
+        "tylopilus-felleus"
+    ],
+    "protection_pl": null,
+    "citations": [
+        {
+            "label": "GBIF Backbone Taxonomy",
+            "url": "https://www.gbif.org/species/7832732"
+        }
+    ],
+    "art": {
+        "cap": null,
+        "hymenophore": null,
+        "stem": null,
+        "section": null,
+        "lookalike_plate": null
+    },
+    "pack_version": "pilot-0.0.1",
+    "reviewed_at": "2026-09-21T11:14:02.917Z"
+}
