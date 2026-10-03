@@ -1,4 +1,5 @@
 fn main() {
+    println!("cargo:rerun-if-env-changed=OENTIKE_PACK_PUBLIC_KEY_HEX");
     println!("cargo:rerun-if-changed=../../oentike-proto/conditions.proto");
 
     println!("cargo:rerun-if-changed=icons/icon.icns");

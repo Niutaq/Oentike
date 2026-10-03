@@ -64,26 +64,34 @@ Stop UI/API with `Ctrl+C`. Stop PostGIS with `task oentike:down`.
 
 ---
 
-## Tooling
+## Quick start
 
-Pinned in [`mise.toml`](./mise.toml): Go, Rust, protoc. `task --list` is the list.
+Install Docker with Compose and the platform prerequisites for Tauri (on macOS: Xcode Command Line Tools). With mise installed:
 
 ```bash
-mise install
 mise trust
-task --list
+mise install
+./oentike doctor
+./oentike setup
+./oentike dev
 ```
 
-| Task | What |
+`setup` uses `npm ci` and the committed lockfile. Run it after web dependency changes; daily startup does not install packages. `mise.toml` includes Node and Task as well as Go/Rust/protoc. The launcher uses `mise exec` when available and otherwise uses tools already on PATH. It also works when invoked from another directory.
+
+Generated protobuf bindings are committed; ordinary startup does not regenerate them. After changing `conditions.proto`, use `task oentike:proto`. Full BDL import remains explicit: `task oentike:sync-bdl`.
+
+| Command | Purpose |
 |---|---|
-| `dev` | Proto + migrate + API + Tauri |
-| `oentike:up` / `oentike:down` | Start / stop PostGIS |
-| `oentike:migrate` | Goose migrations |
-| `oentike:proto` | Generate gRPC stubs |
-| `oentike:sync-bdl` | Pull BDL `Nadleśnictwa` into `forest_units` (~429) |
-| `oentike:api` | Health `:8081` + gRPC `:8082` (hourly Open-Meteo ingest in the background) |
-| `oentike:ingest` | One-shot Open-Meteo for materialized cells → `ingest_runs` + `weather_samples` |
-| `oentike:test` | Go tests |
-| `oentike:ui` | Desktop only (`FRESH=1` clears Tauri cache) |
-| `setup` | npm + rustup if missing |
-| `clean` | `cargo clean` in Tauri (after moving the repo) |
+| `./oentike` / `./oentike dev` | Start PostGIS, migrate, run API and desktop UI |
+| `./oentike doctor` | Check required tools, Compose and Docker daemon without installing |
+| `./oentike setup` | Install web dependencies from lockfile |
+| `./oentike check` | Go tests, atlas validation and production UI build (no DB required) |
+| `./oentike atlas` | Check all cards, cross-references and SVG assets |
+| `./oentike bench` | Repeat deterministic spatial/scoring benchmarks three times |
+| `./oentike stop` | Stop PostGIS; stop the foreground dev processes with Ctrl+C |
+| `task oentike:ingest` | Refresh materialized cells (`CELL=id` for one) |
+| `task oentike:ui` | Desktop only; `FRESH=1` explicitly clears build cache |
+
+The atlas now contains 11 cards. New cards include linked sources; older cards still need editorial review. See [atlas workflow](./oentike-atlas/README.md), [performance measurements](./docs/PERFORMANCE.md) and [development roadmap](./docs/ROADMAP.md).
+
+The current conditions screen still needs the local API and online map tiles. A standalone offline expedition pack is the next functional milestone, not a capability claimed by this release.

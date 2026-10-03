@@ -9,7 +9,12 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "test:field": "node --test tests/expedition.test.mjs",
+    "test:field:browser": "npm run build && playwright test",
+    "astro": "astro",
+    "atlas:check": "node scripts/check-atlas.mjs",
+    "prebuild": "npm run atlas:check",
+    "perf:assets": "node scripts/asset-sizes.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.11.1",
@@ -19,6 +24,9 @@
     "maplibre-gl": "^6.7.0"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.11.0"
+    "@playwright/test": "^1.63.0",
+    "@tauri-apps/cli": "^2.11.0",
+    "ajv": "^8.17.1",
+    "fake-indexeddb": "^6.2.5"
   }
 }

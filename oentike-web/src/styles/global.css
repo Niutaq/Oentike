@@ -1176,7 +1176,8 @@ footer p {
     }
 
     .site-header nav {
-        display: none;
+        display: flex;
+        flex-wrap: wrap;
     }
 
     .ux-controls {

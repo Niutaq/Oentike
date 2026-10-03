@@ -24,7 +24,16 @@
     }
   ],
   "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
-  "citations": [],
+  "citations": [
+    {
+      "label": "MycoBank",
+      "url": "https://www.mycobank.org/page/Name%20details%20page/name/Boletus%20edulis"
+    },
+    {
+      "label": "Index Fungorum",
+      "url": "http://www.indexfungorum.org/names/names.asp?strSort=Boletus%20edulis"
+    }
+  ],
   "art": {
     "cap": "/atlas/art/v0/boletus-edulis.cap.svg",
     "hymenophore": "/atlas/art/v0/boletus-edulis.hymenophore.svg",
@@ -33,5 +42,5 @@
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",
-  "reviewed_at": null
+  "reviewed_at": "2026-09-24"
 }

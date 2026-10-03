@@ -15,7 +15,16 @@
   "phenology": "Głównie wiosna i lato (od maja do września).",
   "lookalikes": [],
   "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
-  "citations": [],
+  "citations": [
+    {
+      "label": "MycoBank",
+      "url": "https://www.mycobank.org/page/Name%20details%20page/name/Laetiporus%20sulphureus"
+    },
+    {
+      "label": "Index Fungorum",
+      "url": "http://www.indexfungorum.org/names/names.asp?strSort=Laetiporus%20sulphureus"
+    }
+  ],
   "art": {
     "cap": "/atlas/art/v0/laetiporus-sulphureus.cap.svg",
     "hymenophore": "/atlas/art/v0/laetiporus-sulphureus.hymenophore.svg",
@@ -24,5 +33,5 @@
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",
-  "reviewed_at": null
+  "reviewed_at": "2026-09-24"
 }

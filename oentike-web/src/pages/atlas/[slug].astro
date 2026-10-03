@@ -22,7 +22,7 @@ if (!card) {
     return Astro.redirect("/atlas");
 }
 
-const hasBody = Boolean(card.habitat || card.phenology || card.protection_pl);
+const hasBody = Boolean(card.description || card.habitat || card.phenology || card.protection_pl);
 const artViews = cardArtViews(card);
 const artLabels: Record<string, { pl: string; en: string }> = {
     cap: { pl: "Kapelusz", en: "Cap" },
@@ -78,6 +78,12 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                 {
                     hasBody ? (
                         <div class="atlas-body">
+                            {card.description ? (
+                                <section>
+                                    <h2 data-name-pl="Opis" data-name-en="Description">Opis</h2>
+                                    <p>{card.description}</p>
+                                </section>
+                            ) : null}
                             {card.habitat ? (
                                 <section>
                                     <h2 data-i18n="atlas.habitat">Siedlisko</h2>
@@ -107,7 +113,7 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                     )
                 }
 
-                <section class="atlas-lookalikes">
+                {card.lookalikes.length > 0 && (<section class="atlas-lookalikes">
                     <h2 data-i18n="atlas.lookalikes">Podobne gatunki</h2>
                     <ul>
                         {
@@ -130,7 +136,7 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                             ))
                         }
                     </ul>
-                </section>
+                </section>)}
 
                 {
                     artViews.length ? (
@@ -142,7 +148,7 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                                         <figure>
                                             <img
                                                 src={view.src}
-                                                alt=""
+                                                alt={`${card.names.pl} — ${artLabels[view.key]?.pl || view.key}; ilustracja schematyczna`}
                                                 width="512"
                                                 height="512"
                                                 loading="lazy"
@@ -173,6 +179,17 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                         </div>
                     )
                 }
+
+                {card.citations.length > 0 && (
+                    <section class="atlas-sources">
+                        <h2 data-name-pl="Źródła" data-name-en="Sources">Źródła</h2>
+                        <ul>
+                            {card.citations.map((citation) => (
+                                <li>{citation.url ? <a href={citation.url} rel="noreferrer">{citation.label}</a> : citation.label}</li>
+                            ))}
+                        </ul>
+                    </section>
+                )}
 
                 {
                     card.slug === "boletus-edulis" ? (

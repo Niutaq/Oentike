@@ -2,11 +2,15 @@
   "id": "oentike-atlas-pilot",
   "version": "0.0.1",
   "signed": false,
-  "description": "Pilot atlas pack: porcini + two lookalikes. Unsigned schema only.",
+  "description": "Development atlas: 7 species with linked comparisons and original SVG plates. Unsigned; human review pending.",
   "card_schema": "../../schema/card.schema.json",
   "cards": [
     "cards/boletus-edulis.json",
-    "cards/tylopilus-felleus.json",
-    "cards/boletus-reticulatus.json"
+    "cards/boletus-reticulatus.json",
+    "cards/cantharellus-cibarius.json",
+    "cards/laetiporus-sulphureus.json",
+    "cards/macrolepiota-procera.json",
+    "cards/suillus-luteus.json",
+    "cards/tylopilus-felleus.json"
   ]
 }

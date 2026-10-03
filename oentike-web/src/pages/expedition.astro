@@ -1,0 +1,117 @@
+---
+import "../styles/global.css";
+import SiteHeader from "../components/SiteHeader.astro";
+import ShellPrefs from "../components/ShellPrefs.astro";
+import QuietFooter from "../components/QuietFooter.astro";
+---
+<!doctype html>
+<html lang="pl">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/svg+xml" href="/oentike-logo.svg" />
+        <title>Oentike — Wyprawa</title>
+    </head>
+    <body data-i18n-title="fieldTitle">
+        <SiteHeader active="expedition" />
+        <main class="field-page">
+            <section class="intro">
+                <div>
+                    <p class="eyebrow" data-field="eyebrow">W TERENIE</p>
+                    <h1 data-field="heading">Ślad prowadzi z powrotem.</h1>
+                    <p class="lead" data-field="lead">Zapisz parking i zbieraj ślad wyprawy. Wszystko pozostaje na tym urządzeniu.</p>
+                </div>
+                <span class="tag" data-field="local">Dziennik lokalny</span>
+            </section>
+            <p id="field-status" class="field-status" role="status" aria-live="polite">Otwieranie dziennika…</p>
+            <div class="field-grid">
+                <aside>
+                    <section class="field-card">
+                        <h2 data-field="newTrip">Nowa wyprawa</h2>
+                        <form id="trip-form">
+                            <fieldset id="trip-fields" disabled>
+                                <label><span data-field="name">Nazwa wyprawy</span><input id="trip-name" required maxlength="80" autocomplete="off" /></label>
+                                <label><span data-field="latitude">Szerokość geograficzna</span><input id="parking-lat" type="number" step="any" min="-90" max="90" required /></label>
+                                <label><span data-field="longitude">Długość geograficzna</span><input id="parking-lon" type="number" step="any" min="-180" max="180" required /></label>
+                                <p class="field-note" data-field="parkingHint"></p>
+                                <button id="locate-parking" type="button" data-field="locate">Wstaw obecną lokalizację</button>
+                                <button type="submit" class="field-primary" data-field="create">Zapisz parking i utwórz wyprawę</button>
+                            </fieldset>
+                        </form>
+                    </section>
+                    <section class="field-card">
+                        <h2 data-field="trips">Twoje wyprawy</h2>
+                        <label for="trip-select" data-field="choose">Wybierz wyprawę</label>
+                        <select id="trip-select" disabled></select>
+                        <p class="field-note" id="parking-coordinates"></p>
+                        <button id="protect-storage" type="button" data-field="persist" disabled></button>
+                        <p id="storage-status" class="field-note" role="status"></p>
+                    </section>
+                </aside>
+                <section class="field-card field-trail">
+                    <h2 id="active-trip" data-field="empty">Zapisz parking, aby rozpocząć.</h2>
+                    <div class="field-actions">
+                        <button id="record" type="button" class="field-primary" disabled data-field="start">Rejestruj ślad</button>
+                        <button id="pause" type="button" disabled data-field="pause">Wstrzymaj</button>
+                        <button id="export-trip" type="button" disabled data-field="export">Eksportuj GeoJSON</button>
+                    </div>
+                    <p class="field-note" data-field="foreground"></p>
+                    <figure>
+                        <figcaption data-field="diagram">Szkic śladu · północ u góry</figcaption>
+                        <svg id="trail-sketch" viewBox="0 0 600 400" role="img" aria-labelledby="sketch-title">
+                            <title id="sketch-title">Szkic śladu</title>
+                            <defs><pattern id="field-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" class="grid-line" /></pattern></defs>
+                            <rect width="600" height="400" fill="url(#field-grid)" stroke="none" />
+                            <text x="565" y="30" class="sketch-label">N ↑</text>
+                            <g id="trail-lines"></g>
+                            <g id="trail-markers"></g>
+                        </svg>
+                        <p class="field-note" data-field="diagramHint"></p>
+                    </figure>
+                    <dl class="field-metrics">
+                        <div><dt data-field="trail"></dt><dd id="trail-distance">—</dd></div>
+                        <div><dt data-field="direct"></dt><dd id="parking-distance">—</dd></div>
+                        <div><dt data-field="azimuth"></dt><dd id="parking-bearing">—</dd></div>
+                        <div><dt data-field="samples"></dt><dd id="sample-count">0</dd></div>
+                        <div><dt data-field="last"></dt><dd id="last-sample">—</dd></div>
+                        <div><dt data-field="accuracy"></dt><dd id="sample-accuracy">—</dd></div>
+                    </dl>
+                    <p class="field-note" data-field="metricsHint"></p>
+                </section>
+            </div>
+            <p class="field-note" data-field="privacy"></p>
+        </main>
+        <QuietFooter />
+        <ShellPrefs />
+        <script src="../expedition/ui.ts"></script>
+    </body>
+</html>
+<style>
+    .field-page { padding-bottom: 40px; }
+    h1 { max-width: 760px; }
+    .field-grid { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr); gap: 24px; }
+    aside { display: grid; align-content: start; gap: 24px; }
+    .field-card { padding: 24px; border: var(--border-width) solid var(--line); border-radius: 12px; background: var(--surface); min-width: 0; }
+    h2 { font-size: 20px; margin: 0 0 20px; overflow-wrap: anywhere; }
+    fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 14px; min-width: 0; }
+    label { display: grid; gap: 7px; font-size: 12px; }
+    input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid var(--line); border-radius: 6px; background: var(--background); color: var(--ink); font: inherit; }
+    button { padding: 12px 14px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-muted); cursor: pointer; font-size: 12px; min-height: 44px; }
+    button:disabled { opacity: .5; cursor: default; }
+    button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--orange); outline-offset: 3px; }
+    .field-primary { background: var(--forest); color: #fffefa; }
+    .field-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .field-note { font-size: 12px; line-height: 1.6; color: var(--muted); }
+    .field-status { padding: 14px 18px; border-left: 3px solid var(--orange); background: var(--surface-muted); font-size: 14px; line-height: 1.5; }
+    .field-status[data-error="true"] { border-color: var(--error); color: var(--error); }
+    figure { margin: 24px 0; }
+    figcaption { font-size: 12px; margin-bottom: 12px; }
+    #trail-sketch { width: 100%; height: auto; background: var(--background); border-radius: 8px; }
+    .grid-line { stroke: var(--line); stroke-width: .5; }
+    .sketch-label { fill: var(--muted); stroke: none; font-size: 14px; }
+    .field-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+    dt { color: var(--muted); font-size: 12px; }
+    dd { margin: 8px 0 0; font-size: 22px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    #last-sample { font-size: 14px; }
+    @media (max-width: 850px) { .field-grid { grid-template-columns: 1fr; } }
+</style>

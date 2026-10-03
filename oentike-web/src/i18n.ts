@@ -1,6 +1,7 @@
 export const resources = {
     pl: {
         translation: {
+            fieldTitle: "Oentike — Wyprawa",
             meta: {
                 title: "Oentike",
                 description: "Przejrzysta analiza warunków grzybowych dla polskich lasów.",
@@ -8,6 +9,7 @@ export const resources = {
                 navigation: "Główna nawigacja",
             },
             nav: {
+                expedition: "Wyprawa",
                 conditions: "Warunki",
                 area: "Obszar",
                 sources: "Źródła",
@@ -119,7 +121,7 @@ export const resources = {
                 lead: "Karty wiedzy - nazwa potoczna pierwsza, łacina obok. Bez oceny warunków i bez identyfikacji ze zdjęcia.",
                 openCard: "Karta",
                 pendingNote:
-                    "Cytacje i identyfikatory taksonomiczne możesz dodać później. Podobne gatunki są już powiązane.",
+                    "Ilustracje są schematyczne. Źródła opisów znajdziesz na kartach gatunków.",
                 back: "← Atlas",
                 cardEyebrow: "KARTA GATUNKU",
                 hymenophore: "Hymenofor",
@@ -139,6 +141,7 @@ export const resources = {
     },
     en: {
         translation: {
+            fieldTitle: "Oentike — Expedition",
             meta: {
                 title: "Oentike - mushroom conditions",
                 description: "Explainable mushroom conditions for Polish forests.",
@@ -146,6 +149,7 @@ export const resources = {
                 navigation: "Main navigation",
             },
             nav: {
+                expedition: "Expedition",
                 conditions: "Conditions",
                 area: "Area",
                 sources: "Sources",
@@ -257,7 +261,7 @@ export const resources = {
                 lead: "Knowledge cards - common name first, Latin beside it. No condition score and no photo ID.",
                 openCard: "Card",
                 pendingNote:
-                    "Citations and taxonomic IDs can be added later. Lookalikes are already linked.",
+                    "Illustrations are schematic. Sources are listed on species cards.",
                 back: "← Atlas",
                 cardEyebrow: "SPECIES CARD",
                 hymenophore: "Hymenophore",

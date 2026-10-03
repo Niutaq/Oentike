@@ -24,7 +24,7 @@ tasks:
   oentike:api:
     desc: "Run the Oentike API (HTTP health :8081, gRPC conditions :8082)"
     silent: true
-    deps: [oentike:proto, oentike:migrate]
+    deps: [oentike:migrate]
     cmds:
       - task: oentike:serve
 
@@ -34,7 +34,7 @@ tasks:
     dir: oentike-api
     cmds:
       - |
-        if curl --fail --silent http://127.0.0.1:8081/readyz >/dev/null; then
+        if curl --fail --silent --max-time 2 http://127.0.0.1:8081/readyz >/dev/null; then
           echo "Oentike API is already ready on http://127.0.0.1:8081"
         else
           go run ./cmd/oentike-api serve
@@ -77,7 +77,7 @@ tasks:
   dev:
     desc: "Run the complete Oentike development system (backend and UI)"
     silent: true
-    deps: [oentike:proto, oentike:migrate]
+    deps: [oentike:migrate]
     cmds:
       - task: oentike:run
 
@@ -85,19 +85,61 @@ tasks:
     internal: true
     deps: [oentike:serve, oentike:dev-ui]
 
-  setup:
-    desc: "Install web dependencies (and Rust via rustup if missing)"
+  default:
+    desc: "Show available commands"
     cmds:
-      - |
-        if ! command -v cargo >/dev/null 2>&1 && [ ! -f "$HOME/.cargo/bin/cargo" ]; then
-          echo "Installing Rust via rustup..."
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-        fi
-      - |
-        if [ ! -d "oentike-web/node_modules" ]; then
-          echo "Installing web dependencies..."
-          cd oentike-web && env -u npm_config_devdir npm install --silent --no-audit --no-fund
-        fi
+      - task --list
+
+  doctor:
+    desc: "Check local tools and Docker without installing anything"
+    cmds:
+      - sh scripts/doctor.sh
+
+  field:
+    desc: "Open the local expedition journal in Tauri (no API or Docker)"
+    dir: oentike-web
+    preconditions:
+      - sh: test -x node_modules/.bin/tauri
+        msg: "Run ./oentike setup first."
+    cmds:
+      - env -u npm_config_devdir npx tauri dev --config src-tauri/tauri.field.conf.json
+
+  setup:
+    desc: "Install locked web dependencies once (after mise install)"
+    dir: oentike-web
+    cmds:
+      - env -u npm_config_devdir npm ci --no-audit --no-fund
+
+  atlas:
+    desc: "Validate atlas schema, references and SVG assets"
+    dir: oentike-web
+    cmds:
+      - npm run atlas:check
+
+  check:
+    desc: "Run API tests, atlas validation and production UI build"
+    cmds:
+      - task: oentike:test
+      - task: oentike:field-test
+      - task: oentike:build
+
+  oentike:field-test:
+    desc: "Test expedition journal transactions, recovery and spatial calculations"
+    dir: oentike-web
+    cmds:
+      - npm run test:field
+
+  oentike:build:
+    desc: "Validate atlas and build the UI"
+    dir: oentike-web
+    cmds:
+      - npm run build
+
+  bench:
+    desc: "Measure spatial lookup and scoring on deterministic data"
+    dir: oentike-api
+    cmds:
+      - go test ./internal/spatial ./internal/conditions -run '^$' -bench . -benchmem -count=3
 
   clean:
     desc: "Remove stale Tauri/Cargo build artifacts (run after moving the repo)"
@@ -129,8 +171,10 @@ tasks:
   oentike:ui:
     desc: "Launch the Oentike desktop UI. Use FRESH=1 to reset cache."
     silent: true
+    preconditions:
+      - sh: test -x oentike-web/node_modules/.bin/astro
+        msg: "Run ./oentike setup to install UI dependencies first."
     cmds:
-      - cd oentike-web && env -u npm_config_devdir npm install --silent --no-audit --no-fund
       - cd oentike-web && env -u npm_config_devdir npx astro dev stop >/dev/null 2>&1 || true
       - |
         if [ "{{.FRESH}}" = "1" ]; then
@@ -145,11 +189,10 @@ tasks:
     silent: true
     cmds:
       - |
-        attempts=0
-        until curl --fail --silent http://127.0.0.1:8081/readyz >/dev/null; do
-          attempts=$((attempts + 1))
-          if [ "$attempts" -ge 80 ]; then
-            echo "Oentike API did not become ready within 20 seconds." >&2
+        deadline=$(( $(date +%s) + 120 ))
+        until curl --fail --silent --max-time 2 http://127.0.0.1:8081/readyz >/dev/null; do
+          if [ "$(date +%s)" -ge "$deadline" ]; then
+            echo "Oentike API did not become ready within 120 seconds (including Go compilation)." >&2
             exit 1
           fi
           sleep 0.25

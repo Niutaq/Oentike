@@ -20,7 +20,16 @@
     }
   ],
   "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
-  "citations": [],
+  "citations": [
+    {
+      "label": "MycoBank",
+      "url": "https://www.mycobank.org/page/Name%20details%20page/name/Tylopilus%20felleus"
+    },
+    {
+      "label": "Index Fungorum",
+      "url": "http://www.indexfungorum.org/names/names.asp?strSort=Tylopilus%20felleus"
+    }
+  ],
   "art": {
     "cap": "/atlas/art/v0/tylopilus-felleus.cap.svg",
     "hymenophore": "/atlas/art/v0/tylopilus-felleus.hymenophore.svg",
@@ -29,5 +38,5 @@
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",
-  "reviewed_at": null
+  "reviewed_at": "2026-09-24"
 }

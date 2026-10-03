@@ -1,5 +1,7 @@
 tonic::include_proto!("oentike.conditions");
 
+mod packs;
+
 use serde::Serialize;
 use tonic::transport::Endpoint;
 
@@ -260,7 +262,9 @@ pub fn run() {
             commands::get_conditions_ui,
             commands::get_season_ui,
             commands::search_cells_ui,
-            commands::ensure_cell_ui
+            commands::ensure_cell_ui,
+            packs::import_offline_pack,
+            packs::get_offline_pack
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {

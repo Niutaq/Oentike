@@ -1,10 +1,3 @@
-import edulis from "../../../oentike-atlas/packs/pilot-0.0.1/cards/boletus-edulis.json";
-import reticulatus from "../../../oentike-atlas/packs/pilot-0.0.1/cards/boletus-reticulatus.json";
-import felleus from "../../../oentike-atlas/packs/pilot-0.0.1/cards/tylopilus-felleus.json";
-import cibarius from "../../../oentike-atlas/packs/pilot-0.0.1/cards/cantharellus-cibarius.json";
-import procera from "../../../oentike-atlas/packs/pilot-0.0.1/cards/macrolepiota-procera.json";
-import luteus from "../../../oentike-atlas/packs/pilot-0.0.1/cards/suillus-luteus.json";
-import sulphureus from "../../../oentike-atlas/packs/pilot-0.0.1/cards/laetiporus-sulphureus.json";
 import pack from "../../../oentike-atlas/packs/pilot-0.0.1/pack.json";
 
 export type AtlasCard = {
@@ -12,6 +5,7 @@ export type AtlasCard = {
     names: { pl: string; en: string };
     scientific_name: string | null;
     hymenophore: string;
+    description?: string | null;
     habitat: string | null;
     phenology: string | null;
     lookalikes: { slug: string; note: string }[];
@@ -49,15 +43,17 @@ export function cardArtViews(card: AtlasCard) {
 
 export const atlasPack = pack;
 
-export const atlasCards: AtlasCard[] = [
-    edulis as AtlasCard,
-    felleus as AtlasCard,
-    cibarius as AtlasCard,
-    procera as AtlasCard,
-    luteus as AtlasCard,
-    sulphureus as AtlasCard,
-    reticulatus as AtlasCard,
-];
+const modules = import.meta.glob<AtlasCard>(
+    "../../../oentike-atlas/packs/pilot-0.0.1/cards/*.json",
+    { eager: true, import: "default" },
+);
+
+// The manifest is the single source of truth for both routes and validation.
+export const atlasCards: AtlasCard[] = pack.cards.map((file) => {
+    const card = modules[`../../../oentike-atlas/packs/pilot-0.0.1/${file}`];
+    if (!card) throw new Error(`Atlas manifest references missing card: ${file}`);
+    return card;
+}).sort((a, b) => a.names.pl.localeCompare(b.names.pl, "pl"));
 
 export function getAtlasCard(slug: string): AtlasCard | undefined {
     return atlasCards.find((card) => card.slug === slug);
