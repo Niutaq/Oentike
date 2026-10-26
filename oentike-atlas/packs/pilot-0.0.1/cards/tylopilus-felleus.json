@@ -1,5 +1,11 @@
 {
   "slug": "tylopilus-felleus",
+  "edibility": {
+    "status": "inedible",
+    "note_pl": "Niejadalny ze względu na silną gorycz.",
+    "note_en": "Inedible due to intense bitterness.",
+    "source": "https://www.first-nature.com/fungi/tylopilus-felleus.php"
+  },
   "names": {
     "pl": "Goryczak żółciowy",
     "en": "Bitter bolete"

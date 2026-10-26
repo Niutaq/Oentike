@@ -20,6 +20,10 @@ test("all atlas cards translate their body, comparisons and illustration descrip
             expect(pack.cards).toContain(`cards/${item.slug}.json`);
         }
         const images = page.locator(".atlas-art-grid img");
+        await expect(images).toHaveCount(4);
+        expect(await images.evaluateAll(nodes => nodes.map(node => node.getAttribute('src')))).toEqual(
+            ['cap', 'stem', 'section', 'hymenophore'].map(view => `/atlas/art/v0/${card.slug}.${view}.svg`),
+        );
         for (const img of await images.all()) {
             await expect(img).toHaveAttribute("alt", /schematic illustration/);
             await img.scrollIntoViewIfNeeded();

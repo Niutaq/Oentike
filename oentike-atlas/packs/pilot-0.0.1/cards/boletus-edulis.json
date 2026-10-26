@@ -1,5 +1,11 @@
 {
   "slug": "boletus-edulis",
+  "edibility": {
+    "status": "edible",
+    "note_pl": "Gatunek jadalny po prawidłowym rozpoznaniu i odpowiednim przygotowaniu.",
+    "note_en": "Edible species only after correct identification and appropriate preparation.",
+    "source": "https://www.first-nature.com/fungi/boletus-edulis.php"
+  },
   "names": {
     "pl": "Borowik szlachetny",
     "en": "Porcini"

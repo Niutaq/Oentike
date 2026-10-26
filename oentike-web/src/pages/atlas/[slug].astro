@@ -3,6 +3,7 @@ import "../../styles/global.css";
 import SiteHeader from "../../components/SiteHeader.astro";
 import ShellPrefs from "../../components/ShellPrefs.astro";
 import QuietFooter from "../../components/QuietFooter.astro";
+import EdibilityBadge from '../../components/EdibilityBadge.astro';
 import {
     atlasCards,
     getAtlasCard,
@@ -69,6 +70,14 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                 }
 
                 <dl class="atlas-meta">
+                    <div class="atlas-safety">
+                        <dt data-name-pl="Jadalność i toksyczność" data-name-en="Edibility and toxicity">Jadalność i toksyczność</dt>
+                        <dd>
+                            <EdibilityBadge safety={card.edibility} />
+                            <p data-name-pl={card.edibility.note_pl} data-name-en={card.edibility.note_en}>{card.edibility.note_pl}</p>
+                            <a href={card.edibility.source} target="_blank" rel="noreferrer" data-name-pl="Źródło klasyfikacji" data-name-en="Classification source">Źródło klasyfikacji</a>
+                        </dd>
+                    </div>
                     <div>
                         <dt data-i18n="atlas.hymenophore">Hymenofor</dt>
                         <dd data-i18n={`hymenophore.${card.hymenophore}`}>{card.hymenophore}</dd>
@@ -223,37 +232,13 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                     </section>
                 )}
 
-                {
-                    card.citations && card.citations.length > 0 ? (
-                        <section class="atlas-citations">
-                            <h2 data-i18n="atlas.citationsTitle">Źródła i cytacje</h2>
-                            <ul>
-                                {card.citations.map((citation) => (
-                                    <li>
-                                        {citation.url ? (
-                                            <a href={citation.url} target="_blank" rel="noreferrer">
-                                                {citation.label}
-                                            </a>
-                                        ) : (
-                                            citation.label
-                                        )}
-                                    </li>
-                                ))}
-                            </ul>
-                        </section>
-                    ) : null
-                }
-
-                {
-                    card.slug === "boletus-edulis" ? (
                         <p class="atlas-conditions-link">
-                            <a href="/#warunki" data-i18n="atlas.toConditions">
-                                Zobacz warunki dla borowika
+                            <a href={`/?species=${card.slug}#warunki`} data-name-pl="Wybierz ten gatunek w warunkach" data-name-en="Select this species in conditions">
+                                Wybierz ten gatunek w warunkach
                             </a>
                         </p>
-                    ) : null
-                }
                 <p class="caption" data-i18n="atlas.pendingNote"></p>
+                <p class="caption" data-name-pl="Ikona nie potwierdza rozpoznania znalezionego okazu. Nie spożywaj grzybów na podstawie atlasu; w razie wątpliwości skonsultuj okaz z grzyboznawcą." data-name-en="The icon does not confirm identification of a found specimen. Do not eat mushrooms based on this atlas; consult a qualified mushroom expert if unsure.">Ikona nie potwierdza rozpoznania znalezionego okazu. Nie spożywaj grzybów na podstawie atlasu; w razie wątpliwości skonsultuj okaz z grzyboznawcą.</p>
             </article>
         </main>
         <QuietFooter />

@@ -1589,3 +1589,7 @@ html[data-theme="dark"] .native-select {
 .atlas-citations li {
     margin-bottom: 6px;
 }
+/* Species picker uses the same restrained palette as the area controls. */
+#species-select{font:inherit;color:inherit;background:var(--surface,transparent);border:1px solid currentColor;border-radius:4px;padding:.45rem .5rem;max-width:100%;width:100%;}
+#species-model-note{display:block;margin-top:.4rem;font-size:.78rem;line-height:1.4;}
+.species-name{min-width:0;}

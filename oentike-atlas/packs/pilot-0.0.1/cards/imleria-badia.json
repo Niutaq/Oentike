@@ -1,5 +1,11 @@
 {
   "slug": "imleria-badia",
+  "edibility": {
+    "status": "edible",
+    "note_pl": "Gatunek jadalny po prawidłowym rozpoznaniu i odpowiednim przygotowaniu.",
+    "note_en": "Edible species only after correct identification and appropriate preparation.",
+    "source": "https://www.first-nature.com/fungi/imleria-badia.php"
+  },
   "names": {
     "pl": "Podgrzybek brunatny",
     "en": "Bay bolete"
@@ -35,10 +41,10 @@
     }
   ],
   "art": {
-    "cap": null,
-    "hymenophore": null,
-    "stem": null,
-    "section": null,
+    "cap": "/atlas/art/v0/imleria-badia.cap.svg",
+    "hymenophore": "/atlas/art/v0/imleria-badia.hymenophore.svg",
+    "stem": "/atlas/art/v0/imleria-badia.stem.svg",
+    "section": "/atlas/art/v0/imleria-badia.section.svg",
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",

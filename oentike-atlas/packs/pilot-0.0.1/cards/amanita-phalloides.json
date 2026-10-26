@@ -1,5 +1,11 @@
 {
   "slug": "amanita-phalloides",
+  "edibility": {
+    "status": "deadly",
+    "note_pl": "Grzyb śmiertelnie trujący. Nie spożywaj.",
+    "note_en": "Deadly poisonous mushroom. Do not eat.",
+    "source": "https://www.gov.pl/attachment/d10eb276-e3f5-4c2b-8ebf-407ba6a4d693"
+  },
   "names": {
     "pl": "Muchomor zielonawy (sromotnikowy)",
     "en": "Death cap"
@@ -40,9 +46,9 @@
   ],
   "art": {
     "cap": "/atlas/art/v0/amanita-phalloides.cap.svg",
-    "hymenophore": null,
-    "stem": null,
-    "section": null,
+    "hymenophore": "/atlas/art/v0/amanita-phalloides.hymenophore.svg",
+    "stem": "/atlas/art/v0/amanita-phalloides.stem.svg",
+    "section": "/atlas/art/v0/amanita-phalloides.section.svg",
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",

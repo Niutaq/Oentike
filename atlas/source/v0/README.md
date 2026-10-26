@@ -1,14 +1,47 @@
-# Atlas artwork — 2026-10-04
+# Atlas artwork
+
+## Anatomical plates — 2026-10-08
+
+Every card now contains four separate SVG views: cap exterior, entire stem with base, longitudinal section, and underside/hymenophore. The six completed sets use original botanical engravings generated with the built-in `image_gen` tool, using the existing Boletus edulis illustrations as the visual quality reference (`style-reference.png`). All 24 RGBA source images are saved under `anatomical/`; the complete prompt set and generation method are recorded in `anatomical-prompts.json`. Each image was traced with `tools/trace-atlas.py --size 1536 --detail`, which preserves fine hatch strokes, avoids median smoothing and uses tighter Potrace curve tolerances. The resulting SVGs contain actual paths and three color layers, without embedded rasters, fonts, scripts or external references. The remaining seven existing complete sets are preserved.
+
+The four earlier whole-specimen SVGs are preserved here as `SPECIES.portrait.svg` alongside their source PNGs. Their `cap.svg` paths now serve newly illustrated cap-focused portraits in the style of the existing bolete plates. Each stem, section and hymenophore plate is separately generated; these are not crops or color masks of the cap portrait. Old portrait PNGs must not be regenerated over the new anatomical plates.
+
+Anatomical references and drawing choices (descriptions consulted; no tracing of source photographs):
+
+- [Amanita muscaria — Tom Volk, University of Wisconsin](https://botit.botany.wisc.edu/toms_fungi/amusc.html): cap with veil warts, free gills, skirt ring and bulb with concentric veil remnants; no sack-like volva.
+- [Amanita phalloides — Michael Kuo](https://www.mushroomexpert.com/amanita_phalloides.html): smooth cap, free close gills, skirt ring and sack-like volva; white unchanging cut flesh.
+- [Chlorophyllum rhacodes — First Nature](https://www.first-nature.com/fungi/chlorophyllum-rhacodes.php): shaggy cap scales, free gills, double ring, bulbous smooth stem without snakeskin markings; orange accent at cut surfaces represents reddening.
+- [Hygrophoropsis aurantiaca — Michael Kuo](https://www.mushroomexpert.com/hygrophoropsis_aurantiaca.html): shallowly depressed cap, fine repeatedly forked decurrent true gills, slender ringless stem and thin cut flesh.
+- [Suillus granulatus — Michael Kuo](https://www.mushroomexpert.com/suillus_granulatus.html): smooth sticky cap, small pores with occasional milky droplets, short tubes, glandular dots near the apex of a ringless stem.
+- [Imleria badia — Michael Kuo](https://www.mushroomexpert.com/imleria_badia.html): smooth convex cap, small pores and tubes, longitudinally wrinkled stem without a reticulate net or ring.
+
+Print colors are deliberately schematic. Shapes and views still require human mycological review; they are not an identification key and no review date is set by generation.
+
+Regenerate one anatomical SVG from its saved source:
+
+```sh
+python3 tools/trace-atlas.py atlas/source/v0/anatomical/amanita-phalloides.cap.png atlas/art/v0/amanita-phalloides.cap.svg --size 1536 --detail
+cp atlas/art/v0/amanita-phalloides.cap.svg oentike-web/public/atlas/art/v0/amanita-phalloides.cap.svg
+./oentike atlas
+```
+
+Render a comparison sheet from actual SVGs (requires installed Playwright Chromium):
+
+```sh
+cd oentike-web && node scripts/preview-atlas.mjs
+```
+
+## Archived portrait sources — 2026-10-04
 
 Generated with the built-in `image_gen` tool, then traced with `tools/trace-atlas.py` (OpenCV palette quantisation and Potrace curves). Source PNGs preserve alpha. The SVGs have three colour layers: `form-light`, `accent`, `ink-shade`; these are colour masks, not anatomical segmentation. Original existing illustrations were not replaced. All four new images are schematic whole-specimen portraits and still require human mycological review.
 
 Regenerate a vector from the saved PNG:
 
 ```sh
-python3 tools/trace-atlas.py atlas/source/v0/SPECIES.png atlas/art/v0/SPECIES.cap.svg
+python3 tools/trace-atlas.py atlas/source/v0/SPECIES.png /tmp/SPECIES.portrait.svg
 ```
 
-Copy the SVG to the identical path under `oentike-web/public/` and run `./oentike atlas`.
+The PNGs regenerate whole-specimen portraits only. Do not use these as replacements for the four anatomical views in the cards.
 
 ## Prompts
 

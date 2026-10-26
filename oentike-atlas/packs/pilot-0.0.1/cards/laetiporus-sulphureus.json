@@ -1,5 +1,11 @@
 {
   "slug": "laetiporus-sulphureus",
+  "edibility": {
+    "status": "conditional",
+    "note_pl": "Wymaga odpowiedniego przygotowania; u części osób może wywołać dolegliwości. Nie spożywaj surowych owocników.",
+    "note_en": "Requires appropriate preparation; may cause adverse reactions in some people. Do not eat raw fruitbodies.",
+    "source": "https://www.first-nature.com/fungi/laetiporus-sulphureus.php"
+  },
   "names": {
     "pl": "Żółciak siarkowy",
     "en": "Chicken of the woods"

@@ -1,5 +1,11 @@
 {
   "slug": "chlorophyllum-rhacodes",
+  "edibility": {
+    "status": "disputed",
+    "note_pl": "Oceny jadalności są rozbieżne; opisywano zatrucia. Nie zalecamy spożywania.",
+    "note_en": "Edibility assessments differ; poisoning has been reported. Consumption is not recommended.",
+    "source": "https://www.first-nature.com/fungi/chlorophyllum-rhacodes.php"
+  },
   "names": {
     "pl": "Czubajka czerwieniejąca",
     "en": "Shaggy parasol"
@@ -44,9 +50,9 @@
   ],
   "art": {
     "cap": "/atlas/art/v0/chlorophyllum-rhacodes.cap.svg",
-    "hymenophore": null,
-    "stem": null,
-    "section": null,
+    "hymenophore": "/atlas/art/v0/chlorophyllum-rhacodes.hymenophore.svg",
+    "stem": "/atlas/art/v0/chlorophyllum-rhacodes.stem.svg",
+    "section": "/atlas/art/v0/chlorophyllum-rhacodes.section.svg",
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",

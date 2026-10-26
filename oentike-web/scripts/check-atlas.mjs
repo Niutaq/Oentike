@@ -1,6 +1,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import Ajv2020 from 'ajv/dist/2020.js';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
@@ -25,15 +26,23 @@ for (const file of pack.cards) {
   if (file !== `cards/${card.slug}.json`) errors.push(`${file}: slug differs from filename`);
   if (cards.has(card.slug)) errors.push(`Duplicate slug: ${card.slug}`);
   cards.set(card.slug, card);
+  if (!card.edibility) errors.push(`${file}: missing edibility classification`);
   for (const field of ["description", "habitat", "phenology", "protection_pl"]) {
     if (Boolean(card[field]) !== Boolean(card.text_en[field])) errors.push(`${file}: missing paired translation for ${field}`);
   }
   if (card.pack_version !== pack.version) errors.push(`${file}: pack version mismatch`);
+  const requiredViews = ['cap', 'stem', 'section', 'hymenophore'];
+  for (const view of requiredViews) {
+    const expected = `/atlas/art/v0/${card.slug}.${view}.svg`;
+    if (card.art[view] !== expected) errors.push(`${file}: ${view} must reference its own anatomical plate (${expected})`);
+  }
+  if (new Set(requiredViews.map(view => card.art[view])).size !== 4) errors.push(`${file}: four distinct anatomical plates are required`);
   if (!card.citations.length) warnings.push(`${card.slug}: no sources yet`);
   if (card.reviewed_at && (!/^\d{4}-\d{2}-\d{2}$/.test(card.reviewed_at) || Number.isNaN(Date.parse(card.reviewed_at)))) errors.push(`${file}: invalid review date`);
   for (const citation of card.citations) {
     if (citation.url && !/^https?:\/\//.test(citation.url)) errors.push(`${file}: invalid source URL`);
   }
+  const viewHashes = new Set();
   for (const src of Object.values(card.art ?? {}).filter(Boolean)) {
     if (!/^\/atlas\/art\/v\d+\/[a-z0-9.-]+\.svg$/.test(src)) { errors.push(`${file}: invalid art path ${src}`); continue; }
     if (seenAssets.has(src)) continue;
@@ -43,6 +52,11 @@ for (const file of pack.cards) {
       const served = await readFile(path.join(root, 'oentike-web/public', src.slice(1)));
       if (!source.equals(served)) errors.push(`${src}: source and public copy differ`);
       const svg = source.toString('utf8');
+      if (requiredViews.some(view => card.art[view] === src)) {
+        const hash = createHash('sha256').update(source).digest('hex');
+        if (viewHashes.has(hash)) errors.push(`${file}: anatomical views contain identical artwork`);
+        viewHashes.add(hash);
+      }
       if (!/<svg\b/.test(svg) || !/viewBox=/.test(svg) || /<(?:script|foreignObject)\b|\bon\w+\s*=|(?:href|xlink:href)\s*=\s*["'](?!#)|<!DOCTYPE|<!ENTITY/i.test(svg)) errors.push(`${src}: SVG must be self-contained and passive`);
       assets++; artBytes += served.length;
     } catch (error) { errors.push(`${src}: ${error.message}`); }

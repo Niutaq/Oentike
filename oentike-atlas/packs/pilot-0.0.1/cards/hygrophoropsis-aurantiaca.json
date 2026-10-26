@@ -1,5 +1,11 @@
 {
   "slug": "hygrophoropsis-aurantiaca",
+  "edibility": {
+    "status": "inedible",
+    "note_pl": "Nie zalecamy spożywania; opisywano niepożądane reakcje.",
+    "note_en": "Consumption is not recommended; adverse reactions have been reported.",
+    "source": "https://www.first-nature.com/fungi/hygrophoropsis-aurantiaca.php"
+  },
   "names": {
     "pl": "Lisówka pomarańczowa",
     "en": "False chanterelle"
@@ -40,9 +46,9 @@
   ],
   "art": {
     "cap": "/atlas/art/v0/hygrophoropsis-aurantiaca.cap.svg",
-    "hymenophore": null,
-    "stem": null,
-    "section": null,
+    "hymenophore": "/atlas/art/v0/hygrophoropsis-aurantiaca.hymenophore.svg",
+    "stem": "/atlas/art/v0/hygrophoropsis-aurantiaca.stem.svg",
+    "section": "/atlas/art/v0/hygrophoropsis-aurantiaca.section.svg",
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",

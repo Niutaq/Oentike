@@ -1,5 +1,11 @@
 {
   "slug": "amanita-muscaria",
+  "edibility": {
+    "status": "poisonous",
+    "note_pl": "Grzyb trujący. Nie spożywaj.",
+    "note_en": "Poisonous mushroom. Do not eat.",
+    "source": "https://www.gov.pl/web/psse-zlotoryja/muchomor-czerwony--niebezpieczna-moda"
+  },
   "names": {
     "pl": "Muchomor czerwony",
     "en": "Fly agaric"
@@ -29,10 +35,10 @@
     }
   ],
   "art": {
-    "cap": null,
-    "hymenophore": null,
-    "stem": null,
-    "section": null,
+    "cap": "/atlas/art/v0/amanita-muscaria.cap.svg",
+    "hymenophore": "/atlas/art/v0/amanita-muscaria.hymenophore.svg",
+    "stem": "/atlas/art/v0/amanita-muscaria.stem.svg",
+    "section": "/atlas/art/v0/amanita-muscaria.section.svg",
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",

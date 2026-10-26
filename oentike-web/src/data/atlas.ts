@@ -4,6 +4,7 @@ import { z } from "zod";
 
 export const AtlasCardSchema = z.object({
     slug: z.string(),
+    edibility: z.object({ status: z.enum(['edible', 'conditional', 'disputed', 'inedible', 'poisonous', 'deadly']), note_pl: z.string().min(1), note_en: z.string().min(1), source: z.string().url() }),
     names: z.object({ pl: z.string(), en: z.string() }),
     scientific_name: z.string().nullable(),
     identifiers: z.object({
@@ -29,10 +30,10 @@ export const AtlasCardSchema = z.object({
     protection_pl: z.string().nullable(),
     citations: z.array(z.object({ label: z.string(), url: z.string().nullable() })),
     art: z.object({
-        cap: z.string().nullable(),
-        hymenophore: z.string().nullable(),
-        stem: z.string().nullable(),
-        section: z.string().nullable(),
+        cap: z.string().min(1),
+        hymenophore: z.string().min(1),
+        stem: z.string().min(1),
+        section: z.string().min(1),
         lookalike_plate: z.string().nullable(),
     }),
     pack_version: z.string(),
@@ -43,9 +44,9 @@ export type AtlasCard = z.infer<typeof AtlasCardSchema>;
 
 export const artViewOrder = [
     "cap",
-    "hymenophore",
     "stem",
     "section",
+    "hymenophore",
     "lookalike_plate",
 ] as const;
 

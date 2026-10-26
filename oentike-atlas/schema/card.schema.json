@@ -5,6 +5,7 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "edibility",
     "slug",
     "names",
     "scientific_name",
@@ -20,6 +21,17 @@
     "text_en"
   ],
   "properties": {
+    "edibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "note_pl", "note_en", "source"],
+      "properties": {
+        "status": {"enum": ["edible", "conditional", "disputed", "inedible", "poisonous", "deadly"]},
+        "note_pl": {"type": "string", "minLength": 1},
+        "note_en": {"type": "string", "minLength": 1},
+        "source": {"type": "string", "pattern": "^https://"}
+      }
+    },
     "slug": {
       "type": "string",
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
@@ -158,31 +170,24 @@
     "art": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Paths relative to the pack; empty until our plates exist.",
+      "description": "Four required distinct anatomical SVG paths; an optional comparison plate.",
+      "required": ["cap", "stem", "section", "hymenophore"],
       "properties": {
         "cap": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string",
+          "minLength": 1
         },
         "hymenophore": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string",
+          "minLength": 1
         },
         "stem": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string",
+          "minLength": 1
         },
         "section": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string",
+          "minLength": 1
         },
         "lookalike_plate": {
           "type": [
