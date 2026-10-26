@@ -1,0 +1,5 @@
+{
+  "ignoredFiles": [
+    "oentike-web/src-tauri/icons/**"
+  ]
+}
