@@ -12,7 +12,7 @@
     "astro": "astro",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
-    "test:field": "node --test tests/expedition.test.mjs",
+    "test:field": "node --test tests/expedition.test.mjs tests/location.test.mjs",
     "test:field:browser": "npm run build && playwright test",
     "atlas:check": "node scripts/check-atlas.mjs",
     "prebuild": "npm run atlas:check",

@@ -19,50 +19,86 @@ Local mushroom-conditions helper for Polish forests: explainable scores, a coars
 
 ---
 
-## Product
+## Run
 
-Pilot: searchable **BDL nadleśnictwa** (~429 after `task oentike:sync-bdl`), default **Nadleśnictwo Janów Lubelski** (`nadl-05-31`), species `boletus-edulis`. UI typeahead calls `SearchCells` over `forest_units`; selecting an area materializes it into `cells` and ingests Open-Meteo on demand (`EnsureCell` / `GetConditions`). Score color tracks 0-100 on the panel. `task oentike:ingest` refreshes weather for **materialized** cells only (`CELL=id` for one); while `serve` is up the background loop refreshes each due materialized cell about once an hour (skipped per cell if the last fetch is younger than 50 minutes). `GetConditions` scores with `oentike-conditions/0.1.0-boletus` when all three factors exist and returns `fetched_at` of that ingest. `GetSeason` returns the last 9 Warsaw days of **our** scores for the selected cell - empty days stay `unavailable`, never a fake Poland heatmap.
+One entry point: **`./oentike`**. Prefer [mise](https://mise.jdx.dev) so tool versions match [`mise.toml`](./mise.toml).
 
-## Quick Start
+### Copy-paste (macOS)
 
-If you have `mise` installed ([mise.jdx.dev](https://mise.jdx.dev)), you can set up and run the application with:
+Works from any subdirectory (goes to the git repo root first). Use after clone, `git pull`, or when the UI looks empty:
 
 ```bash
-mise install
-mise trust
-mise exec -- task setup
-mise exec -- task oentike:sync-bdl
-mise exec -- task dev
+cd "$(git rev-parse --show-toplevel)"
+mise trust && mise install
+./oentike doctor
+./oentike setup
+./oentike sync-bdl
+pkill -f "astro dev" 2>/dev/null || true
+FORCE_BUILD=1 ./oentike dev
 ```
-*(If you have `mise` activated in your shell, you can simply run `task setup`, `task oentike:sync-bdl`, and `task dev`)*
 
-> **Note for Linux users:** Tauri requires specific system dependencies to compile the desktop app. On Ubuntu/Debian-based distributions, install them before running `task dev`:
-> ```bash
-> sudo apt update && sudo apt install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
-> ```
+Everyday (shell already built):
 
+```bash
+cd "$(git rev-parse --show-toplevel)"
+./oentike dev
+```
 
-| What | Where |
+`./oentike` lives in the **repo root** (`Oentike/`), not in `oentike-web/`.
+
+`Ctrl+C` stops API + Astro. Then `./oentike stop` if you also want PostGIS down.
+
+| Command | What it does |
+|---|---|
+| `./oentike dev` | PostGIS + API + Astro + `Oentike.app` (macOS) / Tauri (elsewhere) |
+| `FORCE_BUILD=1 ./oentike dev` | Same, but rebuilds the macOS app shell (ACL / Rust / plist) |
+| `./oentike field` | Expedition only (no API); same desktop host as `dev` |
+| `./oentike field-hot` | Naked `tauri dev` — fast Rust iteration, **no** Core Location on macOS |
+| `./oentike stop` | Stop PostGIS |
+| `./oentike setup` | Install web dependencies from the lockfile |
+| `./oentike doctor` | Check tools and Docker (no installs) |
+| `./oentike check` | Tests, atlas + location contracts, UI production build |
+| `./oentike atlas` | Validate species cards and SVG assets |
+| `./oentike bench` | Spatial / scoring benchmarks |
+| `./oentike sync-bdl` | Pull BDL nadleśnictwa into PostGIS |
+| `./oentike ingest` | Refresh Open-Meteo for materialized cells (`CELL=id` optional) |
+
+**macOS:** `dev` / `field` start Astro on `http://127.0.0.1:4321` and open a trusted `Oentike.app` (live UI + Core Location). Conditions data uses Tauri `invoke` over that remote origin — ACL lives in `oentike-web/src-tauri/capabilities/default.json`. If scores stay empty after a native change, use `FORCE_BUILD=1`.
+
+**Linux** (once, before the first desktop build):
+
+```bash
+sudo apt update && sudo apt install -y libwebkit2gtk-4.1-dev build-essential curl wget file \
+  libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+```
+
+| Service | Address |
 |---|---|
 | HTTP health / ready | `http://127.0.0.1:8081/healthz`, `/readyz` |
-| Conditions RPC | gRPC `:8082` `GetConditions`, `GetSeason`, `SearchCells`, `EnsureCell` |
-| PostGIS | `127.0.0.1:54321` database `oentike` |
+| Conditions gRPC | `:8082` |
+| PostGIS | `127.0.0.1:54321` · database `oentike` |
+| UI (dev) | `http://127.0.0.1:4321` |
+
+---
+
+## Product (pilot)
+
+- Areas: searchable **BDL nadleśnictwa** (~429 after `./oentike sync-bdl`), default **Nadleśnictwo Janów Lubelski** (`nadl-05-31`).
+- Species: all **13 pilot atlas cards** have provisional scoring models (separate envelopes per taxon). Unknown slugs stay unscored and never borrow another species’ result.
+- Score: versioned heuristics `oentike-conditions/0.1.0-<species>` from Open-Meteo factors (0–100, confidence low). Season chart = last 9 Warsaw days for the selected cell — empty days stay `unavailable`.
+- Atlas cards are knowledge only (no photo ID, no consumption advice). Edibility text is informational.
+- Expedition (`/expedition/`): local plan → parking → trail → GeoJSON. Data stays on device (IndexedDB). Location needs permission and a visible window; not background navigation. On macOS, location requires the `.app` host from `dev` / `field`.
+
+Optional diagnostics: `OENTIKE_DEBUG_RPC=1`. Traces only if `OTEL_EXPORTER_OTLP_ENDPOINT` is set (e.g. `http://127.0.0.1:4317` after `docker compose up -d jaeger`). Normal `dev` starts PostGIS only.
+
+After changing `oentike-proto/conditions.proto`: `task oentike:proto` (bindings are otherwise committed).
 
 ```bash
 grpcurl -plaintext -d '{"cell_id":"nadl-05-31"}' \
   127.0.0.1:8082 oentike.conditions.ConditionsService/GetConditions
-
-grpcurl -plaintext -d '{"cell_id":"nadl-05-31"}' \
-  127.0.0.1:8082 oentike.conditions.ConditionsService/GetSeason
-
-grpcurl -plaintext -d '{"query":"Janów"}' \
-  127.0.0.1:8082 oentike.conditions.ConditionsService/SearchCells
-
-grpcurl -plaintext -d '{"cell_id":"nadl-05-31"}' \
-  127.0.0.1:8082 oentike.conditions.ConditionsService/EnsureCell
 ```
 
-Stop UI/API with `Ctrl+C`. Stop PostGIS with `task oentike:down`.
+UI field tests: `cd oentike-web && npm run test:field` (and `test:field:browser` after `npx playwright install chromium webkit`).
 
 ---
 
@@ -70,49 +106,16 @@ Stop UI/API with `Ctrl+C`. Stop PostGIS with `task oentike:down`.
 
 | Path | Role |
 |---|---|
-| `oentike-api/` | PostGIS migrations, gRPC conditions, Open-Meteo ingest, BDL WFS sync |
+| `oentike` | Launcher (`./oentike …`) |
+| `oentike-api/` | PostGIS migrations, gRPC conditions, Open-Meteo, BDL sync |
 | `oentike-proto/` | `conditions.proto` |
-| `oentike-web/` | Astro UI + Tauri desktop (`/` conditions, `/atlas` cards, `/expedition/` local journal) |
-| `oentike-atlas/` | Versioned species cards (pilot pack, no scores) |
-| `docker-compose.yml` | PostGIS (`profile: oentike`) |
+| `oentike-web/` | Astro UI + Tauri (`/`, `/atlas`, `/expedition/`) |
+| `oentike-atlas/` | Versioned species cards (pilot pack) |
+| `docker-compose.yml` | PostGIS |
 
 ---
 
-## Quick start
+## Known issues
 
-Install Docker with Compose and the platform prerequisites for Tauri (on macOS: Xcode Command Line Tools). Tool versions are pinned in [`mise.toml`](./mise.toml). With mise installed:
-
-```bash
-mise trust
-mise install
-./oentike doctor
-./oentike setup
-./oentike dev
-```
-
-`setup` uses `npm ci` and the committed lockfile. Run it after web dependency changes; daily startup does not install packages. `mise.toml` includes Node and Task as well as Go/Rust/protoc. The launcher uses `mise exec` when available and otherwise uses tools already on PATH. It also works when invoked from another directory.
-
-Generated protobuf bindings are committed; ordinary startup does not regenerate them. After changing `conditions.proto`, use `task oentike:proto`. Full BDL import remains explicit: `task oentike:sync-bdl`.
-
-| Command | Purpose |
-|---|---|
-| `./oentike` / `./oentike dev` | Start PostGIS, migrate, run API and desktop UI |
-| `./oentike doctor` | Check required tools, Compose and Docker daemon without installing |
-| `./oentike setup` | Install web dependencies from lockfile |
-| `./oentike check` | Go tests, atlas validation and production UI build (no DB required) |
-| `./oentike atlas` | Check all cards, cross-references and SVG assets |
-| `./oentike bench` | Repeat deterministic spatial/scoring benchmarks three times |
-| `./oentike stop` | Stop PostGIS; stop the foreground dev processes with Ctrl+C |
-| `task oentike:ingest` | Refresh materialized cells (`CELL=id` for one) |
-| `task oentike:ui` | Desktop only; `FRESH=1` explicitly clears build cache |
-
-The current conditions screen still needs the local API and online map tiles. A standalone offline expedition pack is the next functional milestone, not a capability claimed by this release.
-
-Expedition (`/expedition/`) saves a local plan with an area, date and notes before
-GPS is available. Use **Edit plan / add parking** to add a parking spot later;
-then record a trail and export GeoJSON. Existing trips remain compatible. Location
-recording requires device permission and a visible expedition screen; it is not
-background navigation. Plans, parking and trails stay in IndexedDB on this device.
-Run UI checks with `cd oentike-web`, `npm run test:field` and
-`npm run test:field:browser` (Chromium and WebKit; install them with
-`npx playwright install chromium webkit`).
+- [ ] **Static / offline `.app` build has empty conditions.** `/api/readyz` is proxied only while Astro dev is running. A packaged app with static `dist` does not reach the API that way. Fix: native readiness check (e.g. Tauri command) and a real `.app` test with the API up. Daily `./oentike dev` on macOS loads live Astro, so the proxy works there.
+- Species models are **provisional** (weather envelopes only). They are not field validation and must not be read as forage advice.
