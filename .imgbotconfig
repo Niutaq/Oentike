@@ -1,5 +1,8 @@
 {
   "ignoredFiles": [
-    "oentike-web/src-tauri/icons/**"
+    "oentike-web/src-tauri/icons/**",
+    "atlas/source/v0/anatomical/**",
+    "atlas/source/v0/style-reference.png",
+    "atlas/source/v0/anatomical-preview.png"
   ]
 }
