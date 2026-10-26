@@ -9,10 +9,10 @@ Local mushroom-conditions helper for Polish forests: explainable scores, a coars
 [![Tauri](https://img.shields.io/badge/Desktop-Tauri_2-FFC131?style=for-the-badge&logo=tauri)](./oentike-web)
 
 <p>
-<img src="./Oentike_1.png" alt="Oentike: score and weather factors for Lasy Janowskie" width="720" />
+<img src="./Oentike_1.png" alt="Oentike: mushroom conditions score for Nadleśnictwo Rozwadów" width="720" />
 </p>
 <p>
-<img src="./Oentike_2.png" alt="Oentike: pilot cell map and 9-day season trend" width="720" />
+<img src="./Oentike_2.png" alt="Oentike: pilot cell map and 9-day season trend for Nadleśnictwo Rozwadów" width="720" />
 </p>
 
 </div>
