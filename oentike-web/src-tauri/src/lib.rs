@@ -1,5 +1,8 @@
 tonic::include_proto!("oentike.conditions");
 
+mod location;
+mod packs;
+
 use serde::Serialize;
 use tonic::transport::Endpoint;
 
@@ -94,10 +97,9 @@ mod commands {
         target_date: Option<String>,
         grpc_addr: Option<String>,
     ) -> Result<ConditionsOut, String> {
-        let grpc_addr =
-            grpc_addr.unwrap_or_else(|| "http://127.0.0.1:8082".to_string());
-        let endpoint = Endpoint::from_shared(grpc_addr)
-            .map_err(|e| format!("parse grpc endpoint: {e}"))?;
+        let grpc_addr = grpc_addr.unwrap_or_else(|| "http://127.0.0.1:8082".to_string());
+        let endpoint =
+            Endpoint::from_shared(grpc_addr).map_err(|e| format!("parse grpc endpoint: {e}"))?;
 
         let mut client = conditions_service_client::ConditionsServiceClient::connect(endpoint)
             .await
@@ -147,10 +149,9 @@ mod commands {
         days: Option<i32>,
         grpc_addr: Option<String>,
     ) -> Result<SeasonOut, String> {
-        let grpc_addr =
-            grpc_addr.unwrap_or_else(|| "http://127.0.0.1:8082".to_string());
-        let endpoint = Endpoint::from_shared(grpc_addr)
-            .map_err(|e| format!("parse grpc endpoint: {e}"))?;
+        let grpc_addr = grpc_addr.unwrap_or_else(|| "http://127.0.0.1:8082".to_string());
+        let endpoint =
+            Endpoint::from_shared(grpc_addr).map_err(|e| format!("parse grpc endpoint: {e}"))?;
 
         let mut client = conditions_service_client::ConditionsServiceClient::connect(endpoint)
             .await
@@ -193,10 +194,9 @@ mod commands {
         limit: Option<i32>,
         grpc_addr: Option<String>,
     ) -> Result<SearchCellsOut, String> {
-        let grpc_addr =
-            grpc_addr.unwrap_or_else(|| "http://127.0.0.1:8082".to_string());
-        let endpoint = Endpoint::from_shared(grpc_addr)
-            .map_err(|e| format!("parse grpc endpoint: {e}"))?;
+        let grpc_addr = grpc_addr.unwrap_or_else(|| "http://127.0.0.1:8082".to_string());
+        let endpoint =
+            Endpoint::from_shared(grpc_addr).map_err(|e| format!("parse grpc endpoint: {e}"))?;
 
         let mut client = conditions_service_client::ConditionsServiceClient::connect(endpoint)
             .await
@@ -213,11 +213,7 @@ mod commands {
             .map_err(|e| format!("grpc search_cells: {e}"))?
             .into_inner();
 
-        let cells = resp
-            .cells
-            .into_iter()
-            .map(cell_summary_out)
-            .collect();
+        let cells = resp.cells.into_iter().map(cell_summary_out).collect();
 
         Ok(SearchCellsOut { cells })
     }
@@ -227,10 +223,9 @@ mod commands {
         cell_id: String,
         grpc_addr: Option<String>,
     ) -> Result<EnsureCellOut, String> {
-        let grpc_addr =
-            grpc_addr.unwrap_or_else(|| "http://127.0.0.1:8082".to_string());
-        let endpoint = Endpoint::from_shared(grpc_addr)
-            .map_err(|e| format!("parse grpc endpoint: {e}"))?;
+        let grpc_addr = grpc_addr.unwrap_or_else(|| "http://127.0.0.1:8082".to_string());
+        let endpoint =
+            Endpoint::from_shared(grpc_addr).map_err(|e| format!("parse grpc endpoint: {e}"))?;
 
         let mut client = conditions_service_client::ConditionsServiceClient::connect(endpoint)
             .await
@@ -260,7 +255,13 @@ pub fn run() {
             commands::get_conditions_ui,
             commands::get_season_ui,
             commands::search_cells_ui,
-            commands::ensure_cell_ui
+            commands::ensure_cell_ui,
+            packs::import_offline_pack,
+            packs::get_offline_pack,
+            location::open_location_settings,
+            location::location_host_status,
+            location::get_current_location,
+            location::cancel_location
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {

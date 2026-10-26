@@ -1,28 +1,46 @@
 {
-    "slug": "amanita-muscaria",
-    "names": {
-        "pl": "TODO",
-        "en": "TODO"
-    },
-    "scientific_name": "Amanita muscaria (L.) Lam.",
-    "hymenophore": "TODO",
+  "slug": "amanita-muscaria",
+  "edibility": {
+    "status": "poisonous",
+    "note_pl": "Grzyb trujący. Nie spożywaj.",
+    "note_en": "Poisonous mushroom. Do not eat.",
+    "source": "https://www.gov.pl/web/psse-zlotoryja/muchomor-czerwony--niebezpieczna-moda"
+  },
+  "names": {
+    "pl": "Muchomor czerwony",
+    "en": "Fly agaric"
+  },
+  "scientific_name": "Amanita muscaria",
+  "identifiers": {
+    "mycobank": null,
+    "index_fungorum": null,
+    "gbif": "8168319"
+  },
+  "hymenophore": "gills",
+  "description": null,
+  "habitat": null,
+  "phenology": null,
+  "protection_pl": null,
+  "text_en": {
+    "description": null,
     "habitat": null,
     "phenology": null,
-    "lookalikes": [],
-    "protection_pl": null,
-    "citations": [
-        {
-            "label": "GBIF Backbone Taxonomy",
-            "url": "https://www.gbif.org/species/8168319"
-        }
-    ],
-    "art": {
-        "cap": null,
-        "hymenophore": null,
-        "stem": null,
-        "section": null,
-        "lookalike_plate": null
-    },
-    "pack_version": "pilot-0.0.1",
-    "reviewed_at": "2026-09-16T09:45:41.289Z"
+    "protection_pl": null
+  },
+  "lookalikes": [],
+  "citations": [
+    {
+      "label": "GBIF Backbone Taxonomy",
+      "url": "https://www.gbif.org/species/8168319"
+    }
+  ],
+  "art": {
+    "cap": "/atlas/art/v0/amanita-muscaria.cap.svg",
+    "hymenophore": "/atlas/art/v0/amanita-muscaria.hymenophore.svg",
+    "stem": "/atlas/art/v0/amanita-muscaria.stem.svg",
+    "section": "/atlas/art/v0/amanita-muscaria.section.svg",
+    "lookalike_plate": null
+  },
+  "pack_version": "0.0.1",
+  "reviewed_at": null
 }

@@ -2,7 +2,7 @@
 import MushroomIcon from "./MushroomIcon.astro";
 
 interface Props {
-    active?: "conditions" | "atlas";
+    active?: "conditions" | "atlas" | "expedition";
 }
 
 const { active = "conditions" } = Astro.props;
@@ -21,6 +21,8 @@ const { active = "conditions" } = Astro.props;
     </a>
 
     <nav aria-label="Główna nawigacja" data-i18n-aria="meta.navigation">
+        <a href="/expedition/" data-i18n="nav.expedition"
+            aria-current={active === "expedition" ? "page" : undefined}>Wyprawa</a>
         <a
             href={active === "conditions" ? "#warunki" : "/#warunki"}
             data-i18n="nav.conditions"

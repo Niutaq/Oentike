@@ -1,0 +1,51 @@
+---
+import type { AtlasCard } from '../data/atlas';
+interface Props { safety: AtlasCard['edibility']; }
+const { safety } = Astro.props;
+const labels = {
+ edible: ['Jadalny', 'Edible'], conditional: ['Warunkowo jadalny', 'Conditionally edible'],
+ disputed: ['Niejednoznaczny · nie spożywaj', 'Disputed · do not eat'], inedible: ['Niejadalny', 'Inedible'],
+ poisonous: ['Trujący', 'Poisonous'], deadly: ['Śmiertelnie trujący', 'Deadly poisonous'],
+};
+const [pl, en] = labels[safety.status];
+---
+<span class:list={['edibility-badge', `edibility-${safety.status}`]}>
+ <span class="edibility-seal">
+  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">
+   {safety.status === 'edible' ? <><path d="M6 3v5.5a2.5 2.5 0 0 0 5 0V3M8.5 3v17M17 3c-2 2.7-3 5.5-3 8h4V3Zm1 8v9"/></> :
+    safety.status === 'deadly' ? <><path d="M7 16v-3a6.5 6.5 0 1 1 10 0v3H7Zm3 0v2m4-2v2M5 19l14 3M19 19 5 22"/><path d="M8 9.5c0-1.6 3-1.6 3 0s-3 1.6-3 0Zm5 0c0-1.6 3-1.6 3 0s-3 1.6-3 0Z" fill="currentColor" stroke="none"/><path d="m12 12-1 2h2Z" fill="currentColor" stroke="none"/></> :
+    safety.status === 'poisonous' ? <><path d="M10.6 4.2a1.6 1.6 0 0 1 2.8 0l7.2 12.6A1.6 1.6 0 0 1 19.2 19H4.8a1.6 1.6 0 0 1-1.4-2.2Z"/><path d="M12 8v5"/><circle cx="12" cy="16" r=".8" fill="currentColor" stroke="none"/></> :
+    safety.status === 'inedible' ? <><circle cx="12" cy="12" r="8"/><path d="m6.3 17.7 11.4-11.4"/></> :
+    <><path d="M8.8 8a3.3 3.3 0 0 1 6.5.7c0 2.4-3.3 2.9-3.3 5.3"/><circle cx="12" cy="18" r=".9" fill="currentColor" stroke="none"/></>}
+  </svg>
+ </span>
+ <span class="edibility-label" data-name-pl={pl} data-name-en={en}>{pl}</span>
+</span>
+<style>
+ .edibility-badge {
+  --seal-ink:#315947;
+  --seal-wash:#e8eee7;
+  display:inline-flex;align-items:center;gap:.65rem;max-width:100%;
+  color:var(--seal-ink);font-size:calc(11px * var(--font-scale,1));
+  font-weight:550;letter-spacing:.015em;line-height:1.45;
+ }
+ .edibility-seal {
+  display:grid;place-items:center;flex:none;width:32px;height:32px;
+  border-radius:50%;background:var(--seal-wash);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--seal-ink) 14%,transparent);
+ }
+ svg{width:19px;height:19px;overflow:visible;}
+ .edibility-label{max-width:12rem;text-wrap:balance;}
+ .edibility-conditional,.edibility-disputed{--seal-ink:#755828;--seal-wash:#f0ebde;}
+ .edibility-inedible{--seal-ink:#62685f;--seal-wash:#eaece5;}
+ .edibility-poisonous{--seal-ink:#9a4b27;--seal-wash:#f4e8dd;}
+ .edibility-deadly{--seal-ink:#903c32;--seal-wash:#f2e4df;font-weight:650;}
+ :global(html[data-theme="dark"]) .edibility-badge{--seal-ink:#b5caba;--seal-wash:#23352b;}
+ :global(html[data-theme="dark"]) .edibility-conditional,:global(html[data-theme="dark"]) .edibility-disputed{--seal-ink:#d4bd8b;--seal-wash:#342e21;}
+ :global(html[data-theme="dark"]) .edibility-inedible{--seal-ink:#b6bcb2;--seal-wash:#2b3029;}
+ :global(html[data-theme="dark"]) .edibility-poisonous{--seal-ink:#edb088;--seal-wash:#3a2a20;}
+ :global(html[data-theme="dark"]) .edibility-deadly{--seal-ink:#f1aba0;--seal-wash:#3b2423;}
+ :global(html[data-contrast="high"]) .edibility-badge{color:var(--ink);}
+ :global(html[data-contrast="high"]) .edibility-seal{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--ink);}
+ @media (forced-colors:active){.edibility-seal{border:1px solid CanvasText;box-shadow:none;}}
+</style>

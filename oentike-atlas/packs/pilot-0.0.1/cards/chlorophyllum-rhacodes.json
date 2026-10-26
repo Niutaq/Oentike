@@ -1,0 +1,60 @@
+{
+  "slug": "chlorophyllum-rhacodes",
+  "edibility": {
+    "status": "disputed",
+    "note_pl": "Oceny jadalności są rozbieżne; opisywano zatrucia. Nie zalecamy spożywania.",
+    "note_en": "Edibility assessments differ; poisoning has been reported. Consumption is not recommended.",
+    "source": "https://www.first-nature.com/fungi/chlorophyllum-rhacodes.php"
+  },
+  "names": {
+    "pl": "Czubajka czerwieniejąca",
+    "en": "Shaggy parasol"
+  },
+  "scientific_name": "Chlorophyllum rhacodes",
+  "identifiers": {
+    "mycobank": null,
+    "index_fungorum": null,
+    "gbif": null
+  },
+  "hymenophore": "gills",
+  "description": "Kapelusz z wyraźnymi łuskami, jasne wolne blaszki i pierścień. Miąższ po uszkodzeniu przebarwia się na pomarańczowo i czerwono.",
+  "habitat": "W Polsce na obrzeżach lasów, polanach i przy drogach leśnych, na podłożu bogatym w rozkładającą się materię organiczną.",
+  "phenology": "W Polsce od lata do późnej jesieni, zwykle od czerwca do listopada.",
+  "protection_pl": null,
+  "text_en": {
+    "description": "Conspicuously scaly cap, pale free gills and a ring. Damaged flesh turns orange, then reddish.",
+    "habitat": "In Poland, at woodland edges, in clearings and beside forest tracks, on ground rich in decomposing organic matter.",
+    "phenology": "In Poland, from summer into late autumn, usually June to November.",
+    "protection_pl": null
+  },
+  "lookalikes": [
+    {
+      "slug": "macrolepiota-procera",
+      "note": "Czubajka kania ma charakterystyczny wzór wężowej skórki na trzonie i nie czerwienieje po uszkodzeniu.",
+      "note_en": "Parasol mushroom has a snakeskin pattern on the stem and does not redden when damaged."
+    }
+  ],
+  "citations": [
+    {
+      "label": "Lasy Państwowe — Grzyby polskich lasów",
+      "url": "https://www.lasy.gov.pl/pl/informacje/publikacje/do-poczytania/grzyby-polskich-lasow/grzyby-polskich-lasow_internet-1.pdf"
+    },
+    {
+      "label": "Ekologia.pl — Czubajka czerwieniejąca (sezon)",
+      "url": "https://www.ekologia.pl/grzyby/czubajka-czerwieniejaca/"
+    },
+    {
+      "label": "First Nature — Chlorophyllum rhacodes",
+      "url": "https://www.first-nature.com/fungi/chlorophyllum-rhacodes.php"
+    }
+  ],
+  "art": {
+    "cap": "/atlas/art/v0/chlorophyllum-rhacodes.cap.svg",
+    "hymenophore": "/atlas/art/v0/chlorophyllum-rhacodes.hymenophore.svg",
+    "stem": "/atlas/art/v0/chlorophyllum-rhacodes.stem.svg",
+    "section": "/atlas/art/v0/chlorophyllum-rhacodes.section.svg",
+    "lookalike_plate": null
+  },
+  "pack_version": "0.0.1",
+  "reviewed_at": null
+}

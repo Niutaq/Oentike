@@ -9,16 +9,9 @@ import (
 )
 
 const (
+	// Kept for callers/tests that still name the original pilot algorithm.
 	algorithmVersion = "oentike-conditions/0.1.0-boletus"
 	pilotSpecies     = "boletus-edulis"
-)
-
-// First published heuristic for Boletus edulis from Open-Meteo cell factors.
-// Trapezoids are coarse habitat envelopes, not a field survey. Confidence stays low.
-var (
-	precipMM  = [][2]float64{{0, 0}, {10, 0.3}, {25, 1}, {50, 0.75}, {90, 0.2}, {120, 0.05}}
-	soilTempC = [][2]float64{{5, 0.1}, {10, 0.7}, {14, 1}, {18, 0.7}, {22, 0.2}, {26, 0.05}}
-	soilMoist = [][2]float64{{0.05, 0.15}, {0.15, 0.7}, {0.25, 1}, {0.35, 0.7}, {0.5, 0.2}}
 )
 
 type ScoreResult struct {
@@ -29,14 +22,22 @@ type ScoreResult struct {
 }
 
 func scoreBoletus(cellID, targetDate string, snap FactorSnapshot) (ScoreResult, bool, error) {
+	return scoreSpecies(pilotSpecies, cellID, targetDate, snap)
+}
+
+func scoreSpecies(speciesSlug, cellID, targetDate string, snap FactorSnapshot) (ScoreResult, bool, error) {
+	model, ok := speciesModels[speciesSlug]
+	if !ok {
+		return ScoreResult{}, false, nil
+	}
 	if snap.PrecipitationMM == nil || snap.SoilTemperatureC == nil || snap.SoilMoistureM3M3 == nil {
 		return ScoreResult{}, false, nil
 	}
 
-	p := interpolate(*snap.PrecipitationMM, precipMM)
-	t := interpolate(*snap.SoilTemperatureC, soilTempC)
-	m := interpolate(*snap.SoilMoistureM3M3, soilMoist)
-	weighted := 0.40*p + 0.35*t + 0.25*m
+	p := interpolate(*snap.PrecipitationMM, model.Precip)
+	t := interpolate(*snap.SoilTemperatureC, model.SoilTemp)
+	m := interpolate(*snap.SoilMoistureM3M3, model.SoilMoist)
+	weighted := model.Wp*p + model.Wt*t + model.Wm*m
 	score := int32(math.Round(100 * weighted))
 	if score < 0 {
 		score = 0
@@ -54,9 +55,9 @@ func scoreBoletus(cellID, targetDate string, snap FactorSnapshot) (ScoreResult, 
 		SoilTemp      float64 `json:"soil_temperature_c"`
 		SoilMoisture  float64 `json:"soil_moisture_m3_m3"`
 	}{
-		Algorithm:     algorithmVersion,
+		Algorithm:     model.Algorithm,
 		CellID:        cellID,
-		SpeciesSlug:   pilotSpecies,
+		SpeciesSlug:   speciesSlug,
 		TargetDate:    targetDate,
 		Precipitation: *snap.PrecipitationMM,
 		SoilTemp:      *snap.SoilTemperatureC,

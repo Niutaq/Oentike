@@ -1,5 +1,11 @@
 {
   "slug": "cantharellus-cibarius",
+  "edibility": {
+    "status": "edible",
+    "note_pl": "Gatunek jadalny po prawidłowym rozpoznaniu i odpowiednim przygotowaniu.",
+    "note_en": "Edible species only after correct identification and appropriate preparation.",
+    "source": "https://www.first-nature.com/fungi/cantharellus-cibarius.php"
+  },
   "names": {
     "pl": "Pieprznik jadalny (Kurka)",
     "en": "Chanterelle"
@@ -16,11 +22,21 @@
   "lookalikes": [
     {
       "slug": "hygrophoropsis-aurantiaca",
-      "note": "Lisówka pomarańczowa (fałszywa kurka) - posiada prawdziwe, cienkie blaszki (a nie fałdy), cieńszy trzon i intensywniejszy pomarańczowy kolor."
+      "note": "Lisówka pomarańczowa (fałszywa kurka) - posiada prawdziwe, cienkie blaszki (a nie fałdy), cieńszy trzon i intensywniejszy pomarańczowy kolor.",
+      "note_en": "False chanterelle: thin true gills rather than blunt folds, a thinner stem and a deeper orange colour."
     }
   ],
   "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
-  "citations": [],
+  "citations": [
+    {
+      "label": "MycoBank",
+      "url": "https://www.mycobank.org/page/Name%20details%20page/name/Cantharellus%20cibarius"
+    },
+    {
+      "label": "Index Fungorum",
+      "url": "http://www.indexfungorum.org/names/names.asp?strSort=Cantharellus%20cibarius"
+    }
+  ],
   "art": {
     "cap": "/atlas/art/v0/cantharellus-cibarius.cap.svg",
     "hymenophore": "/atlas/art/v0/cantharellus-cibarius.hymenophore.svg",
@@ -29,5 +45,11 @@
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",
-  "reviewed_at": null
+  "reviewed_at": "2026-09-24",
+  "text_en": {
+    "description": null,
+    "habitat": "Coniferous and deciduous woodland, often beneath pine and spruce, among moss or fallen leaves.",
+    "phenology": "From June into late autumn, sometimes November.",
+    "protection_pl": "Not subject to species protection in Poland."
+  }
 }

@@ -111,6 +111,7 @@ func (s *Server) GetConditions(ctx context.Context, req *conditionsv1.GetConditi
 		return nil, status.Errorf(codes.Internal, "load weather: %v", err)
 	}
 
+	algo := algorithmForSpecies(species)
 	resp := &conditionsv1.ConditionsResponse{
 		CellId:           cell.ID,
 		CellName:         cell.Name,
@@ -118,7 +119,7 @@ func (s *Server) GetConditions(ctx context.Context, req *conditionsv1.GetConditi
 		TargetDate:       targetDate,
 		Status:           "unavailable",
 		Confidence:       "low",
-		AlgorithmVersion: algorithmVersion,
+		AlgorithmVersion: algo,
 		Factors:          factorsFrom(snap),
 	}
 
@@ -131,11 +132,11 @@ func (s *Server) GetConditions(ctx context.Context, req *conditionsv1.GetConditi
 		resp.FetchedAt = &stamp
 	}
 
-	if species != pilotSpecies {
+	if !hasSpeciesModel(species) {
 		return resp, nil
 	}
 
-	result, ok, err := scoreBoletus(cell.ID, targetDate, snap)
+	result, ok, err := scoreSpecies(species, cell.ID, targetDate, snap)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "score: %v", err)
 	}
@@ -158,7 +159,7 @@ func (s *Server) GetConditions(ctx context.Context, req *conditionsv1.GetConditi
 			Score:            &score,
 			Confidence:       result.Confidence,
 			FactorsJSON:      result.FactorsJSON,
-			AlgorithmVersion: algorithmVersion,
+			AlgorithmVersion: algo,
 			InputSHA256:      result.InputSHA256,
 		}); err != nil {
 			return nil, status.Errorf(codes.Internal, "save score: %v", err)
@@ -214,16 +215,17 @@ func (s *Server) GetSeason(ctx context.Context, req *conditionsv1.GetSeasonReque
 		}
 	}
 
+	algo := algorithmForSpecies(species)
 	days := make([]*conditionsv1.SeasonDay, 0, n)
 	for i := n - 1; i >= 0; i-- {
 		date := end.AddDate(0, 0, -i).Format(time.DateOnly)
 		day := &conditionsv1.SeasonDay{Date: date, Status: "unavailable"}
-		if species == pilotSpecies {
+		if hasSpeciesModel(species) {
 			snap, err := s.lookup.Factors(ctx, cell.ID, date)
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "load weather: %v", err)
 			}
-			result, ok, err := scoreBoletus(cell.ID, date, snap)
+			result, ok, err := scoreSpecies(species, cell.ID, date, snap)
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "score: %v", err)
 			}
@@ -240,7 +242,7 @@ func (s *Server) GetSeason(ctx context.Context, req *conditionsv1.GetSeasonReque
 		CellId:           cell.ID,
 		CellName:         cell.Name,
 		SpeciesSlug:      species,
-		AlgorithmVersion: algorithmVersion,
+		AlgorithmVersion: algo,
 		Days:             days,
 	}, nil
 }

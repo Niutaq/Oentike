@@ -5,20 +5,24 @@ import "os"
 const defaultDatabaseURL = "postgres://oentike:oentike@localhost:54321/oentike?sslmode=disable"
 
 type Config struct {
-	DatabaseURL  string
-	HTTPAddr     string
-	GRPCAddr     string
-	OpenMeteoURL string
-	BdlWFSURL    string
+	DatabaseURL   string
+	HTTPAddr      string
+	GRPCAddr      string
+	OpenMeteoURL  string
+	BdlWFSURL     string
+	TraceEndpoint string
+	DebugRPC      bool
 }
 
 func Load() Config {
 	return Config{
-		DatabaseURL:  valueOrDefault("DATABASE_URL", defaultDatabaseURL),
-		HTTPAddr:     valueOrDefault("HTTP_ADDR", ":8081"),
-		GRPCAddr:     valueOrDefault("GRPC_ADDR", ":8082"),
-		OpenMeteoURL: valueOrDefault("OPEN_METEO_URL", "https://api.open-meteo.com"),
-		BdlWFSURL:    valueOrDefault("BDL_WFS_URL", "https://wfs.bdl.lasy.gov.pl/geoserver/BDL/ows"),
+		DatabaseURL:   valueOrDefault("DATABASE_URL", defaultDatabaseURL),
+		HTTPAddr:      valueOrDefault("HTTP_ADDR", ":8081"),
+		GRPCAddr:      valueOrDefault("GRPC_ADDR", ":8082"),
+		OpenMeteoURL:  valueOrDefault("OPEN_METEO_URL", "https://api.open-meteo.com"),
+		BdlWFSURL:     valueOrDefault("BDL_WFS_URL", "https://wfs.bdl.lasy.gov.pl/geoserver/BDL/ows"),
+		TraceEndpoint: os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT"),
+		DebugRPC:      os.Getenv("OENTIKE_DEBUG_RPC") == "1",
 	}
 }
 

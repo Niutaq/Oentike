@@ -4,6 +4,7 @@ import SiteHeader from "../../components/SiteHeader.astro";
 import ShellPrefs from "../../components/ShellPrefs.astro";
 import QuietFooter from "../../components/QuietFooter.astro";
 import { atlasCards, atlasPack } from "../../data/atlas";
+import EdibilityBadge from '../../components/EdibilityBadge.astro';
 ---
 
 <!doctype html>
@@ -35,6 +36,7 @@ import { atlasCards, atlasPack } from "../../data/atlas";
                 <span class="tag">pack {atlasPack.version}</span>
             </section>
 
+            <p class="caption" data-name-pl="Oznaczenia dotyczą gatunków, nie rozpoznania znalezionego okazu. Nie spożywaj grzybów na podstawie ikon ani ilustracji." data-name-en="Labels describe species, not identification of a found specimen. Do not eat mushrooms based on icons or illustrations.">Oznaczenia dotyczą gatunków, nie rozpoznania znalezionego okazu. Nie spożywaj grzybów na podstawie ikon ani ilustracji.</p>
             <ul class="atlas-list">
                 {
                     atlasCards.map((card) => (
@@ -51,12 +53,7 @@ import { atlasCards, atlasPack } from "../../data/atlas";
                                         <em>{card.scientific_name}</em>
                                     ) : null}
                                 </span>
-                                <span
-                                    class="atlas-row-meta"
-                                    data-i18n="atlas.openCard"
-                                >
-                                    Karta
-                                </span>
+                                <EdibilityBadge safety={card.edibility} />
                             </a>
                         </li>
                     ))
@@ -64,11 +61,22 @@ import { atlasCards, atlasPack } from "../../data/atlas";
             </ul>
 
             <p class="caption" data-i18n="atlas.pendingNote">
-                Cytacje i identyfikatory taksonomiczne możesz dodać później.
-                Podobne gatunki są już powiązane.
+                Ilustracje są schematyczne. Źródła opisów znajdziesz na kartach gatunków.
             </p>
         </main>
         <QuietFooter />
         <ShellPrefs />
     </body>
 </html>
+
+<style>
+ .atlas-row{padding:18px 0;gap:24px;}
+ .atlas-row>span:first-child{min-width:0;}
+ @media(min-width:601px){
+  .atlas-row :global(.edibility-badge){width:13rem;flex:none;}
+ }
+ @media(max-width:600px){
+  .atlas-row{flex-direction:column;align-items:flex-start;gap:10px;}
+  .atlas-row :global(.edibility-label){max-width:none;}
+ }
+</style>

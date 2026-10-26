@@ -181,13 +181,42 @@ func TestGetConditionsUnknownSpeciesStaysUnavailable(t *testing.T) {
 
 	got, err := server.GetConditions(context.Background(), &conditionsv1.GetConditionsRequest{
 		CellId:      "lasy-janowskie-01",
-		SpeciesSlug: "amanita-muscaria",
+		SpeciesSlug: "not-a-real-species",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if got.GetStatus() != "unavailable" || got.Score != nil {
-		t.Fatal("unknown species must not receive a boletus score")
+		t.Fatal("unknown species must not receive a borrowed score")
+	}
+}
+
+func TestGetConditionsScoresPilotAtlasSpecies(t *testing.T) {
+	precip, soilT, soilM := 42.5, 15.4, 0.25
+	server := NewServer(fakeLookup{
+		cell: Cell{ID: "lasy-janowskie-01", Name: "Lasy Janowskie 01"},
+		snap: FactorSnapshot{
+			PrecipitationMM:  &precip,
+			SoilTemperatureC: &soilT,
+			SoilMoistureM3M3: &soilM,
+		},
+	}, nil, nil)
+
+	got, err := server.GetConditions(context.Background(), &conditionsv1.GetConditionsRequest{
+		CellId:      "lasy-janowskie-01",
+		SpeciesSlug: "amanita-muscaria",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.GetStatus() != "ready" || got.Score == nil {
+		t.Fatal("pilot atlas species should receive its own provisional score")
+	}
+	if got.GetAlgorithmVersion() != "oentike-conditions/0.1.0-amanita-muscaria" {
+		t.Fatalf("algorithm %q", got.GetAlgorithmVersion())
+	}
+	if got.GetSpeciesSlug() != "amanita-muscaria" {
+		t.Fatalf("species %q", got.GetSpeciesSlug())
 	}
 }
 
@@ -299,14 +328,14 @@ func TestGetSeasonUnknownSpeciesStaysUnavailable(t *testing.T) {
 
 	got, err := server.GetSeason(context.Background(), &conditionsv1.GetSeasonRequest{
 		CellId:      "lasy-janowskie-01",
-		SpeciesSlug: "amanita-muscaria",
+		SpeciesSlug: "not-a-real-species",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, day := range got.GetDays() {
 		if day.GetStatus() != "unavailable" || day.Score != nil {
-			t.Fatal("unknown species must not receive a boletus score")
+			t.Fatal("unknown species must not receive a borrowed score")
 		}
 	}
 }

@@ -1,5 +1,11 @@
 {
   "slug": "laetiporus-sulphureus",
+  "edibility": {
+    "status": "conditional",
+    "note_pl": "Wymaga odpowiedniego przygotowania; u części osób może wywołać dolegliwości. Nie spożywaj surowych owocników.",
+    "note_en": "Requires appropriate preparation; may cause adverse reactions in some people. Do not eat raw fruitbodies.",
+    "source": "https://www.first-nature.com/fungi/laetiporus-sulphureus.php"
+  },
   "names": {
     "pl": "Żółciak siarkowy",
     "en": "Chicken of the woods"
@@ -15,7 +21,16 @@
   "phenology": "Głównie wiosna i lato (od maja do września).",
   "lookalikes": [],
   "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
-  "citations": [],
+  "citations": [
+    {
+      "label": "MycoBank",
+      "url": "https://www.mycobank.org/page/Name%20details%20page/name/Laetiporus%20sulphureus"
+    },
+    {
+      "label": "Index Fungorum",
+      "url": "http://www.indexfungorum.org/names/names.asp?strSort=Laetiporus%20sulphureus"
+    }
+  ],
   "art": {
     "cap": "/atlas/art/v0/laetiporus-sulphureus.cap.svg",
     "hymenophore": "/atlas/art/v0/laetiporus-sulphureus.hymenophore.svg",
@@ -24,5 +39,11 @@
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",
-  "reviewed_at": null
+  "reviewed_at": "2026-09-24",
+  "text_en": {
+    "description": null,
+    "habitat": "On deciduous tree trunks, often oak, willow, black locust and fruit trees. A wood-inhabiting parasite and decomposer.",
+    "phenology": "Mainly spring and summer, from May to September.",
+    "protection_pl": "Not subject to species protection in Poland."
+  }
 }

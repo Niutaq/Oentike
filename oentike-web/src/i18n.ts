@@ -1,6 +1,7 @@
 export const resources = {
     pl: {
         translation: {
+            fieldTitle: "Oentike — Wyprawa",
             meta: {
                 title: "Oentike",
                 description: "Przejrzysta analiza warunków grzybowych dla polskich lasów.",
@@ -8,6 +9,7 @@ export const resources = {
                 navigation: "Główna nawigacja",
             },
             nav: {
+                expedition: "Wyprawa",
                 conditions: "Warunki",
                 area: "Obszar",
                 sources: "Źródła",
@@ -42,6 +44,7 @@ export const resources = {
                 ingestedDescription: "Czynniki z Open-Meteo są w komórce. Score 0–100 pojawi się dopiero z wersjonowanym algorytmem.",
                 scoredTitle: "Wstępna ocena warunków.",
                 scoredDescription: "Heurystyka z opadu 14 dni, temperatury i wilgotności gleby. Pewność niska - to nie obserwacja z lasu.",
+                provisionalModel: "Model wstępny dla gatunku z atlasu — pewność niska.",
                 confidenceLow: "Pewność niska",
                 availabilityReady: "Ocena wstępna",
                 offlineTitle: "Nie możemy teraz sprawdzić warunków.",
@@ -119,7 +122,7 @@ export const resources = {
                 lead: "Karty wiedzy - nazwa potoczna pierwsza, łacina obok. Bez oceny warunków i bez identyfikacji ze zdjęcia.",
                 openCard: "Karta",
                 pendingNote:
-                    "Cytacje i identyfikatory taksonomiczne możesz dodać później. Podobne gatunki są już powiązane.",
+                    "Ilustracje i kolory są umowne. Nie służą do oznaczania grzybów. Źródła opisów znajdziesz na kartach gatunków.",
                 back: "← Atlas",
                 cardEyebrow: "KARTA GATUNKU",
                 hymenophore: "Hymenofor",
@@ -139,6 +142,7 @@ export const resources = {
     },
     en: {
         translation: {
+            fieldTitle: "Oentike — Expedition",
             meta: {
                 title: "Oentike - mushroom conditions",
                 description: "Explainable mushroom conditions for Polish forests.",
@@ -146,6 +150,7 @@ export const resources = {
                 navigation: "Main navigation",
             },
             nav: {
+                expedition: "Expedition",
                 conditions: "Conditions",
                 area: "Area",
                 sources: "Sources",
@@ -180,6 +185,7 @@ export const resources = {
                 ingestedDescription: "Open-Meteo factors are stored for the cell. A 0–100 score waits for a versioned algorithm.",
                 scoredTitle: "A first-pass condition score.",
                 scoredDescription: "Heuristic from 14-day rain, soil temperature, and soil moisture. Confidence is low - this is not a field observation.",
+                provisionalModel: "Provisional atlas-species model — low confidence.",
                 confidenceLow: "Low confidence",
                 availabilityReady: "Preliminary",
                 offlineTitle: "Conditions cannot be checked right now.",
@@ -257,7 +263,7 @@ export const resources = {
                 lead: "Knowledge cards - common name first, Latin beside it. No condition score and no photo ID.",
                 openCard: "Card",
                 pendingNote:
-                    "Citations and taxonomic IDs can be added later. Lookalikes are already linked.",
+                    "Illustrations and colours are schematic, not an identification key. Sources are listed on species cards.",
                 back: "← Atlas",
                 cardEyebrow: "SPECIES CARD",
                 hymenophore: "Hymenophore",

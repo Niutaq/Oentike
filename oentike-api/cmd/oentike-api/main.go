@@ -110,10 +110,10 @@ func serve(cfg config.Config) error {
 	startupCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	tp, err := telemetry.InitProvider(startupCtx, "127.0.0.1:4317", "oentike-api")
+	tp, err := telemetry.InitProvider(startupCtx, cfg.TraceEndpoint, "oentike-api")
 	if err != nil {
 		log.Printf("Failed to initialize telemetry: %v", err)
-	} else {
+	} else if tp != nil {
 		defer func() {
 			shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer shutdownCancel()
@@ -149,10 +149,11 @@ func serve(cfg config.Config) error {
 	if err != nil {
 		return fmt.Errorf("listen gRPC %s: %w", cfg.GRPCAddr, err)
 	}
-	grpcServer := grpc.NewServer(
-		grpc.StatsHandler(otelgrpc.NewServerHandler()),
-		grpc.UnaryInterceptor(networkInterceptor),
-	)
+	options := []grpc.ServerOption{grpc.StatsHandler(otelgrpc.NewServerHandler())}
+	if cfg.DebugRPC {
+		options = append(options, grpc.UnaryInterceptor(networkInterceptor))
+	}
+	grpcServer := grpc.NewServer(options...)
 	conditionsv1.RegisterConditionsServiceServer(grpcServer, conditions.NewServer(store, store, weather))
 	reflection.Register(grpcServer)
 

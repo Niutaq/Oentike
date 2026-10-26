@@ -1,11 +1,27 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "enables the default permissions",
+  "description": "Local and Astro-dev remote access for Oentike desktop commands",
   "windows": [
     "main"
   ],
+  "remote": {
+    "urls": [
+      "http://127.0.0.1:4321/*",
+      "http://localhost:4321/*"
+    ]
+  },
   "permissions": [
-    "core:default"
+    "core:default",
+    "allow-get-conditions-ui",
+    "allow-get-season-ui",
+    "allow-search-cells-ui",
+    "allow-ensure-cell-ui",
+    "allow-import-offline-pack",
+    "allow-get-offline-pack",
+    "allow-open-location-settings",
+    "allow-location-host-status",
+    "allow-get-current-location",
+    "allow-cancel-location"
   ]
 }

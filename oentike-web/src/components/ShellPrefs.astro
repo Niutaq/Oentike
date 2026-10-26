@@ -111,6 +111,14 @@ import CustomCursor from "./CustomCursor.astro";
                     ? element.dataset.nameEn || element.dataset.namePl || ""
                     : element.dataset.namePl || "";
         });
+        document.querySelectorAll<HTMLImageElement>("[data-alt-pl]").forEach((element) => {
+            element.alt = i18next.language.startsWith("en") ? element.dataset.altEn! : element.dataset.altPl!;
+        });
+        const cardName = document.querySelector(".atlas-card h1");
+        if (cardName) {
+            document.title = `Oentike — ${cardName.textContent?.trim()}`;
+            description?.setAttribute("content", document.title);
+        }
         syncPreferences();
     }
 

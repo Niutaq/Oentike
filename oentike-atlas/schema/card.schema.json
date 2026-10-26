@@ -5,6 +5,7 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "edibility",
     "slug",
     "names",
     "scientific_name",
@@ -16,9 +17,21 @@
     "protection_pl",
     "citations",
     "pack_version",
-    "reviewed_at"
+    "reviewed_at",
+    "text_en"
   ],
   "properties": {
+    "edibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "note_pl", "note_en", "source"],
+      "properties": {
+        "status": {"enum": ["edible", "conditional", "disputed", "inedible", "poisonous", "deadly"]},
+        "note_pl": {"type": "string", "minLength": 1},
+        "note_en": {"type": "string", "minLength": 1},
+        "source": {"type": "string", "pattern": "^https://"}
+      }
+    },
     "slug": {
       "type": "string",
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
@@ -28,7 +41,10 @@
       "type": "object",
       "description": "Human-facing labels. UI shows PL or EN first; Latin stays secondary.",
       "additionalProperties": false,
-      "required": ["pl", "en"],
+      "required": [
+        "pl",
+        "en"
+      ],
       "properties": {
         "pl": {
           "type": "string",
@@ -43,29 +59,58 @@
       }
     },
     "scientific_name": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "description": "Latin binomial shown beside/under the common name, never instead of it. Null until checked against a taxonomy source."
     },
     "identifiers": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "mycobank": { "type": ["string", "null"] },
-        "index_fungorum": { "type": ["string", "null"] },
-        "gbif": { "type": ["string", "null"] }
+        "mycobank": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "index_fungorum": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "gbif": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
     "hymenophore": {
       "type": "string",
-      "enum": ["pores", "gills", "other"],
+      "enum": [
+        "pores",
+        "gills",
+        "folds",
+        "other"
+      ],
       "description": "Boletes must be pores - never gills."
     },
     "habitat": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "description": "Short habitat note for PL forests; cite the source."
     },
     "phenology": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "description": "Seasonality in Poland or temperate Europe; cite the source."
     },
     "lookalikes": {
@@ -73,18 +118,31 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["slug", "note"],
+        "required": [
+          "slug",
+          "note",
+          "note_en"
+        ],
         "properties": {
-          "slug": { "type": "string" },
+          "slug": {
+            "type": "string"
+          },
           "note": {
             "type": "string",
             "description": "Write the distinction in plain language; mention the other card by common name when possible."
+          },
+          "note_en": {
+            "type": "string",
+            "minLength": 1
           }
         }
       }
     },
     "protection_pl": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "description": "Legal status in Poland if any; null if unchecked, not 'unknown invented'."
     },
     "citations": {
@@ -92,29 +150,109 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["label", "url"],
+        "required": [
+          "label",
+          "url"
+        ],
         "properties": {
-          "label": { "type": "string" },
-          "url": { "type": ["string", "null"] }
+          "label": {
+            "type": "string"
+          },
+          "url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         }
       }
     },
     "art": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Paths relative to the pack; empty until our plates exist.",
+      "description": "Four required distinct anatomical SVG paths; an optional comparison plate.",
+      "required": ["cap", "stem", "section", "hymenophore"],
       "properties": {
-        "cap": { "type": ["string", "null"] },
-        "hymenophore": { "type": ["string", "null"] },
-        "stem": { "type": ["string", "null"] },
-        "section": { "type": ["string", "null"] },
-        "lookalike_plate": { "type": ["string", "null"] }
+        "cap": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hymenophore": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stem": {
+          "type": "string",
+          "minLength": 1
+        },
+        "section": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lookalike_plate": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
-    "pack_version": { "type": "string" },
+    "pack_version": {
+      "type": "string"
+    },
     "reviewed_at": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "description": "YYYY-MM-DD when a human checked the citations; null until then."
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Source-backed morphology note; illustrations are schematic."
+    },
+    "text_en": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "description",
+        "habitat",
+        "phenology",
+        "protection_pl"
+      ],
+      "properties": {
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "habitat": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "phenology": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "protection_pl": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      }
     }
   }
 }

@@ -3,6 +3,7 @@ import "../../styles/global.css";
 import SiteHeader from "../../components/SiteHeader.astro";
 import ShellPrefs from "../../components/ShellPrefs.astro";
 import QuietFooter from "../../components/QuietFooter.astro";
+import EdibilityBadge from '../../components/EdibilityBadge.astro';
 import {
     atlasCards,
     getAtlasCard,
@@ -22,14 +23,14 @@ if (!card) {
     return Astro.redirect("/atlas");
 }
 
-const hasBody = Boolean(card.habitat || card.phenology || card.protection_pl);
+const hasBody = Boolean(card.description || card.habitat || card.phenology || card.protection_pl);
 const artViews = cardArtViews(card);
 const artLabels: Record<string, { pl: string; en: string }> = {
     cap: { pl: "Kapelusz", en: "Cap" },
     hymenophore: { pl: "Hymenofor", en: "Hymenophore" },
     stem: { pl: "Trzon", en: "Stem" },
     section: { pl: "Przekrój", en: "Section" },
-    lookalike_plate: { pl: "Lookalik", en: "Lookalike" },
+    lookalike_plate: { pl: "Porównanie", en: "Lookalike" },
 };
 ---
 
@@ -69,6 +70,14 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                 }
 
                 <dl class="atlas-meta">
+                    <div class="atlas-safety">
+                        <dt data-name-pl="Jadalność i toksyczność" data-name-en="Edibility and toxicity">Jadalność i toksyczność</dt>
+                        <dd>
+                            <EdibilityBadge safety={card.edibility} />
+                            <p data-name-pl={card.edibility.note_pl} data-name-en={card.edibility.note_en}>{card.edibility.note_pl}</p>
+                            <a href={card.edibility.source} target="_blank" rel="noreferrer" data-name-pl="Źródło klasyfikacji" data-name-en="Classification source">Źródło klasyfikacji</a>
+                        </dd>
+                    </div>
                     <div>
                         <dt data-i18n="atlas.hymenophore">Hymenofor</dt>
                         <dd data-i18n={`hymenophore.${card.hymenophore}`}>{card.hymenophore}</dd>
@@ -108,16 +117,22 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                 {
                     hasBody ? (
                         <div class="atlas-body">
+                            {card.description ? (
+                                <section>
+                                    <h2 data-name-pl="Opis" data-name-en="Description">Opis</h2>
+                                    <p data-name-pl={card.description} data-name-en={card.text_en.description}>{card.description}</p>
+                                </section>
+                            ) : null}
                             {card.habitat ? (
                                 <section>
                                     <h2 data-i18n="atlas.habitat">Siedlisko</h2>
-                                    <p>{card.habitat}</p>
+                                    <p data-name-pl={card.habitat} data-name-en={card.text_en.habitat}>{card.habitat}</p>
                                 </section>
                             ) : null}
                             {card.phenology ? (
                                 <section>
                                     <h2 data-i18n="atlas.phenology">Sezon</h2>
-                                    <p>{card.phenology}</p>
+                                    <p data-name-pl={card.phenology} data-name-en={card.text_en.phenology}>{card.phenology}</p>
                                 </section>
                             ) : null}
                             {card.protection_pl ? (
@@ -125,7 +140,7 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                                     <h2 data-i18n="atlas.protection">
                                         Ochrona w PL
                                     </h2>
-                                    <p>{card.protection_pl}</p>
+                                    <p data-name-pl={card.protection_pl} data-name-en={card.text_en.protection_pl}>{card.protection_pl}</p>
                                 </section>
                             ) : null}
                         </div>
@@ -137,7 +152,7 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                     )
                 }
 
-                <section class="atlas-lookalikes">
+                {card.lookalikes.length > 0 && (<section class="atlas-lookalikes">
                     <h2 data-i18n="atlas.lookalikes">Podobne gatunki</h2>
                     <ul>
                         {
@@ -155,16 +170,16 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                                             {lookalikeName(item.slug, "pl")}
                                         </strong>
                                     </a>
-                                    <span>{item.note}</span>
+                                    <span data-name-pl={item.note} data-name-en={item.note_en}>{item.note}</span>
                                 </li>
                             ))
                         }
                     </ul>
-                </section>
+                </section>)}
 
                 {
                     artViews.length ? (
-                        <section class="atlas-art-plate" aria-label="Tablice">
+                        <section class="atlas-art-plate" aria-label="Tablice" data-i18n-aria="atlas.artTitle">
                             <h2 data-i18n="atlas.artTitle">Tablice</h2>
                             <ul class="atlas-art-grid">
                                 {artViews.map((view) => (
@@ -172,7 +187,9 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                                         <figure>
                                             <img
                                                 src={view.src}
-                                                alt=""
+                                                alt={`${card.names.pl} — ${artLabels[view.key]?.pl || view.key}; ilustracja schematyczna`}
+                                                data-alt-pl={`${card.names.pl} — ${artLabels[view.key]?.pl || view.key}; ilustracja schematyczna`}
+                                                data-alt-en={`${card.names.en} — ${artLabels[view.key]?.en || view.key}; schematic illustration`}
                                                 width="512"
                                                 height="512"
                                                 loading="lazy"
@@ -204,36 +221,24 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                     )
                 }
 
-                {
-                    card.citations && card.citations.length > 0 ? (
-                        <section class="atlas-citations">
-                            <h2 data-i18n="atlas.citationsTitle">Źródła i cytacje</h2>
-                            <ul>
-                                {card.citations.map((citation) => (
-                                    <li>
-                                        {citation.url ? (
-                                            <a href={citation.url} target="_blank" rel="noreferrer">
-                                                {citation.label}
-                                            </a>
-                                        ) : (
-                                            citation.label
-                                        )}
-                                    </li>
-                                ))}
-                            </ul>
-                        </section>
-                    ) : null
-                }
+                {card.citations.length > 0 && (
+                    <section class="atlas-sources">
+                        <h2 data-name-pl="Źródła" data-name-en="Sources">Źródła</h2>
+                        <ul>
+                            {card.citations.map((citation) => (
+                                <li>{citation.url ? <a href={citation.url} rel="noreferrer">{citation.label}</a> : citation.label}</li>
+                            ))}
+                        </ul>
+                    </section>
+                )}
 
-                {
-                    card.slug === "boletus-edulis" ? (
                         <p class="atlas-conditions-link">
-                            <a href="/#warunki" data-i18n="atlas.toConditions">
-                                Zobacz warunki dla borowika
+                            <a href={`/?species=${card.slug}#warunki`} data-name-pl="Wybierz ten gatunek w warunkach" data-name-en="Select this species in conditions">
+                                Wybierz ten gatunek w warunkach
                             </a>
                         </p>
-                    ) : null
-                }
+                <p class="caption" data-i18n="atlas.pendingNote"></p>
+                <p class="caption" data-name-pl="Ikona nie potwierdza rozpoznania znalezionego okazu. Nie spożywaj grzybów na podstawie atlasu; w razie wątpliwości skonsultuj okaz z grzyboznawcą." data-name-en="The icon does not confirm identification of a found specimen. Do not eat mushrooms based on this atlas; consult a qualified mushroom expert if unsure.">Ikona nie potwierdza rozpoznania znalezionego okazu. Nie spożywaj grzybów na podstawie atlasu; w razie wątpliwości skonsultuj okaz z grzyboznawcą.</p>
             </article>
         </main>
         <QuietFooter />

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleIdentifier</key>
+    <string>com.oentike.desktop</string>
+    <key>NSLocationUsageDescription</key>
+    <string>Oentike potrzebuje lokalizacji, aby zapisać parking i rejestrować ślad otwartej wyprawy. Dane pozostają na tym urządzeniu.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Oentike uses your location to save parking and record a trail while the expedition is open. Location data stays on this device.</string>
+</dict>
+</plist>

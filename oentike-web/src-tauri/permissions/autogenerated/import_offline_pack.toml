@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-import-offline-pack"
+description = "Enables the import_offline_pack command without any pre-configured scope."
+commands.allow = ["import_offline_pack"]
+
+[[permission]]
+identifier = "deny-import-offline-pack"
+description = "Denies the import_offline_pack command without any pre-configured scope."
+commands.deny = ["import_offline_pack"]

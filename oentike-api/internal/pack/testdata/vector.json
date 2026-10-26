@@ -1,0 +1,7 @@
+{
+  "seed_hex": "0000000000000000000000000000000000000000000000000000000000000000",
+  "public_key_hex": "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29",
+  "manifest": "{\"schema_version\":1,\"area_id\":\"nadl-05-31\",\"release\":1,\"created_at\":\"2026-10-02T12:00:00Z\",\"files\":[{\"path\":\"data/snapshot.json\",\"size\":6,\"sha256\":\"5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03\",\"format\":\"test-text/1\",\"source\":\"synthetic:test\",\"license\":\"CC0-1.0\"}]}",
+  "signature_hex": "c6d632a1aba0ba4f8a7c20976592d2f4f2b8e04d1ca558d658fc05c326a090a39822421e9944f16c043703679fb18a130a27353a05ac8f673db3c198af68d40b",
+  "payload_hex": "68656c6c6f0a"
+}

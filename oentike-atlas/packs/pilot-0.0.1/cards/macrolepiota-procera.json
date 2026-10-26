@@ -1,5 +1,11 @@
 {
   "slug": "macrolepiota-procera",
+  "edibility": {
+    "status": "edible",
+    "note_pl": "Gatunek jadalny po prawidłowym rozpoznaniu i odpowiednim przygotowaniu.",
+    "note_en": "Edible species only after correct identification and appropriate preparation.",
+    "source": "https://www.first-nature.com/fungi/macrolepiota-procera.php"
+  },
   "names": {
     "pl": "Czubajka kania",
     "en": "Parasol mushroom"
@@ -15,16 +21,27 @@
   "phenology": "Koniec lata i jesień (sierpień - listopad).",
   "lookalikes": [
     {
-      "slug": "chlorophyllum-rachodes",
-      "note": "Czubajka czerwieniejąca - po uszkodzeniu miąższ czerwienieje (kania nie zmienia koloru), trzon nie ma wzoru wężowej skórki."
+      "slug": "chlorophyllum-rhacodes",
+      "note": "Czubajka czerwieniejąca - po uszkodzeniu miąższ czerwienieje (kania nie zmienia koloru), trzon nie ma wzoru wężowej skórki.",
+      "note_en": "Shaggy parasol: flesh reddens when damaged and the stem lacks the snakeskin pattern of the parasol mushroom."
     },
     {
       "slug": "amanita-phalloides",
-      "note": "Muchomor zielonawy (sromotnikowy) - ZABÓJCZY TRUCIZNA. Kania ma ruchomy pierścień na trzonie i wzór łusek, muchomor ma gładki trzon z bulwą w pochwie i nieruchomy pierścień."
+      "note": "Muchomor zielonawy jest śmiertelnie trujący. Ma pierścień i bulwiastą podstawę trzonu otoczoną workowatą pochwą. Nie oznaczaj grzybów na podstawie jednej cechy.",
+      "note_en": "Death cap is deadly poisonous. Its stem has a ring and a bulbous base enclosed in a sack-like volva. Do not identify mushrooms from a single feature."
     }
   ],
   "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
-  "citations": [],
+  "citations": [
+    {
+      "label": "MycoBank",
+      "url": "https://www.mycobank.org/page/Name%20details%20page/name/Macrolepiota%20procera"
+    },
+    {
+      "label": "Index Fungorum",
+      "url": "http://www.indexfungorum.org/names/names.asp?strSort=Macrolepiota%20procera"
+    }
+  ],
   "art": {
     "cap": "/atlas/art/v0/macrolepiota-procera.cap.svg",
     "hymenophore": "/atlas/art/v0/macrolepiota-procera.hymenophore.svg",
@@ -33,5 +50,11 @@
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",
-  "reviewed_at": null
+  "reviewed_at": "2026-09-24",
+  "text_en": {
+    "description": null,
+    "habitat": "Woodland edges, clearings, meadows, felled areas and open deciduous or mixed woodland.",
+    "phenology": "Late summer and autumn, from August to November.",
+    "protection_pl": "Not subject to species protection in Poland."
+  }
 }
