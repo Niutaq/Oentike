@@ -19,12 +19,15 @@ type IndexEntry struct {
 	PointCount                     int32
 	_                              int32
 }
-type Point struct{ Lon, Lat float64 }
-type cell struct {
-	id                             string
-	minLon, minLat, maxLon, maxLat float64
-	points                         []byte
-}
+type (
+	Point struct{ Lon, Lat float64 }
+	cell  struct {
+		id                             string
+		minLon, minLat, maxLon, maxLat float64
+		points                         []byte
+	}
+)
+
 type Engine struct {
 	fileData []byte
 	cells    []cell

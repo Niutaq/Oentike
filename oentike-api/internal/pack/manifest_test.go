@@ -149,10 +149,10 @@ func TestManifestConstraints(t *testing.T) {
 func payload(t *testing.T) string {
 	t.Helper()
 	root := t.TempDir()
-	if err := os.Mkdir(filepath.Join(root, "data"), 0700); err != nil {
+	if err := os.Mkdir(filepath.Join(root, "data"), 0o700); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(root, "data/snapshot.json"), []byte("hello\n"), 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(root, "data/snapshot.json"), []byte("hello\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	return root
@@ -175,15 +175,15 @@ func TestPayloadIntegrity(t *testing.T) {
 			}
 			switch scenario {
 			case "changed":
-				must(os.WriteFile(path, []byte("HELLO\n"), 0600))
+				must(os.WriteFile(path, []byte("HELLO\n"), 0o600))
 			case "truncated":
 				must(os.Truncate(path, 1))
 			case "missing":
 				must(os.Remove(path))
 			case "extra":
-				must(os.WriteFile(filepath.Join(root, "extra"), nil, 0600))
+				must(os.WriteFile(filepath.Join(root, "extra"), nil, 0o600))
 			case "extra directory":
-				must(os.Mkdir(filepath.Join(root, "extra"), 0700))
+				must(os.Mkdir(filepath.Join(root, "extra"), 0o700))
 			case "symlink":
 				must(os.Remove(path))
 				must(os.Symlink(filepath.Join(t.TempDir(), "outside"), path))

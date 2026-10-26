@@ -5,10 +5,10 @@ package conditions
 // Confidence stays low; unknown slugs must not borrow another species' score.
 
 type speciesModel struct {
-	Algorithm string
-	Precip    [][2]float64
-	SoilTemp  [][2]float64
-	SoilMoist [][2]float64
+	Algorithm  string
+	Precip     [][2]float64
+	SoilTemp   [][2]float64
+	SoilMoist  [][2]float64
 	Wp, Wt, Wm float64
 }
 

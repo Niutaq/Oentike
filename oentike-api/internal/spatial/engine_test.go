@@ -34,7 +34,7 @@ func fixture(cells, vertices int) []byte {
 func openFixture(t testing.TB, data []byte) *Engine {
 	t.Helper()
 	path := filepath.Join(t.TempDir(), "forests.bin")
-	if err := os.WriteFile(path, data, 0600); err != nil {
+	if err := os.WriteFile(path, data, 0o600); err != nil {
 		t.Fatal(err)
 	}
 	e, err := NewEngine(path)
@@ -56,8 +56,10 @@ func TestEngineFindCell(t *testing.T) {
 		x, y float64
 		id   string
 	}{
-		{"first", 0.04, 0.04, "cell-0000"}, {"last", 2.84, 0.44, "cell-0428"},
-		{"outside", -10, -10, ""}, {"inside box outside polygon", 0.001, 0.001, ""},
+		{"first", 0.04, 0.04, "cell-0000"},
+		{"last", 2.84, 0.44, "cell-0428"},
+		{"outside", -10, -10, ""},
+		{"inside box outside polygon", 0.001, 0.001, ""},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			id, found := e.FindCell(tc.x, tc.y)
@@ -68,8 +70,10 @@ func TestEngineFindCell(t *testing.T) {
 	}
 }
 
-var benchmarkID string
-var benchmarkFound bool
+var (
+	benchmarkID    string
+	benchmarkFound bool
+)
 
 func BenchmarkEngineFindCell(b *testing.B) {
 	for _, n := range []int{429, 4290} {
@@ -79,8 +83,10 @@ func BenchmarkEngineFindCell(b *testing.B) {
 				name string
 				x, y float64
 			}{
-				{"first", 0.04, 0.04}, {"last", float64((n-1)%100)*0.1 + 0.04, float64((n-1)/100)*0.1 + 0.04},
-				{"miss", -10, -10}, {"box-only", 0.001, 0.001},
+				{"first", 0.04, 0.04},
+				{"last", float64((n-1)%100)*0.1 + 0.04, float64((n-1)/100)*0.1 + 0.04},
+				{"miss", -10, -10},
+				{"box-only", 0.001, 0.001},
 			} {
 				b.Run(tc.name, func(b *testing.B) {
 					b.ReportAllocs()
@@ -113,7 +119,7 @@ func TestRejectMalformedFiles(t *testing.T) {
 	for name, data := range cases {
 		t.Run(name, func(t *testing.T) {
 			path := filepath.Join(t.TempDir(), "bad.bin")
-			if err := os.WriteFile(path, data, 0600); err != nil {
+			if err := os.WriteFile(path, data, 0o600); err != nil {
 				t.Fatal(err)
 			}
 			e, err := NewEngine(path)
@@ -166,7 +172,7 @@ func BenchmarkEngineOpen(b *testing.B) {
 		b.Run(fmt.Sprintf("cells=%d", n), func(b *testing.B) {
 			data := fixture(n, 128)
 			path := filepath.Join(b.TempDir(), "forests.bin")
-			if err := os.WriteFile(path, data, 0600); err != nil {
+			if err := os.WriteFile(path, data, 0o600); err != nil {
 				b.Fatal(err)
 			}
 			b.SetBytes(int64(len(data)))

@@ -152,7 +152,7 @@ func run(args []string, out io.Writer) error {
 	if rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
 		return fmt.Errorf("out must be outside the payload directory")
 	}
-	if err := os.Mkdir(target, 0700); err != nil {
+	if err := os.Mkdir(target, 0o700); err != nil {
 		return err
 	}
 	for _, f := range []struct {
@@ -160,7 +160,7 @@ func run(args []string, out io.Writer) error {
 		data []byte
 	}{{"manifest.json", raw}, {"manifest.sig", sig}} {
 		path := filepath.Join(target, f.name)
-		file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0644)
+		file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
 		if err != nil {
 			return fmt.Errorf("incomplete output at %s: %w", target, err)
 		}
