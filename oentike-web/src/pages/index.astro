@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import MushroomIcon from "../components/MushroomIcon.astro";
 import CustomCursor from "../components/CustomCursor.astro";
+import { atlasCards } from '../data/atlas';
 
 const factors = [
     {
@@ -205,12 +206,12 @@ const factors = [
                         <div>
                             <dt data-i18n="condition.species">Gatunek</dt>
                             <dd class="species-name">
-                                <a class="species-link" href="/atlas/boletus-edulis">
-                                    <span data-i18n="condition.speciesCommon"
-                                        >Borowik szlachetny</span
-                                    >
-                                    <small>Boletus edulis</small>
-                                </a>
+                                <label class="visually-hidden" for="species-select" data-name-pl="Wybierz gatunek" data-name-en="Choose species">Wybierz gatunek</label>
+                                <select id="species-select">
+                                    {atlasCards.map(card => <option value={card.slug} selected={card.slug === 'boletus-edulis'} data-name-pl={card.names.pl} data-name-en={card.names.en}>{card.names.pl}</option>)}
+                                </select>
+                                <a id="species-card-link" class="species-link" href="/atlas/boletus-edulis"><small id="species-latin">Boletus edulis</small></a>
+                                <small id="species-model-note"></small>
                             </dd>
                         </div>
                         <div>
@@ -470,6 +471,7 @@ const factors = [
             maplibregl.setWorkerUrl(mapWorkerUrl);
             import "maplibre-gl/dist/maplibre-gl.css";
             import { resources } from "../i18n";
+            import { atlasCards } from '../data/atlas';
 
             // Active analysis cell (10 x 10 km). Exact GPS stays private; frame only.
             const DEFAULT_CELL = {
@@ -485,7 +487,16 @@ const factors = [
             const FALLBACK_CELLS = [DEFAULT_CELL];
             const CELL_STORAGE_KEY = "oentike-cell-id";
             const pilotHalfKm = 5;
-            const pilotSpeciesSlug = "boletus-edulis";
+            let pilotSpeciesSlug = "boletus-edulis";
+            const speciesSelect = document.getElementById('species-select') as HTMLSelectElement;
+            try {
+                const candidate = new URLSearchParams(location.search).get('species') || localStorage.getItem('oentike-species');
+                if (atlasCards.some(card => card.slug === candidate)) {
+                    pilotSpeciesSlug = candidate;
+                    localStorage.setItem('oentike-species', pilotSpeciesSlug);
+                }
+            } catch { /* Storage may be unavailable. */ }
+            speciesSelect.value = pilotSpeciesSlug;
             const pilotTargetDate = "";
 
             let activeCell = { ...DEFAULT_CELL };
@@ -686,6 +697,9 @@ const factors = [
                 document.querySelectorAll("[data-i18n]").forEach((element) => {
                     element.textContent = t(element.dataset.i18n);
                 });
+                document.querySelectorAll('[data-name-pl][data-name-en]').forEach(element => {
+                    element.textContent = element.getAttribute(i18next.language === 'en' ? 'data-name-en' : 'data-name-pl');
+                });
                 document
                     .querySelectorAll("[data-i18n-aria]")
                     .forEach((element) => {
@@ -710,6 +724,7 @@ const factors = [
                     });
 
                 syncActiveCellLabels();
+                syncSpecies();
                 setState(readinessState);
                 applyConditionsView(lastConditions);
                 renderSeason(lastSeasonDays);
@@ -1390,18 +1405,44 @@ const factors = [
                 }
             }
 
+            function syncSpecies() {
+                const card = atlasCards.find(card => card.slug === pilotSpeciesSlug)!;
+                document.getElementById('species-card-link').setAttribute('href', `/atlas/${card.slug}`);
+                document.getElementById('species-latin').textContent = card.scientific_name;
+                document.getElementById('species-model-note').textContent = t("condition.provisionalModel");
+            }
+            speciesSelect.addEventListener('change', () => {
+                pilotSpeciesSlug = speciesSelect.value;
+                try { localStorage.setItem('oentike-species', pilotSpeciesSlug); } catch { /* ignore */ }
+                lastConditions = null;
+                lastSeasonDays = null;
+                animateScore(null);
+                renderSeason(null);
+                syncSpecies();
+                void checkReadiness();
+            });
+
             async function loadConditions() {
+                // Only the pilot species currently has a calibrated score model.
                 if (!window.__TAURI_INTERNALS__) return;
+
+                const species = pilotSpeciesSlug;
+                const cell = activeCell.id;
 
                 try {
                     const response = await invoke("get_conditions_ui", {
                         cellId: activeCell.id,
-                        speciesSlug: pilotSpeciesSlug,
+                        speciesSlug: species,
                         targetDate: pilotTargetDate,
                     });
-                    applyConditionsView(response);
+                    if (species === pilotSpeciesSlug && cell === activeCell.id) applyConditionsView(response);
                 } catch (error) {
                     console.error("get_conditions_ui", error);
+                    if (species === pilotSpeciesSlug && cell === activeCell.id) {
+                        conditionTitle.textContent = t("condition.offlineTitle");
+                        conditionDescription.textContent = t("condition.offlineDescription");
+                        animateScore(null);
+                    }
                 }
             }
 
@@ -1411,15 +1452,17 @@ const factors = [
                     return;
                 }
 
+                const species = pilotSpeciesSlug;
+                const cell = activeCell.id;
                 try {
                     const response = await invoke("get_season_ui", {
                         cellId: activeCell.id,
-                        speciesSlug: pilotSpeciesSlug,
+                        speciesSlug: species,
                     });
-                    renderSeason(response?.days ?? null);
+                    if (species === pilotSpeciesSlug && cell === activeCell.id) renderSeason(response?.days ?? null);
                 } catch (error) {
                     console.error("get_season_ui", error);
-                    renderSeason(null);
+                    if (species === pilotSpeciesSlug && cell === activeCell.id) renderSeason(null);
                 }
             }
 
