@@ -1,10 +1,3 @@
-import edulis from "../../../oentike-atlas/packs/pilot-0.0.1/cards/boletus-edulis.json";
-import reticulatus from "../../../oentike-atlas/packs/pilot-0.0.1/cards/boletus-reticulatus.json";
-import felleus from "../../../oentike-atlas/packs/pilot-0.0.1/cards/tylopilus-felleus.json";
-import cibarius from "../../../oentike-atlas/packs/pilot-0.0.1/cards/cantharellus-cibarius.json";
-import procera from "../../../oentike-atlas/packs/pilot-0.0.1/cards/macrolepiota-procera.json";
-import luteus from "../../../oentike-atlas/packs/pilot-0.0.1/cards/suillus-luteus.json";
-import sulphureus from "../../../oentike-atlas/packs/pilot-0.0.1/cards/laetiporus-sulphureus.json";
 import pack from "../../../oentike-atlas/packs/pilot-0.0.1/pack.json";
 
 import { z } from "zod";
@@ -13,10 +6,26 @@ export const AtlasCardSchema = z.object({
     slug: z.string(),
     names: z.object({ pl: z.string(), en: z.string() }),
     scientific_name: z.string().nullable(),
+    identifiers: z.object({
+        mycobank: z.string().nullable(),
+        index_fungorum: z.string().nullable(),
+        gbif: z.string().nullable(),
+    }),
     hymenophore: z.string(),
+    description: z.string().nullable().optional(),
     habitat: z.string().nullable(),
     phenology: z.string().nullable(),
-    lookalikes: z.array(z.object({ slug: z.string(), note: z.string() })),
+    lookalikes: z.array(z.object({
+        slug: z.string(),
+        note: z.string(),
+        note_en: z.string(),
+    })),
+    text_en: z.object({
+        description: z.string().nullable(),
+        habitat: z.string().nullable(),
+        phenology: z.string().nullable(),
+        protection_pl: z.string().nullable(),
+    }),
     protection_pl: z.string().nullable(),
     citations: z.array(z.object({ label: z.string(), url: z.string().nullable() })),
     art: z.object({
@@ -53,15 +62,17 @@ export function cardArtViews(card: AtlasCard) {
 
 export const atlasPack = pack;
 
-export const atlasCards: AtlasCard[] = [
-    AtlasCardSchema.parse(edulis),
-    AtlasCardSchema.parse(felleus),
-    AtlasCardSchema.parse(cibarius),
-    AtlasCardSchema.parse(procera),
-    AtlasCardSchema.parse(luteus),
-    AtlasCardSchema.parse(sulphureus),
-    AtlasCardSchema.parse(reticulatus),
-];
+const modules = import.meta.glob<unknown>(
+    "../../../oentike-atlas/packs/pilot-0.0.1/cards/*.json",
+    { eager: true, import: "default" },
+);
+
+// The manifest is the single source of truth for both routes and validation.
+export const atlasCards: AtlasCard[] = pack.cards.map((file) => {
+    const card = modules[`../../../oentike-atlas/packs/pilot-0.0.1/${file}`];
+    if (!card) throw new Error(`Atlas manifest references missing card: ${file}`);
+    return AtlasCardSchema.parse(card);
+}).sort((a, b) => a.names.pl.localeCompare(b.names.pl, "pl"));
 
 export function getAtlasCard(slug: string): AtlasCard | undefined {
     return atlasCards.find((card) => card.slug === slug);

@@ -1,38 +1,46 @@
 {
-    "slug": "imleria-badia",
-    "names": {
-        "pl": "Podgrzybek brunatny",
-        "en": "Bay Bolete"
-    },
-    "scientific_name": "Imleria badia (Fr.) Vizzini",
-    "hymenophore": "pores",
-    "habitat": [
-        "Lasy iglaste i mieszane",
-        "Często pod sosnami i świerkami"
-    ],
-    "phenology": [
-        "Sierpień",
-        "Wrzesień",
-        "Październik",
-        "Listopad"
-    ],
-    "lookalikes": [
-        "tylopilus-felleus"
-    ],
-    "protection_pl": null,
-    "citations": [
-        {
-            "label": "GBIF Backbone Taxonomy",
-            "url": "https://www.gbif.org/species/7832732"
-        }
-    ],
-    "art": {
-        "cap": null,
-        "hymenophore": null,
-        "stem": null,
-        "section": null,
-        "lookalike_plate": null
-    },
-    "pack_version": "pilot-0.0.1",
-    "reviewed_at": "2026-09-21T11:14:02.917Z"
+  "slug": "imleria-badia",
+  "names": {
+    "pl": "Podgrzybek brunatny",
+    "en": "Bay bolete"
+  },
+  "scientific_name": "Imleria badia",
+  "identifiers": {
+    "mycobank": null,
+    "index_fungorum": null,
+    "gbif": "7832732"
+  },
+  "hymenophore": "pores",
+  "description": null,
+  "habitat": "Lasy iglaste i mieszane, często pod sosnami i świerkami.",
+  "phenology": "W Polsce zwykle od sierpnia do listopada.",
+  "protection_pl": null,
+  "text_en": {
+    "description": null,
+    "habitat": "Coniferous and mixed woodland, often beneath pine and spruce.",
+    "phenology": "In Poland, usually August to November.",
+    "protection_pl": null
+  },
+  "lookalikes": [
+    {
+      "slug": "tylopilus-felleus",
+      "note": "Goryczak żółciowy ma z wiekiem różowawe pory i jest bardzo gorzki. To nie jest pełny klucz do oznaczania.",
+      "note_en": "Bitter bolete develops pinkish pores with age and tastes intensely bitter. This is not a complete identification key."
+    }
+  ],
+  "citations": [
+    {
+      "label": "GBIF Backbone Taxonomy",
+      "url": "https://www.gbif.org/species/7832732"
+    }
+  ],
+  "art": {
+    "cap": null,
+    "hymenophore": null,
+    "stem": null,
+    "section": null,
+    "lookalike_plate": null
+  },
+  "pack_version": "0.0.1",
+  "reviewed_at": null
 }

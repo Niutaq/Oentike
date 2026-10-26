@@ -1,0 +1,50 @@
+{
+  "slug": "hygrophoropsis-aurantiaca",
+  "names": {
+    "pl": "Lisówka pomarańczowa",
+    "en": "False chanterelle"
+  },
+  "scientific_name": "Hygrophoropsis aurantiaca",
+  "identifiers": {
+    "mycobank": null,
+    "index_fungorum": null,
+    "gbif": null
+  },
+  "hymenophore": "gills",
+  "description": "Pomarańczowy, z czasem wklęsły kapelusz. Cienkie, gęste i rozwidlające się blaszki zbiegają na trzon.",
+  "habitat": "W Polsce w borach iglastych i mieszanych, w wilgotnych miejscach wśród mchów, igliwia i rozkładającego się drewna.",
+  "phenology": "W Polsce głównie jesienią, od września do listopada.",
+  "protection_pl": null,
+  "text_en": {
+    "description": "Orange cap becoming depressed with age. Thin, crowded, forked gills run down the stem.",
+    "habitat": "In Poland, in coniferous and mixed woodland, in damp places among moss, fallen needles and decaying wood.",
+    "phenology": "In Poland, mainly in autumn, from September to November.",
+    "protection_pl": null
+  },
+  "lookalikes": [
+    {
+      "slug": "cantharellus-cibarius",
+      "note": "Pieprznik jadalny ma tępe, nieregularne fałdy zamiast cienkich blaszek.",
+      "note_en": "Chanterelle has blunt, irregular folds instead of thin gills."
+    }
+  ],
+  "citations": [
+    {
+      "label": "Lasy Państwowe — Las. Przewodnik poszukiwacza, s. 71",
+      "url": "https://www.lasy.gov.pl/pl/informacje/publikacje/do-poczytania/las-przewodnik-poszukiwacza/przewodnik-poszukiwacza_www.pdf"
+    },
+    {
+      "label": "First Nature — Hygrophoropsis aurantiaca",
+      "url": "https://www.first-nature.com/fungi/hygrophoropsis-aurantiaca.php"
+    }
+  ],
+  "art": {
+    "cap": "/atlas/art/v0/hygrophoropsis-aurantiaca.cap.svg",
+    "hymenophore": null,
+    "stem": null,
+    "section": null,
+    "lookalike_plate": null
+  },
+  "pack_version": "0.0.1",
+  "reviewed_at": null
+}

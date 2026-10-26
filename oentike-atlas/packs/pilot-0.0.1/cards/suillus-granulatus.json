@@ -1,0 +1,50 @@
+{
+  "slug": "suillus-granulatus",
+  "names": {
+    "pl": "Maślak ziarnisty",
+    "en": "Weeping bolete"
+  },
+  "scientific_name": "Suillus granulatus",
+  "identifiers": {
+    "mycobank": null,
+    "index_fungorum": null,
+    "gbif": null
+  },
+  "hymenophore": "pores",
+  "description": "Gładki kapelusz bywa lepki. Pod nim drobne pory; młode owocniki mogą wydzielać mleczne krople. Trzon bez pierścienia, z ziarnistymi kropkami.",
+  "habitat": "W Polsce w lasach iglastych pod sosnami; miejscami występuje licznie.",
+  "phenology": "W Polsce od lipca do października.",
+  "protection_pl": null,
+  "text_en": {
+    "description": "Smooth cap, sticky when moist, with fine pores below. Young specimens may release milky droplets. The ringless stem has granular dots.",
+    "habitat": "In Poland, in coniferous woodland beneath pines; locally abundant.",
+    "phenology": "In Poland, July to October.",
+    "protection_pl": null
+  },
+  "lookalikes": [
+    {
+      "slug": "suillus-luteus",
+      "note": "Maślak zwyczajny ma pierścień na trzonie, którego maślak ziarnisty nie posiada.",
+      "note_en": "Slippery Jack has a stem ring, which is absent in weeping bolete."
+    }
+  ],
+  "citations": [
+    {
+      "label": "PSSE w Turku — Najczęściej spotykane grzyby jadalne, s. 4",
+      "url": "https://psse-turek.pl/images/promocja-zdrowia/grzyby/GRZYBY-JADALNE.pdf"
+    },
+    {
+      "label": "First Nature — Suillus granulatus",
+      "url": "https://www.first-nature.com/fungi/suillus-granulatus.php"
+    }
+  ],
+  "art": {
+    "cap": "/atlas/art/v0/suillus-granulatus.cap.svg",
+    "hymenophore": null,
+    "stem": null,
+    "section": null,
+    "lookalike_plate": null
+  },
+  "pack_version": "0.0.1",
+  "reviewed_at": null
+}

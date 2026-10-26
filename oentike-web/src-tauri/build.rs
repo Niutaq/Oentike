@@ -1,4 +1,5 @@
 fn main() {
+    println!("cargo:rerun-if-env-changed=OENTIKE_PACK_PUBLIC_KEY_HEX");
     println!("cargo:rerun-if-changed=../../oentike-proto/conditions.proto");
 
     println!("cargo:rerun-if-changed=icons/icon.icns");
@@ -8,6 +9,7 @@ fn main() {
     println!("cargo:rerun-if-changed=icons/128x128.png");
     println!("cargo:rerun-if-changed=icons/128x128@2x.png");
     println!("cargo:rerun-if-changed=tauri.conf.json");
+    println!("cargo:rerun-if-changed=Info.plist");
 
     // Generate a gRPC client for the product conditions service.
     tonic_build::configure()

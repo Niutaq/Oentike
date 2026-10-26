@@ -72,32 +72,47 @@ Stop UI/API with `Ctrl+C`. Stop PostGIS with `task oentike:down`.
 |---|---|
 | `oentike-api/` | PostGIS migrations, gRPC conditions, Open-Meteo ingest, BDL WFS sync |
 | `oentike-proto/` | `conditions.proto` |
-| `oentike-web/` | Astro UI + Tauri desktop (`/` conditions, `/atlas` cards) |
+| `oentike-web/` | Astro UI + Tauri desktop (`/` conditions, `/atlas` cards, `/expedition/` local journal) |
 | `oentike-atlas/` | Versioned species cards (pilot pack, no scores) |
 | `docker-compose.yml` | PostGIS (`profile: oentike`) |
 
 ---
 
-## Tooling
+## Quick start
 
-Pinned in [`mise.toml`](./mise.toml): Go, Rust, protoc, task. `task --list` is the list.
+Install Docker with Compose and the platform prerequisites for Tauri (on macOS: Xcode Command Line Tools). Tool versions are pinned in [`mise.toml`](./mise.toml). With mise installed:
 
 ```bash
-mise install
 mise trust
-mise exec -- task --list
+mise install
+./oentike doctor
+./oentike setup
+./oentike dev
 ```
 
-| Task | What |
+`setup` uses `npm ci` and the committed lockfile. Run it after web dependency changes; daily startup does not install packages. `mise.toml` includes Node and Task as well as Go/Rust/protoc. The launcher uses `mise exec` when available and otherwise uses tools already on PATH. It also works when invoked from another directory.
+
+Generated protobuf bindings are committed; ordinary startup does not regenerate them. After changing `conditions.proto`, use `task oentike:proto`. Full BDL import remains explicit: `task oentike:sync-bdl`.
+
+| Command | Purpose |
 |---|---|
-| `dev` | Proto + migrate + API + Tauri |
-| `oentike:up` / `oentike:down` | Start / stop PostGIS |
-| `oentike:migrate` | Goose migrations |
-| `oentike:proto` | Generate gRPC stubs |
-| `oentike:sync-bdl` | Pull BDL `Nadleśnictwa` into `forest_units` (~429) |
-| `oentike:api` | Health `:8081` + gRPC `:8082` (hourly Open-Meteo ingest in the background) |
-| `oentike:ingest` | One-shot Open-Meteo for materialized cells → `ingest_runs` + `weather_samples` |
-| `oentike:test` | Go tests |
-| `oentike:ui` | Desktop only (`FRESH=1` clears Tauri cache) |
-| `setup` | npm + rustup if missing |
-| `clean` | `cargo clean` in Tauri (after moving the repo) |
+| `./oentike` / `./oentike dev` | Start PostGIS, migrate, run API and desktop UI |
+| `./oentike doctor` | Check required tools, Compose and Docker daemon without installing |
+| `./oentike setup` | Install web dependencies from lockfile |
+| `./oentike check` | Go tests, atlas validation and production UI build (no DB required) |
+| `./oentike atlas` | Check all cards, cross-references and SVG assets |
+| `./oentike bench` | Repeat deterministic spatial/scoring benchmarks three times |
+| `./oentike stop` | Stop PostGIS; stop the foreground dev processes with Ctrl+C |
+| `task oentike:ingest` | Refresh materialized cells (`CELL=id` for one) |
+| `task oentike:ui` | Desktop only; `FRESH=1` explicitly clears build cache |
+
+The current conditions screen still needs the local API and online map tiles. A standalone offline expedition pack is the next functional milestone, not a capability claimed by this release.
+
+Expedition (`/expedition/`) saves a local plan with an area, date and notes before
+GPS is available. Use **Edit plan / add parking** to add a parking spot later;
+then record a trail and export GeoJSON. Existing trips remain compatible. Location
+recording requires device permission and a visible expedition screen; it is not
+background navigation. Plans, parking and trails stay in IndexedDB on this device.
+Run UI checks with `cd oentike-web`, `npm run test:field` and
+`npm run test:field:browser` (Chromium and WebKit; install them with
+`npx playwright install chromium webkit`).

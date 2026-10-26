@@ -22,14 +22,14 @@ if (!card) {
     return Astro.redirect("/atlas");
 }
 
-const hasBody = Boolean(card.habitat || card.phenology || card.protection_pl);
+const hasBody = Boolean(card.description || card.habitat || card.phenology || card.protection_pl);
 const artViews = cardArtViews(card);
 const artLabels: Record<string, { pl: string; en: string }> = {
     cap: { pl: "Kapelusz", en: "Cap" },
     hymenophore: { pl: "Hymenofor", en: "Hymenophore" },
     stem: { pl: "Trzon", en: "Stem" },
     section: { pl: "Przekrój", en: "Section" },
-    lookalike_plate: { pl: "Lookalik", en: "Lookalike" },
+    lookalike_plate: { pl: "Porównanie", en: "Lookalike" },
 };
 ---
 
@@ -108,16 +108,22 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                 {
                     hasBody ? (
                         <div class="atlas-body">
+                            {card.description ? (
+                                <section>
+                                    <h2 data-name-pl="Opis" data-name-en="Description">Opis</h2>
+                                    <p data-name-pl={card.description} data-name-en={card.text_en.description}>{card.description}</p>
+                                </section>
+                            ) : null}
                             {card.habitat ? (
                                 <section>
                                     <h2 data-i18n="atlas.habitat">Siedlisko</h2>
-                                    <p>{card.habitat}</p>
+                                    <p data-name-pl={card.habitat} data-name-en={card.text_en.habitat}>{card.habitat}</p>
                                 </section>
                             ) : null}
                             {card.phenology ? (
                                 <section>
                                     <h2 data-i18n="atlas.phenology">Sezon</h2>
-                                    <p>{card.phenology}</p>
+                                    <p data-name-pl={card.phenology} data-name-en={card.text_en.phenology}>{card.phenology}</p>
                                 </section>
                             ) : null}
                             {card.protection_pl ? (
@@ -125,7 +131,7 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                                     <h2 data-i18n="atlas.protection">
                                         Ochrona w PL
                                     </h2>
-                                    <p>{card.protection_pl}</p>
+                                    <p data-name-pl={card.protection_pl} data-name-en={card.text_en.protection_pl}>{card.protection_pl}</p>
                                 </section>
                             ) : null}
                         </div>
@@ -137,7 +143,7 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                     )
                 }
 
-                <section class="atlas-lookalikes">
+                {card.lookalikes.length > 0 && (<section class="atlas-lookalikes">
                     <h2 data-i18n="atlas.lookalikes">Podobne gatunki</h2>
                     <ul>
                         {
@@ -155,16 +161,16 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                                             {lookalikeName(item.slug, "pl")}
                                         </strong>
                                     </a>
-                                    <span>{item.note}</span>
+                                    <span data-name-pl={item.note} data-name-en={item.note_en}>{item.note}</span>
                                 </li>
                             ))
                         }
                     </ul>
-                </section>
+                </section>)}
 
                 {
                     artViews.length ? (
-                        <section class="atlas-art-plate" aria-label="Tablice">
+                        <section class="atlas-art-plate" aria-label="Tablice" data-i18n-aria="atlas.artTitle">
                             <h2 data-i18n="atlas.artTitle">Tablice</h2>
                             <ul class="atlas-art-grid">
                                 {artViews.map((view) => (
@@ -172,7 +178,9 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                                         <figure>
                                             <img
                                                 src={view.src}
-                                                alt=""
+                                                alt={`${card.names.pl} — ${artLabels[view.key]?.pl || view.key}; ilustracja schematyczna`}
+                                                data-alt-pl={`${card.names.pl} — ${artLabels[view.key]?.pl || view.key}; ilustracja schematyczna`}
+                                                data-alt-en={`${card.names.en} — ${artLabels[view.key]?.en || view.key}; schematic illustration`}
                                                 width="512"
                                                 height="512"
                                                 loading="lazy"
@@ -204,6 +212,17 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                     )
                 }
 
+                {card.citations.length > 0 && (
+                    <section class="atlas-sources">
+                        <h2 data-name-pl="Źródła" data-name-en="Sources">Źródła</h2>
+                        <ul>
+                            {card.citations.map((citation) => (
+                                <li>{citation.url ? <a href={citation.url} rel="noreferrer">{citation.label}</a> : citation.label}</li>
+                            ))}
+                        </ul>
+                    </section>
+                )}
+
                 {
                     card.citations && card.citations.length > 0 ? (
                         <section class="atlas-citations">
@@ -234,6 +253,7 @@ const artLabels: Record<string, { pl: string; en: string }> = {
                         </p>
                     ) : null
                 }
+                <p class="caption" data-i18n="atlas.pendingNote"></p>
             </article>
         </main>
         <QuietFooter />

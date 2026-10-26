@@ -7,7 +7,7 @@ authors = ["Oentike contributors"]
 license = ""
 repository = ""
 edition = "2021"
-rust-version = "1.71"
+rust-version = "1.81"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -28,6 +28,13 @@ tauri-plugin-log = "2.9.0"
 tonic = { version = "0.12.3", features = ["transport"] }
 tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread"] }
 prost = "0.13.5"
+ed25519-dalek = "=2.2.0"
+sha2 = "=0.10.9"
+memmap2 = "=0.9.9"
+tempfile = "=3.27.0"
+
+[target.'cfg(unix)'.dependencies]
+rustix = { version = "=1.1.4", features = ["fs"] }
 
 [build-dependencies]
 tauri-build = { version = "2.6.3", features = [] }

@@ -16,11 +16,21 @@
   "lookalikes": [
     {
       "slug": "suillus-granulatus",
-      "note": "Maślak ziarnisty - bardzo podobny, ale NIE posiada pierścienia na trzonie. Pory młodych owocników wydzielają kropelki płynu (tzw. płacz)."
+      "note": "Maślak ziarnisty - bardzo podobny, ale NIE posiada pierścienia na trzonie. Pory młodych owocników wydzielają kropelki płynu (tzw. płacz).",
+      "note_en": "Weeping bolete: similar, but without a stem ring. Young pores may release milky droplets."
     }
   ],
   "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
-  "citations": [],
+  "citations": [
+    {
+      "label": "MycoBank",
+      "url": "https://www.mycobank.org/page/Name%20details%20page/name/Suillus%20luteus"
+    },
+    {
+      "label": "Index Fungorum",
+      "url": "http://www.indexfungorum.org/names/names.asp?strSort=Suillus%20luteus"
+    }
+  ],
   "art": {
     "cap": "/atlas/art/v0/suillus-luteus.cap.svg",
     "hymenophore": "/atlas/art/v0/suillus-luteus.hymenophore.svg",
@@ -29,5 +39,11 @@
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",
-  "reviewed_at": null
+  "reviewed_at": "2026-09-24",
+  "text_en": {
+    "description": null,
+    "habitat": "Coniferous woodland, almost exclusively beneath pine. Frequent in young pine plantations and on sandy soils.",
+    "phenology": "Late summer and autumn, from August to November.",
+    "protection_pl": "Not subject to species protection in Poland."
+  }
 }

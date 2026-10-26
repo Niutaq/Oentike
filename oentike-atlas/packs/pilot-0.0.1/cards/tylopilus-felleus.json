@@ -6,9 +6,9 @@
   },
   "scientific_name": "Tylopilus felleus",
   "identifiers": {
-    "mycobank": "122480",
-    "index_fungorum": "122480",
-    "gbif": "2524910"
+    "mycobank": null,
+    "index_fungorum": null,
+    "gbif": null
   },
   "hymenophore": "pores",
   "habitat": "Lasy iglaste i mieszane, często na uboższych, piaszczystych glebach; bywa pod sosną i świerkiem.",
@@ -16,18 +16,19 @@
   "lookalikes": [
     {
       "slug": "boletus-edulis",
-      "note": "Borowik szlachetny: rurki kremowo-żółtawe (nie różowe), miąższ łagodny w smaku, siateczka delikatniejsza u góry trzonu."
+      "note": "Borowik szlachetny: pory z wiekiem żółtawe, nie różowe; siateczka delikatniejsza u góry trzonu.",
+      "note_en": "Porcini: pores become yellowish rather than pink, and the net-like pattern near the top of the stem is finer."
     }
   ],
   "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
   "citations": [
     {
-      "label": "Index Fungorum (Record ID: 122480)",
-      "url": null
+      "label": "MycoBank",
+      "url": "https://www.mycobank.org/page/Name%20details%20page/name/Tylopilus%20felleus"
     },
     {
-      "label": "GBIF Secretariat: GBIF Backbone Taxonomy (Tylopilus felleus)",
-      "url": null
+      "label": "Index Fungorum",
+      "url": "http://www.indexfungorum.org/names/names.asp?strSort=Tylopilus%20felleus"
     }
   ],
   "art": {
@@ -38,5 +39,11 @@
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",
-  "reviewed_at": "2026-09-15T12:00:00Z"
+  "reviewed_at": "2026-09-24",
+  "text_en": {
+    "description": null,
+    "habitat": "Coniferous and mixed woodland, often on nutrient-poor sandy soils, beneath pine and spruce.",
+    "phenology": "Summer and autumn, overlapping with the porcini season.",
+    "protection_pl": "Not subject to species protection in Poland."
+  }
 }

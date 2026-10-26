@@ -6,9 +6,9 @@
   },
   "scientific_name": "Boletus reticulatus",
   "identifiers": {
-    "mycobank": "200521",
-    "index_fungorum": "200521",
-    "gbif": "5954691"
+    "mycobank": null,
+    "index_fungorum": null,
+    "gbif": null
   },
   "hymenophore": "pores",
   "habitat": "Ciepłe lasy liściaste i mieszane, często pod dębem i bukiem; lubi cieplejsze, prześwietlone stanowiska.",
@@ -16,18 +16,19 @@
   "lookalikes": [
     {
       "slug": "boletus-edulis",
-      "note": "Borowik szlachetny: siateczka zwykle tylko u góry trzonu, kapelusz gładszy, szczyt sezonu później."
+      "note": "Borowik szlachetny: siateczka zwykle tylko u góry trzonu, kapelusz gładszy, szczyt sezonu później.",
+      "note_en": "Porcini: the net-like pattern is usually most visible near the top of the stem; the cap is smoother and peak fruiting is later."
     }
   ],
   "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
   "citations": [
     {
-      "label": "Index Fungorum (Record ID: 200521)",
-      "url": null
+      "label": "MycoBank",
+      "url": "https://www.mycobank.org/page/Name%20details%20page/name/Boletus%20reticulatus"
     },
     {
-      "label": "GBIF Secretariat: GBIF Backbone Taxonomy (Boletus reticulatus Schaeff.)",
-      "url": null
+      "label": "Index Fungorum",
+      "url": "http://www.indexfungorum.org/names/names.asp?strSort=Boletus%20reticulatus"
     }
   ],
   "art": {
@@ -38,5 +39,11 @@
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",
-  "reviewed_at": "2026-09-15T12:00:00Z"
+  "reviewed_at": "2026-09-24",
+  "text_en": {
+    "description": null,
+    "habitat": "Warm deciduous and mixed woodland, often beneath oak and beech, in relatively open places.",
+    "phenology": "Earlier than porcini, often from May or June through summer.",
+    "protection_pl": "Not subject to species protection in Poland."
+  }
 }

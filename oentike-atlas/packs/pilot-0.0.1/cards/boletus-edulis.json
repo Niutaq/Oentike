@@ -6,9 +6,9 @@
   },
   "scientific_name": "Boletus edulis",
   "identifiers": {
-    "mycobank": "221297",
-    "index_fungorum": "221297",
-    "gbif": "5954874"
+    "mycobank": null,
+    "index_fungorum": null,
+    "gbif": null
   },
   "hymenophore": "pores",
   "habitat": "Lasy iglaste i mieszane, często pod świerkiem, sosną i bukiem; gleby raczej kwaśne do świeżych, wilgotne po opadach.",
@@ -16,22 +16,24 @@
   "lookalikes": [
     {
       "slug": "tylopilus-felleus",
-      "note": "Goryczak żółciowy: rurki z wiekiem różowawe, siateczka na trzonie ciemniejsza, smak gorzki (nie oceniamy jadalności w UI - tylko morfologia)."
+      "note": "Goryczak żółciowy: pory z wiekiem różowawe, siateczka na trzonie ciemniejsza.",
+      "note_en": "Bitter bolete: pores become pinkish with age and the net-like pattern on the stem is darker."
     },
     {
       "slug": "boletus-reticulatus",
-      "note": "Borowik usiatkowany: siateczka zwykle na całym trzonie, kapelusz często suchy i spękany, pojawia się wcześniej w sezonie."
+      "note": "Borowik usiatkowany: siateczka zwykle na całym trzonie, kapelusz często suchy i spękany, pojawia się wcześniej w sezonie.",
+      "note_en": "Summer bolete: the net-like pattern usually covers the whole stem; the cap is often dry and cracked, and fruiting starts earlier."
     }
   ],
   "protection_pl": "Nie podlega ochronie gatunkowej w Polsce.",
   "citations": [
     {
-      "label": "Index Fungorum (Record ID: 221297)",
-      "url": null
+      "label": "MycoBank",
+      "url": "https://www.mycobank.org/page/Name%20details%20page/name/Boletus%20edulis"
     },
     {
-      "label": "GBIF Secretariat: GBIF Backbone Taxonomy (Boletus edulis Bull., 1782)",
-      "url": null
+      "label": "Index Fungorum",
+      "url": "http://www.indexfungorum.org/names/names.asp?strSort=Boletus%20edulis"
     }
   ],
   "art": {
@@ -42,5 +44,11 @@
     "lookalike_plate": null
   },
   "pack_version": "0.0.1",
-  "reviewed_at": "2026-09-15T12:00:00Z"
+  "reviewed_at": "2026-09-24",
+  "text_en": {
+    "description": null,
+    "habitat": "Coniferous and mixed woodland, often beneath spruce, pine and beech; generally moist soils after rain.",
+    "phenology": "Summer and autumn, usually July to October, when the soil is moist after rain.",
+    "protection_pl": "Not subject to species protection in Poland."
+  }
 }
