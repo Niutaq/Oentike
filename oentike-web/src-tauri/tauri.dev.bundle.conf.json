@@ -1,0 +1,22 @@
+{
+  "build": {
+    "beforeBuildCommand": "mkdir -p dist && printf '%s\\n' '<!doctype html><title>Oentike</title>' > dist/index.html"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Oentike",
+        "url": "http://127.0.0.1:4321/",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 1024,
+        "minHeight": 700,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  }
+}

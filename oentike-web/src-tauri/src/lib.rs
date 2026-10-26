@@ -258,7 +258,10 @@ pub fn run() {
             commands::ensure_cell_ui,
             packs::import_offline_pack,
             packs::get_offline_pack,
-            location::open_location_settings
+            location::open_location_settings,
+            location::location_host_status,
+            location::get_current_location,
+            location::cancel_location
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {

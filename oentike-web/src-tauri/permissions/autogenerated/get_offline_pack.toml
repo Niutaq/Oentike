@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-get-offline-pack"
+description = "Enables the get_offline_pack command without any pre-configured scope."
+commands.allow = ["get_offline_pack"]
+
+[[permission]]
+identifier = "deny-get-offline-pack"
+description = "Denies the get_offline_pack command without any pre-configured scope."
+commands.deny = ["get_offline_pack"]

@@ -1,7 +1,9 @@
 import i18next from "i18next";
 import { invoke, isTauri } from "@tauri-apps/api/core";
+import { createLocationProvider } from "./location.mjs";
 
 const nativeMac = isTauri() && /Macintosh|Mac OS X/.test(navigator.userAgent);
+const locationProvider = createLocationProvider({ native: nativeMac, invoke, geolocation: navigator.geolocation });
 import { fieldText } from "./copy.mjs";
 import { bearing, distance, geoJSON, segments, trackLength, validatePoint } from "./model.mjs";
 import { appendPoint, createTrip, listTrips, openJournal, readTrip, updateTrip } from "./store.mjs";
@@ -52,7 +54,7 @@ function controls() {
 
 function stop(key = "paused") {
     epoch++;
-    if (watch !== null) navigator.geolocation.clearWatch(watch);
+    if (watch !== null) locationProvider.clearWatch(watch);
     watch = null;
     controls();
     message(key);
@@ -66,7 +68,14 @@ function failure(error: unknown) {
 
 function locationError(error: GeolocationPositionError) {
     stop();
-    message(error.code === 1 ? (nativeMac ? "permissionMac" : "permission") : error.code === 3 ? "timeout" : "unavailable", true);
+    const key = error.code === 1
+        ? (nativeMac ? "permissionMac" : "permission")
+        : error.code === 3
+            ? "timeout"
+            : error.code === 4
+                ? "untrustedHost"
+                : "unavailable";
+    message(key, true);
 }
 
 function sample(position: GeolocationPosition): Point {
@@ -218,9 +227,9 @@ button("location-settings").addEventListener("click", async () => {
 });
 
 button("locate-parking").addEventListener("click", () => {
-    if (!navigator.geolocation) { message("unavailable", true); return; }
+    if (!locationProvider) { message("unavailable", true); return; }
     busy = true; controls(); message("locating");
-    navigator.geolocation.getCurrentPosition(position => {
+    locationProvider.getCurrentPosition(position => {
         try {
             parkingFix = sample(position);
             input("parking-lat").value = String(parkingFix.lat);
@@ -228,7 +237,8 @@ button("locate-parking").addEventListener("click", () => {
             message("located");
         } catch { message("poor", true); }
         finally { busy = false; controls(); }
-    }, error => { busy = false; locationError(error); }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
+    }, error => { busy = false; locationError(error); },
+    { enableHighAccuracy: true, maximumAge: 0, timeout: 15000, purpose: "parking" } as PositionOptions);
 });
 
 select.addEventListener("change", async () => {
@@ -240,12 +250,12 @@ select.addEventListener("change", async () => {
 
 button("record").addEventListener("click", () => {
     if (!trip?.parking || watch !== null || busy) return;
-    if (!navigator.geolocation) { message("unavailable", true); return; }
+    if (!locationProvider) { message("unavailable", true); return; }
     const token = ++epoch;
     const session = crypto.randomUUID();
     const tripId = trip.id;
     message("recording");
-    watch = navigator.geolocation.watchPosition(position => {
+    watch = locationProvider.watchPosition(position => {
         if (token !== epoch) return;
         let point: Point;
         try { point = sample(position); }
@@ -261,7 +271,7 @@ button("record").addEventListener("click", () => {
             if (token === epoch) message("recording");
         }).catch(failure);
     }, error => { if (token === epoch) locationError(error); },
-    { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 });
+    { enableHighAccuracy: true, maximumAge: 0, timeout: 20000, purpose: "trail" } as PositionOptions);
     controls();
 });
 

@@ -96,13 +96,26 @@ tasks:
       - sh scripts/doctor.sh
 
   field:
-    desc: "Open the local expedition journal in Tauri (no API or Docker)"
+    desc: "Expedition journal: on macOS Astro + trusted .app (GPS + hot reload); elsewhere tauri dev"
+    preconditions:
+      - sh: test -x oentike-web/node_modules/.bin/tauri
+        msg: "Run ./oentike setup first."
+    cmds:
+      - |
+        if [ "$(uname -s)" = "Darwin" ]; then
+          sh scripts/run-macos-desktop.sh src-tauri/tauri.field.conf.json
+        else
+          cd oentike-web && env -u npm_config_devdir npx tauri dev --config src-tauri/tauri.field.hot.conf.json
+        fi
+
+  field:hot:
+    desc: "Expedition UI via naked tauri dev (fast Rust iteration; no Core Location prompt on macOS)"
     dir: oentike-web
     preconditions:
       - sh: test -x node_modules/.bin/tauri
         msg: "Run ./oentike setup first."
     cmds:
-      - env -u npm_config_devdir npx tauri dev --config src-tauri/tauri.field.conf.json
+      - env -u npm_config_devdir npx tauri dev --config src-tauri/tauri.field.hot.conf.json
 
   setup:
     desc: "Check Tauri prerequisites and install locked web dependencies"
@@ -129,10 +142,11 @@ tasks:
       - npm run atlas:check
 
   check:
-    desc: "Run API tests, atlas validation and production UI build"
+    desc: "Run API tests, atlas validation, location plist contract and production UI build"
     cmds:
       - task: oentike:test
       - task: oentike:field-test
+      - sh scripts/check-location-plist.sh
       - task: oentike:build
 
   oentike:field-test:
@@ -174,11 +188,15 @@ tasks:
 
   oentike:tauri:
     internal: true
-    desc: "Launch Tauri dev server only (no install/clean)"
+    desc: "Launch desktop UI (macOS: Astro + trusted .app; elsewhere tauri dev)"
     silent: true
-    dir: oentike-web
     cmds:
-      - env -u npm_config_devdir npx tauri dev
+      - |
+        if [ "$(uname -s)" = "Darwin" ]; then
+          sh scripts/run-macos-desktop.sh src-tauri/tauri.dev.bundle.conf.json
+        else
+          cd oentike-web && env -u npm_config_devdir npx tauri dev
+        fi
 
   oentike:ui:
     desc: "Launch the Oentike desktop UI. Use FRESH=1 to reset cache."

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-location-host-status"
+description = "Enables the location_host_status command without any pre-configured scope."
+commands.allow = ["location_host_status"]
+
+[[permission]]
+identifier = "deny-location-host-status"
+description = "Denies the location_host_status command without any pre-configured scope."
+commands.deny = ["location_host_status"]

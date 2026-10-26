@@ -119,26 +119,51 @@ test("macOS denial offers settings only on user action and location can be retri
         Object.defineProperty(navigator, "userAgent", { value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)" });
         (window as any).isTauri = true;
         (window as any).settingsCalls = [];
+        (window as any).locationPurposes = [];
+        (window as any).locationAllowed = false;
         (window as any).__TAURI_INTERNALS__ = {
-            invoke: async (command: string) => { (window as any).settingsCalls.push(command); },
+            invoke: async (command: string, args?: { purpose?: string }) => {
+                (window as any).settingsCalls.push(command);
+                if (command === 'get_current_location') {
+                    (window as any).locationPurposes.push(args?.purpose);
+                    if (!(window as any).locationAllowed) throw { code: 1 };
+                    return { timestamp: Date.now(), latitude: 50.7, longitude: 22.4, accuracy: 8 };
+                }
+            },
         };
+        navigator.geolocation.getCurrentPosition = () => { throw new Error('Desktop must use native location'); };
     });
     await page.goto("/expedition/");
     await expect(page.locator("#location-settings")).toBeHidden();
     await page.locator("#locate-parking").click();
     await expect(page.locator("#field-status")).toContainText("Usługi lokalizacji");
     await expect(page.locator("#location-settings")).toBeVisible();
-    expect(await page.evaluate(() => (window as any).settingsCalls)).toEqual([]);
+    expect(await page.evaluate(() => (window as any).settingsCalls)).toEqual(["get_current_location"]);
+    expect(await page.evaluate(() => (window as any).locationPurposes)).toEqual(["parking"]);
     await page.locator("#location-settings").click();
-    expect(await page.evaluate(() => (window as any).settingsCalls)).toEqual(["open_location_settings"]);
+    expect(await page.evaluate(() => (window as any).settingsCalls)).toEqual(["get_current_location", "open_location_settings"]);
     await expect(page.locator("#field-status")).toContainText("wróć do wyprawy");
     await page.evaluate(() => {
-        navigator.geolocation.getCurrentPosition = success => success({
-            timestamp: Date.now(), coords: { latitude: 50.7, longitude: 22.4, accuracy: 8 },
-        } as GeolocationPosition);
+        (window as any).locationAllowed = true;
     });
     await page.locator("#locate-parking").click();
     await expect(page.locator("#parking-lat")).toHaveValue("50.7");
     await expect(page.locator("#parking-lon")).toHaveValue("22.4");
+    await expect(page.locator("#location-settings")).toBeHidden();
+});
+
+test("macOS untrusted host fails closed without opening location settings", async ({ page }) => {
+    await page.addInitScript(() => {
+        Object.defineProperty(navigator, "userAgent", { value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)" });
+        (window as any).__TAURI_INTERNALS__ = {
+            invoke: async (command: string) => {
+                if (command === "get_current_location") throw { code: 4 };
+            },
+        };
+        navigator.geolocation.getCurrentPosition = () => { throw new Error("Desktop must use native location"); };
+    });
+    await page.goto("/expedition/");
+    await page.locator("#locate-parking").click();
+    await expect(page.locator("#field-status")).toContainText("./oentike field");
     await expect(page.locator("#location-settings")).toBeHidden();
 });

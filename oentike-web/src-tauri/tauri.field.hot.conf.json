@@ -1,0 +1,16 @@
+{
+  "app": {
+    "windows": [
+      {
+        "title": "Oentike",
+        "url": "expedition/",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 640,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ]
+  }
+}
