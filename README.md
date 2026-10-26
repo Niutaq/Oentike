@@ -2,8 +2,6 @@
 
 <img src="./oentike-web/public/oentike-wordmark.svg" alt="Oentike" width="192" />
 
-<h1>Oentike</h1>
-
 Explainable mushroom-condition scores for Polish forests.
 Desktop app with a versioned species atlas, season trend chart, and offline expedition journal — backed by weather data, not crowd opinion.
 
