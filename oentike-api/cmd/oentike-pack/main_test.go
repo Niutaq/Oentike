@@ -14,7 +14,7 @@ import (
 func TestCLI(t *testing.T) {
 	dir := t.TempDir()
 	root := filepath.Join(dir, "payload")
-	if err := os.MkdirAll(filepath.Join(root, "data"), 0700); err != nil {
+	if err := os.MkdirAll(filepath.Join(root, "data"), 0o700); err != nil {
 		t.Fatal(err)
 	}
 	vector, err := os.ReadFile("../../internal/pack/testdata/vector.json")
@@ -32,7 +32,7 @@ func TestCLI(t *testing.T) {
 	put := func(name string, data []byte) string {
 		t.Helper()
 		path := filepath.Join(dir, name)
-		if err := os.WriteFile(path, data, 0600); err != nil {
+		if err := os.WriteFile(path, data, 0o600); err != nil {
 			t.Fatal(err)
 		}
 		return path
@@ -100,7 +100,7 @@ func TestCLI(t *testing.T) {
 
 func TestReadLimits(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "input")
-	if err := os.WriteFile(path, bytes.Repeat([]byte{'a'}, 67), 0600); err != nil {
+	if err := os.WriteFile(path, bytes.Repeat([]byte{'a'}, 67), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := readKey(path); err == nil {

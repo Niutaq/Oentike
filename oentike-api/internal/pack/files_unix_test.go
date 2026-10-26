@@ -17,7 +17,7 @@ func TestRejectFIFOAndOversizedFile(t *testing.T) {
 			if err := os.Remove(path); err != nil {
 				t.Fatal(err)
 			}
-			if err := syscall.Mkfifo(path, 0600); err != nil {
+			if err := syscall.Mkfifo(path, 0o600); err != nil {
 				t.Fatal(err)
 			}
 		} else {
