@@ -2,8 +2,7 @@
 
 <img src="./oentike-web/public/oentike-wordmark.svg" alt="Oentike" width="192" />
 
-Explainable mushroom-condition scores for Polish forests.
-Desktop app with a versioned species atlas, season trend chart, and offline expedition journal — backed by weather data, not crowd opinion.
+Mushroom fruiting condition scores for Polish forest districts based on open meteorological data. Includes an offline expedition journal and a versioned botanical atlas.
 
 </div>
 
@@ -11,29 +10,29 @@ Desktop app with a versioned species atlas, season trend chart, and offline expe
 
 ## Table of Contents
 
-- [Problem Statement](#problem-statement)
+- [Overview](#overview)
 - [Architecture & Tech Stack](#architecture--tech-stack)
-- [Data Integrity](#data-integrity)
+- [Data Integrity & Reproducibility](#data-integrity--reproducibility)
 - [Quick Start](#quick-start)
 - [Known Limitations](#known-limitations)
 - [Roadmap](#roadmap)
-- [Security & Contributing](#security--contributing)
+- [Contributing & Security](#contributing--security)
 - [License](#license)
 - [Screenshots](#screenshots)
 
 ---
 
-## Problem Statement
+## Overview
 
-Polish mushroom sites show crowdsourced pins ("found boletes here!") or vague national forecasts. Neither explains **why** conditions are good, neither works offline in the forest, and exact GPS pins on public maps erode foraging spots.
+Most mushroom maps rely on crowdsourced pins or broad regional estimates. They rarely explain why conditions are favorable, don't work offline in the field, and sharing exact coordinates publicly can lead to overforaging.
 
-**Oentike solves this by:**
+Oentike takes a data-first approach:
 
-- **Explainable scoring** — every condition score (0–100) shows the weather factors behind it (precipitation, soil temperature, soil moisture), the algorithm version, and a confidence level. No black boxes, no invented numbers.
-- **Per-species models** — each of the 13 pilot species has its own environmental envelope. Unknown slugs stay unscored rather than borrowing another taxon's result.
-- **Searchable BDL nadleśnictwa** — ~429 Polish forest districts pulled from GUGiK WFS, each materialized as a spatial cell with its own weather ingest.
-- **Offline expedition journal** — plan parking → trail → waypoints on-device (IndexedDB + GeoJSON). Private GPS stays private; nothing leaves the machine.
-- **Versioned botanical atlas** — 13 species cards with hand-drawn anatomical SVG plates, lookalike cross-references, and cited taxonomy. Knowledge only — no edibility verdicts, no photo ID.
+- **Weather-based scoring**: Calculates condition scores (0-100) per forest district using precipitation, soil temperature, and soil moisture data from Open-Meteo. Every score displays the underlying factors, algorithm version, and confidence level.
+- **Per-species models**: 13 pilot species with calibrated environmental envelopes. If data is insufficient for a species, it remains unscored instead of borrowing another taxon's parameters.
+- **Official forest boundaries**: Imports ~429 Polish State Forest districts (*nadleśnictwa*) from GUGiK WFS, each stored as a spatial cell with its own weather history in PostGIS.
+- **Offline expedition journal**: Plan routes and save waypoints locally in your browser or desktop app (IndexedDB + GeoJSON). Coordinates stay on your machine.
+- **Botanical atlas**: 13 species profiles with vector anatomical illustrations, lookalike comparisons, and cited taxonomy. Designed for botanical reference (no automated photo identification or edibility guarantees).
 
 ---
 
@@ -45,29 +44,27 @@ Polish mushroom sites show crowdsourced pins ("found boletes here!") or vague na
 | Database | [![PostGIS 17](https://img.shields.io/badge/PostGIS-17--3.5-336791?logo=postgresql&logoColor=white)](./docker-compose.yml) | Spatial cells (EPSG:2180), weather samples, condition scores, forest units |
 | Proto | [![Protobuf](https://img.shields.io/badge/Protobuf-v3-4285F4?logo=google&logoColor=white)](./oentike-proto/conditions.proto) | `ConditionsService` contract: `GetConditions`, `GetSeason`, `SearchCells`, `EnsureCell` |
 | Desktop | [![Tauri 2](https://img.shields.io/badge/Tauri-2.11-FFC131?logo=tauri&logoColor=white)](./oentike-web/src-tauri) · Rust 1.97 | Native shell with Core Location (macOS), ed25519 pack verification, gRPC bridge |
-| UI | [![Astro 7](https://img.shields.io/badge/Astro-7.1-BC52EE?logo=astro&logoColor=white)](./oentike-web) · MapLibre · GSAP | Conditions dashboard, interactive map, expedition planner, species atlas pages |
+| UI | [![Astro 7](https://img.shields.io/badge/Astro-7.1-BC52EE?logo=astro&logoColor=white)](./oentike-web) (m.in.: MapLibre, GSAP) | Conditions dashboard, interactive map, expedition planner, species atlas pages |
 | Atlas | [JSON Schema 2020-12](./oentike-atlas/schema/card.schema.json) | 13 versioned species cards + 4 anatomical SVGs each; validated before every build |
 | Observability | [![OpenTelemetry](https://img.shields.io/badge/OTel-Jaeger-5C2D91?logo=opentelemetry&logoColor=white)](./docker-compose.yml) | Optional distributed traces (`OTEL_EXPORTER_OTLP_ENDPOINT`); off by default |
 | Tooling | [![mise](https://img.shields.io/badge/mise-toml-1E1E2E)](./mise.toml) · Taskfile | Pinned Go / Node / Rust / protoc versions; single `./oentike` launcher |
 | CI | [![GitHub Actions](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?logo=github-actions&logoColor=white)](./.github/workflows/ci.yml) | Go tests + gofumpt, Astro build + atlas validation |
 
-### Why this stack?
+### Design Notes
 
-- **gRPC over REST** — the conditions contract carries typed factors, algorithm versions, and SHA-256 input hashes. Protobuf makes this strict without hand-rolled validation. HTTP is only for health probes.
-- **PostGIS over plain Postgres** — cells are real polygons in EPSG:2180 (Poland-specific CRS). Spatial indexing drives both the map and nearest-cell lookups; this is not metadata that could live in a flat table.
-- **Tauri over Electron** — the macOS host needs `objc2-core-location` for GPS in expedition mode. Tauri's Rust core lets us call Apple frameworks directly, use ed25519 for atlas pack signatures, and ship a ~15 MB binary instead of a bundled Chromium.
-- **Astro over SPA** — atlas pages are static content; shipping a React runtime to display a mushroom card is waste. Astro islands (GSAP, MapLibre) hydrate only where needed.
-- **mise over global installs** — Go 1.27, Node 24.12, Rust 1.97, protoc 35.1 are pinned in one file. No "works on my machine."
+- **Strict contracts (gRPC/Protobuf)**: Factor weights, model versions, and hash checks are strictly typed via Protobuf. The HTTP server is used primarily for container health checks.
+- **Spatial queries (PostGIS)**: Forest boundaries are stored as polygons in EPSG:2180 (Poland's PUWG 1992 coordinate system) with spatial indexing for map rendering and nearest-district lookups.
+- **Lightweight desktop client (Tauri 2)**: Uses Tauri's Rust backend for direct macOS Core Location integration, ed25519 atlas verification, and small binary size.
+- **Content-first frontend (Astro)**: Static generation for atlas entries, hydrating interactive components (m.in.: MapLibre, GSAP) only where needed.
+- **Pinned toolchain (mise)**: Runtimes and build tools (Go, Node, Rust, protoc) are version-pinned in `mise.toml` to guarantee reproducible builds.
 
 ---
 
-## Data Integrity
+## Data Integrity & Reproducibility
 
-Oentike treats scoring honesty as a first-class principle — not a footnote.
-
-- **Provenance** — every weather sample records its `ingest_run_id`, the Open-Meteo request URL, and a SHA-256 of the response. Scores link back to the exact data that produced them.
-- **Explicit unknowns** — missing weather → status `unavailable`, score `null`. The system never interpolates, guesses, or borrows from a neighboring cell. Empty days in the season chart stay empty.
-- **Algorithm versioning** — every score is stamped with its `algorithm_version` (e.g. `oentike-conditions/0.1.0-boletus`). When models change, old scores remain comparable and auditable.
+- **Traceable inputs**: Every weather sample stores its `ingest_run_id`, the source request URL, and the SHA-256 hash of the response payload.
+- **Explicit missing values**: If weather data is unavailable, the score evaluates to `null` with status `unavailable`. Values are never fabricated or interpolated from distant cells.
+- **Versioned models**: Each score is tagged with its `algorithm_version` (e.g. `oentike-conditions/0.1.0-boletus`), making historical calculations auditable.
 
 ---
 
@@ -78,8 +75,8 @@ Oentike treats scoring honesty as a first-class principle — not a footnote.
 | Tool | Version | Install |
 |---|---|---|
 | [mise](https://mise.jdx.dev) | latest | `curl https://mise.jdx.dev/install.sh \| sh` |
-| [Docker](https://docs.docker.com/get-docker/) + Compose | recent | Desktop or package manager |
-| Xcode CLI Tools (macOS) | — | `xcode-select --install` |
+| [Docker](https://docs.docker.com/get-docker/) + Compose | recent | Docker Desktop or package manager |
+| Xcode CLI Tools (macOS) | system | `xcode-select --install` |
 
 ### Local Development
 
@@ -97,7 +94,7 @@ mise trust && mise install
 # 4. Pull BDL forest districts into PostGIS (~429 nadleśnictwa)
 ./oentike sync-bdl
 
-# 5. Start everything (PostGIS → API → Astro → Oentike.app)
+# 5. Start everything (PostGIS -> API -> Astro -> Oentike.app)
 ./oentike dev
 ```
 
@@ -111,23 +108,23 @@ Use `FORCE_BUILD=1 ./oentike dev` after native code changes.
 | UI (Astro dev) | `http://127.0.0.1:4321` |
 | HTTP health / ready | `http://127.0.0.1:8081/healthz`, `/readyz` |
 | gRPC Conditions | `:8082` |
-| PostGIS | `127.0.0.1:54321` · database `oentike` |
+| PostGIS | `127.0.0.1:54321` (database: `oentike`) |
 
 ### Available Commands
 
 | Command | Description |
 |---|---|
 | `./oentike dev` | PostGIS + API + Astro + desktop app |
-| `./oentike field` | Expedition mode (GPS + hot reload; no API) |
-| `./oentike field-hot` | Naked `tauri dev` — fast Rust iteration, no Core Location on macOS |
+| `./oentike field` | Expedition mode (GPS + hot reload, no API) |
+| `./oentike field-hot` | Direct `tauri dev` loop for fast UI/Rust iteration |
 | `./oentike setup` | Install locked web dependencies |
-| `./oentike doctor` | Verify tools and Docker (no installs) |
-| `./oentike check` | Go tests + atlas validation + plist contract + production build |
+| `./oentike doctor` | Verify tools and Docker configuration |
+| `./oentike check` | Run Go tests, atlas validation, and production build checks |
 | `./oentike atlas` | Validate species cards and SVG assets |
-| `./oentike bench` | Spatial lookup and scoring benchmarks |
-| `./oentike sync-bdl` | Pull BDL nadleśnictwa into PostGIS via WFS |
-| `./oentike ingest` | Refresh Open-Meteo weather for materialized cells (`CELL=id` for one) |
-| `./oentike stop` | Stop PostGIS |
+| `./oentike bench` | Run spatial lookup and scoring benchmarks |
+| `./oentike sync-bdl` | Import BDL forest districts into PostGIS via WFS |
+| `./oentike ingest` | Fetch weather for cells (`CELL=<id>` for a single district) |
+| `./oentike stop` | Stop background containers |
 
 ### Linux
 
@@ -142,11 +139,11 @@ sudo apt update && sudo apt install -y libwebkit2gtk-4.1-dev build-essential \
 
 ## Known Limitations
 
-- **Species models are provisional** — weather envelopes only (precipitation, soil temperature, soil moisture). No mycelium growth modeling, no forest-type weighting. Confidence is always `low`. This is not forage advice.
-- **Static `.app` build has empty conditions** — the API proxy only works while Astro dev is running. A packaged app with static `dist/` cannot reach the gRPC backend. Daily `./oentike dev` works; standalone `.app` does not yet.
-- **Open-Meteo rate limits** — bulk ingest of all ~429 cells can hit API limits. Use `CELL=id` for targeted refresh.
-- **macOS-only GPS** — Core Location requires the trusted `.app` host built by `dev`/`field`. On Linux, expedition mode has no native GPS; location depends on browser geolocation in `tauri dev`.
-- **Season chart = single cell** — shows last 9 Warsaw civil days for one selected cell. No national choropleth, no cross-cell aggregation.
+- **Provisional models**: Weather envelopes evaluate basic physical parameters (rainfall, soil temperature, and moisture). They do not account for mycelium lifecycle stages or specific forest stand tree types. Scores are marked with `low` confidence and are not foraging advice.
+- **Packaged desktop builds**: The standalone static application requires a running API service; automatic background daemon management for production bundles is currently in progress. Use `./oentike dev` for full local functionality.
+- **API rate limits**: Ingesting weather data for all ~429 districts at once can hit Open-Meteo rate limits. Use targeted ingest (`CELL=<id> ./oentike ingest`) when testing specific areas.
+- **GPS availability**: Native Core Location is currently supported on macOS. Linux builds fall back to standard web geolocation in development mode.
+- **Single-cell season history**: The trend chart currently renders 9-day history for one selected district rather than aggregate or regional choropleth views.
 
 ---
 
@@ -158,26 +155,24 @@ sudo apt update && sudo apt install -y libwebkit2gtk-4.1-dev build-essential \
 - [x] Offline expedition journal (IndexedDB + GeoJSON)
 - [x] Versioned species atlas with anatomical SVG plates
 - [x] Core Location integration (macOS `.app` host)
-- [x] CI pipeline (Go tests + gofumpt + Astro build + atlas validation)
-- [x] i18n support (PL / EN)
-- [ ] Signed atlas packs (ed25519 — Rust side ready, signing flow pending)
-- [ ] PMTiles offline map cache
-- [ ] NATS JetStream event streaming (score invalidation, weather sync)
-- [ ] SPIFFE/SPIRE workload identity + mTLS
-- [ ] Sentinel/STAC satellite habitat layer
-- [ ] National season choropleth (blurred, no exact pins)
-- [ ] Gemma local RAG over atlas and score explanations
+- [x] CI pipeline (Go tests, gofumpt, Astro build, atlas validation)
+- [x] Multilingual UI support (PL / EN)
+- [ ] Signed atlas distribution packs (ed25519)
+- [ ] PMTiles offline basemap cache
+- [ ] NATS JetStream event streaming for cache invalidation
+- [ ] SPIFFE/SPIRE workload identity and mTLS
+- [ ] Sentinel/STAC satellite habitat data integration
+- [ ] Regional season choropleth views
+- [ ] Local RAG over atlas and conditions notes
 
 ---
 
-## Security & Contributing
+## Contributing & Security
 
-| | |
-|---|---|
-| Security | [SECURITY.md](./SECURITY.md) |
-| Contributing | [CONTRIBUTING.md](./CONTRIBUTING.md) |
+- Contributions: see [CONTRIBUTING.md](./CONTRIBUTING.md) for code style and pull request requirements.
+- Security: see [SECURITY.md](./SECURITY.md) to report vulnerabilities.
 
-Atlas cards are original content. Do not copy descriptions or photographs from external atlases. Artwork uses conventional botanical illustration style and is not an identification key.
+> Atlas cards and illustrations are original works. Do not import unverified text or images from external field guides. Illustrations are botanical reference drawings, not a photographic key for edibility determination.
 
 ---
 
@@ -191,14 +186,14 @@ See [LICENSE](./LICENSE) for details.
 
 <div align="center">
 
-<img src="./Oentike_1.png" alt="Oentike — mushroom conditions score for Nadleśnictwo Rozwadów" width="720" />
+<img src="./Oentike_1.png" alt="Oentike: conditions score for Nadleśnictwo Rozwadów" width="720" />
 
-*Conditions dashboard: explainable score with weather factors, algorithm version, and confidence level.*
+<p><em>Conditions dashboard: factor breakdown, algorithm version, and confidence level.</em></p>
 
 <br />
 
-<img src="./Oentike_2.png" alt="Oentike — pilot cell map and 9-day season trend" width="720" />
+<img src="./Oentike_2.png" alt="Oentike: cell map and season history" width="720" />
 
-*Season trend chart and spatial cell map for a selected nadleśnictwo.*
+<p><em>District map and 9-day season trend view.</em></p>
 
 </div>
