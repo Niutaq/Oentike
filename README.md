@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./oentike-web/public/oentike-wordmark.svg" alt="Oentike" width="192" />
+<img src="./oentike-web/public/oentike-logo.svg" alt="Oentike" width="72" />
 
 Mushroom fruiting condition scores for Polish forest districts based on open meteorological data. Includes an offline expedition journal and a versioned botanical atlas.
 
