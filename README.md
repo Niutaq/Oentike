@@ -186,13 +186,13 @@ See [LICENSE](./LICENSE) for details.
 
 <div align="center">
 
-<img src="./Oentike_1.png" alt="Oentike: conditions score for Nadleśnictwo Rozwadów" width="720" />
+<img width="1433" height="831" alt="Oentike_1" src="https://github.com/user-attachments/assets/7e9d40dd-694e-4ae1-8781-a650d1f88146" />
 
 <p><em>Conditions dashboard: factor breakdown, algorithm version, and confidence level.</em></p>
 
 <br />
 
-<img src="./Oentike_2.png" alt="Oentike: cell map and season history" width="720" />
+<img width="1433" height="831" alt="Oentike_2" src="https://github.com/user-attachments/assets/0099f4a0-188f-4faf-a544-69a8e55fe872" />
 
 <p><em>District map and 9-day season trend view.</em></p>
 
